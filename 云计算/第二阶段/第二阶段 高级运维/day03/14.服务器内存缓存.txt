@@ -1,0 +1,12 @@
+服务器内存缓存
+
+1）如果需要处理大量静态文件，可以将文件缓存在内存，下次访问会更快。
+http { 
+open_file_cache          max=2000  inactive=20s;
+        open_file_cache_valid    60s;
+        open_file_cache_min_uses 5;
+        open_file_cache_errors   off;
+//设置服务器最大缓存2000个文件句柄，关闭20秒内无请求的文件句柄
+//文件句柄的有效时间是60秒，60秒后过期
+//只有访问次数超过5次会被缓存
+} 

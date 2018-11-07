@@ -1,0 +1,22 @@
+parted大容量分区，专用于gpt分区方案
+
+    128个主分区，最大容量到18EB
+
+
+[root@server0 ~]# parted   /dev/vdb
+(parted) mktable gpt      #指定分区模式为GPT
+(parted) print            #输出分区表
+(parted) mkpart           #划分  分区
+分区名称？  []? xixi          #分区名称  随意起
+文件系统类型？  [ext2]? ext4   #分区文件系统 无实际作用 
+起始点？ 0                                  # 起始点
+结束点？ 4G                 # 结束点
+忽略/Ignore/放弃/Cancel? Ignore    #输入i选择忽略
+(parted) unit GB          # 使用GB作为显示单位
+(parted) print     
+(parted) mkpart 
+分区名称？  []? xixi 
+文件系统类型？  [ext2]? ext4
+ 起始点？ 4G          
+ 结束点？ 6G
+(parted) print

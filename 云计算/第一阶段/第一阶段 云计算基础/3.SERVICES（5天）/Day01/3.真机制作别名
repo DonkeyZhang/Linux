@@ -1,0 +1,20 @@
+3.真机制作别名
+[root@room9pc01 ~]# head -3 /root/.bashrc 
+# .bashrc
+alias goa='ssh -X root@192.168.4.7' 
+alias gob='ssh -X root@192.168.4.207'
+[root@room9pc01 ~]# 
+
+###############################################
+利用真机clone-vm7产生产两台虚拟机，利用root密码123456
+
+ 1.搭建虚拟机C服务端
+    要求：配置永久主机名svr8.tedu.cn
+	     配置eth0永久 IP地址：192.168.4.8/24
+             使用真机ftp服务器作为Yum源
+
+ 2.搭建虚拟机D客户端
+    要求：配置永久主机名pc208.tedu.cn
+	     配置eth0永久 IP地址：192.168.4.208/24
+             使用真机ftp服务器作为Yum源
+

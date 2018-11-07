@@ -1,0 +1,312 @@
+
+
+一、传输层
+
+1、传输层概述
+1.传输层的作用
+1)网络层提供点到点的连接  #ip到ip，找到主机
+
+2)传输层提供端到端的连接 #服务到服务，找到进程
+
+2.传输层的协议
+TCP(Transmission Control Protocol)
+– 传输控制协议
+– 可靠的、面向连接的协议
+– 传输效率低
+• UDP(User Datagram Protocol)
+– 用户数据报协议
+– 不可靠的、无连接的服务
+– 传输效率
+
+
+2、TCP协议     #可靠的原因
+
+1.TCP的封装格式
+ 
+0  ——    15 16    ——              31
+    源端口号   目标端口号
+         32位序列号 
+         32位确认号
+4位  保留 U A P R S F
+首部  (6  R C S S Y I    16位窗口大小
+长度  位) G K H T N N  
+16位校验和 16位紧急指针
+       可选项
+        数据
+
+2.TCP的连接-三次握手     #SYN 发送连接请求 、ACK确认请求 
+A  B
+1、A发送 SYN          #A请求建立连接
+(seq=100, ctl=SYN)
+2、B发送 SYN 、ACK    #B发送确认 并 请求连接
+(seq=300, ack=101,
+ctl=SYN、ACK
+3、A发送ACK           #A发送确认
+(seq=101 ack=301
+ctl=ACK)
+
+3.TCP的连接与断开       #FIN 发送断开请求
+TCP的四次断开
+A  B 
+1.A发送 FIN,请求断开连接  #A发送请求断开
+(FIN=1,ACK=1)
+
+2.B发送 ACK            #B确认断开
+(ACK=1)
+
+3.B发送 FIN,请求断开连接  #B发送请求断开
+( FIN=1,ACK=1)
+
+4.发送ACK               #A确认断开
+( ACK=1)
+( ACK=1)  
+
+3.TCP的应用
+
+21 	FTP 	      FTP服务器所开放的控制端口
+23 	TELNET 	用于远程登录，可以远程控制管理目标计算机
+25 	SMTP 	      SMTP服务器开放的端口，用于发送邮件
+80 	HTTP 	      超文本传输协议
+53 	DNS 	      域名服务，当用户输入网站的名称后，由DNS负责将它解析成IP地址，这个过程中用到的端口号是53  #递归查询
+
+3、UDP协议
+
+1.UDP的封装格式
+16位源端口号   16位目标端口号
+16位UDP长度   16位UDP校验和
+         数据
+
+2.UDP的应用
+69  TFTP 简单文件传输协议
+53  DNS  域名服务    #迭代查询
+123 NTP 网络时间协议
+
+3.UDP的流控和差错控制
+• UDP缺乏可靠机制
+• UDP只有校验和来提供差错控制  #上层重新发送
+
+– 需要上层协议来提供差错控制:例如TFTP协议
+TFTP协议提供分块传输、分块确认机制,保证数据传输的可靠性
+
+
+二、acl  
+
+1、访问控制列表概述
+
+1.访问控制列表作用
+• 访问控制列表(ACL)
+– 读取第三层、第四层 头部信息
+– 根据预先定义好的规则对数据进行过滤
+IP报头  TCP报头   数 据 
+源地址    源端口
+目的地址  目的端口  #访问控制列表利用这4个元素定义的规则
+
+2.访问控制列表的工作原理
+1） 访问控制列表在接口应用的方向
+– 出:已经过路由器的处理,正离开路由器接口的数据包
+– 入:已到达路由器接口的数据包,将被路由器处理
+
+#–列表应用到接口的方向与数据方向有关
+
+2）访问控制列表的处理过程
+到达访问控制组接口的数据包
+         
+  拒绝Y     匹配第一条         Y允许
+            N
+  拒绝Y     匹配下一条         Y允许      目的接口
+            N   
+  拒绝Y    匹配下一条          Y允许   
+            N
+             拒绝 #隐含的拒绝 —》丢弃
+
+3.访问控制列表的类型    #一个路由器口只能配置一张表
+1） 标准访问控制列表
+– 基于  源IP地址   过滤数据包
+– 标准访问控制列表的访问控制列表号是1~99
+
+2）扩展访问控制列表
+– 基于源IP地址、目的IP地址、指定协议、端口来过滤数据包
+– 扩展访问控制列表的访问控制列表号是100~199
+
+
+2、标准ACL配置
+
+1.标准访问控制列表的配置
+1）创建ACL
+Router(config)#access-list access-list-number
+{ permit | deny } source [ source-wildcard ]
+
+2）应用实例
+
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255  #192.168.1.0 允许这个网段  
+
+ #反掩码 255.255.255.255  全部  
+
+Router(config)# access-list 1 permit 192.168.2.2 0.0.0.0    #允许单个主机
+– 允许192.168.1.0/24和主机192.168.2.2的流量通过
+
+3）隐含的拒绝语句
+Router(config)# access-list 1 deny 0.0.0.0 255.255.255.255  #表上没有默认丢弃
+
+4）关键字
+– host
+– any
+
+5）将ACL应用于接口
+Router(config-if)# ip access-group access-list-number {in|out}
+
+6）在接口上取消ACL的应用
+Router(config-if)#no ip access-group access-list-number{in |out}
+
+7）查看访问控制列表
+Router(config)# Show access-lists
+
+8）删除ACL
+Router(config)# no access-list access-list-number
+
+2.扩展访问控制列表的配置
+
+1）创建ACL
+Router(config)# access-list access-list-number { permit | deny }
+protocol { source source-wildcard destination destination-
+wildcard } [ operator operan ]
+• 应用实例
+Router(config)# access-list 101 deny tcp 192.168.1.0 0.0.0.255
+host 192.168.2.2 eq 80
+
+Router(config)# access-list 101 permit ip any any
+
+
+三、NAT
+1、NAT概述
+1.NAT的作用
+
+1）NAT– Network Address Translation,网络地址转换
+
+2）作用：
+通过将内部网络的私有IP地址翻译成全球唯一的
+公网IP地址,使内部网络可以连接到互联网等外
+部网络上。
+2.私有ip地址分类  2的32次方 42亿个
+
+A类 10.0.0.0~10.255.255.255
+B类 172.16.0.0~172.31.255.255
+C类 192.168.0.0~192.168.255.255
+
+3.NAT的特性
+
+1）NAT的优点
+– 节省公有合法IP地址  #不需要每个设备需要使用一个公网ip
+– 处理地址重叠         #
+– 安全性               #有一个ip覆盖，安全
+
+2）NAT的缺点
+– 延迟增大
+– 配置和维护的复杂性
+
+4.NAT实现方式
+
+• NAT实现方式
+
+– 静态转换(Static Translation)                   #使用在提供服务的服务器上
+
+– 端口多路复用(Port Address Translation,PAT)  #用在员工网络中
+
+5.NAT的工作过程
+1）静态
+协议 内部局部IP地址 内部全局IP地址 外部IP地址
+TCP 10.1.1.1 125.25.65.3 203.51.23.55
+
+2）PAT
+协议 内部局部IP地址内部 全局IP地址外部IP地址
+TCP 10.1.1.1:1492 125.25.65.3:1492 203.51.23.55:23
+TCP 10.1.1.2:1493 125.25.65.3:1493 203.51.23.55:80
+
+2、静态转换
+
+1.静态NAT
+1）静态转换
+– IP地址的对应关系是一对一,而且是不变的,借助静态转换,能实现外部网络对内部网络
+中某些特设定服务器的访问
+
+2.静态NAT的配置
+静态NAT配置步骤
+– 接口IP地址配置
+– 决定需要转换的主机地址
+– 决定采用什么公有地址
+– 在内部和外部接口上启用NAT
+Router(config)#ip nat inside source static local-ip global-ip
+
+案例：将内网地址192.168.1.1静态转换为合法的外部地址100.0.0.2以便访问外网
+
+• 设置外部接口的IP地址:
+Router(config)#interface g0/1
+Router(config-if)#ip address 100.0.0.1 255.0.0.0
+Router(config-if)#no shut
+
+• 设置内部接口的IP地址:
+Router(config)#interface g0/0
+Router(config-if)#ip address 192.168.1.254 255.255.255.0
+Router(config-if)#no shut
+
+• 建立静态地址转换
+Router(config)#ip nat inside source static 192.168.1.1 100.0.0.2 
+
+#将对应的服务器配置私网ip地址转换成自己公司买的公网ip
+
+
+• 在内部和外部接口上启用NAT
+Router(config)#interface g0/1
+
+Router(config-if)#ip nat outside #规定哪个接口nat的外部接口
+
+Router(config)#interface g0/0
+
+Router(config-if)#ip nat inside  #规定哪个接口nat的内部接口
+
+3.NAT端口映射配置
+• 建立NAT端口映射关系
+• 配置实例
+Router(config)#ip nat inside source static tcp 192.168.1.6 80 61.159.62.133 80
+
+3、端口多路复用(PAT)
+
+1.PAT的作用
+• PAT(端口多路复用)
+– 通过改变外出数据包的源IP地址和源端口并进行端口转
+换,内部网络的所有主机均可共享一个合法IP地址实现
+互联网的访问,节约IP。
+
+2.PAT的配置
+PAT配置步骤
+– 接口IP地址配置
+– 使用访问控制列表定义哪些内部主机能做PAT
+– 确定路由器外部接口
+在内部和外部接口上启用NAT
+
+• 定义内部ip地址
+Router(config)#access-list 1 permit 192.168.1.0 0.0.0.255
+• 设置复用动态IP地址转换外部接口
+
+Router(config)#ip nat inside source list 1 interface g 0/1 overload
+
+• 在内部和外部接口上启用NAT,以及配置默认路由与静态NAT配置相同
+
+3. 跟踪NAT
+R1#debug ip nat
+IP NAT debugging is on
+*Mar 1 00:03:56.875: NAT: s=192.168.4.2->145.52.23.2, d=1.1.1.1 52225]
+*Mar 1 00:03:57.667: NAT*: s=192.168.4.2->145.52.23.2, d=1.1.1.1 [52481]
+*Mar 1 00:03:57.811: NAT*: s=1.1.1.1, d=145.52.23.2->192.168.4.2 [52481]
+
+#s=192.168.4.2表示源地址是192.168.4.2
+d=1.1.1.1表示目的地址是1.1.1.1
+192.168.4.2->145.52.23.2表示将地址192.168.4.2转换为
+145.52.23.2
+
+
+
+
+
+
+

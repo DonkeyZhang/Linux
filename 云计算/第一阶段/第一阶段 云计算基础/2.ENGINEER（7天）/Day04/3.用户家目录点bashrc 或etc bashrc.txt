@@ -1,0 +1,27 @@
+配置用户~/.bashrc /ect/bashrc
+alias别名设置
+• 查看已设置的别名
+– alias [别名名称]
+• 定义新的别名
+– alias 别名名称= '实际执行的命令行'
+• 取消已设置的别名
+– unalias [别名名称]
+
+• 影响指定用户的 bash 解释环境
+– ~/.bashrc,每次开启 bash 终端时生效
+
+• 影响所有用户的 bash 解释环境
+– /etc/bashrc,每次开启 bash 终端时生效
+
+[root@server0 ~]# vim /root/.bashrc 
+alias hello='echo hello'
+
+[root@server0 ~]# vim /home/student/.bashrc
+alias hi='echo hi'
+
+[root@server0 ~]# vim /etc/bashrc 
+alias myls='ls -lhd'
+
+新开一个终端：验证root可以执行那些别名--->hello,myls
+               验证student可以执行那些别名--->hi,myls
+

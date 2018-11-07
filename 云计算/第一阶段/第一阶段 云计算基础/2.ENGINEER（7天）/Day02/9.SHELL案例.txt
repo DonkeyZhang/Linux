@@ -1,0 +1,103 @@
+案例3：Shell脚本
+为系统 server0 书写脚本/root/user.sh
+运行脚本，可以判断用户输入的用户是否存在
+如果存在，输出用户基本信息（id  用户名）
+如果用户，不存在则创建用户，并输出用户创建成功
+
+[root@server0 ~]# vim /root/user.sh
+ #!/bin/bash
+ id $1 &> /dev/null
+ if  [ $? -eq 0 ];then
+     id $1
+ else
+     useradd $1
+     echo $1创建成功
+ fi
+
+[root@server0 ~]# vim /root/user.sh 
+ #!/bin/bash
+ useradd $1 &> /dev/null
+ if  [ $? -eq 0 ];then
+     echo $1创建成功
+ else
+      id  $1
+ fi
+###############################################
+案例4:编写一个判断脚本
+在 server0 上创建 /root/foo.sh 脚本
+ 1)当运行/root/foo.sh redhat,输出为fedora
+ 2)当运行/root/foo.sh fedora,输出为redhat
+ 3)当没有任何参数或者参数不是 redhat 或者fedora时,
+ 其错误输出产生以下信息: /root/foo.sh redhat|fedora
+
+[root@server0 ~]# vim /root/foo.sh
+ #!/bin/bash
+ if  [ $# -eq  0 ];then
+   echo '/root/foo.sh redhat|fedora' >&2  #变成错误输出
+   exit  36                   #程序退出返回值
+ elif  [ $1 == redhat ];then
+   echo fedora
+ elif  [  $1 == fedora ];then
+   echo redhat
+ else
+   echo '/root/foo.sh redhat|fedora' >&2  #变成错误输出
+   exit  25                   #程序退出返回值
+ fi
+                   
+#################################################
+扩展案例：
+[root@server0 /]# vim /root/user.txt
+ 	yuanxiao
+	qingming
+	duanwu
+	wuyi
+	liuyi
+	wusi
+        ......
+ 请利用for循环：
+  该文件/root/user.txt内容，每一行为一个用户的名称
+  创建/root/user.txt文件中所有用户
+
+ [root@server0 ~]# vim /root/for.sh
+ #!/bin/bash
+ for a in `cat /root/user.txt`
+ do
+  useradd $a &> /dev/null
+  echo $a创建成功
+ done
+
+################################################
+案例5:编写一个批量添加用户脚本
+在 server0 上创建 /root/batchusers 脚本
+1)此脚本要求提供用户名列表文件作为参数
+2)如果没有提供参数,此脚本应该给出提示 
+Usage: /root/batchusers,退出并返回相应值
+3)如果提供一个不存在的文件,此脚本应该给出提
+示 Input file not found,退出并返回相应值
+4)新用户的登录Shell为 /bin/false,无需设置密码
+5)用户列表测试文件:
+[root@server0 ~]# cat /root/userlist
+  zhangsan
+  lisi
+  harry
+  natasha
+  dc
+  tc
+  jack
+
+[root@server0 ~]# cat /root/batchusers 
+  #!/bin/bash
+  if  [ $# -eq 0 ];then
+    echo 'Usage: /root/batchusers' >&2
+    exit 2
+  elif  [  -f  $1 ];then
+    for i  in  `cat $1`
+    do
+     useradd -s /bin/false $i &> /dev/null
+     echo $i创建成功
+    done
+  else
+    echo 'Input file not found' >&2
+    exit 3
+  fi
+

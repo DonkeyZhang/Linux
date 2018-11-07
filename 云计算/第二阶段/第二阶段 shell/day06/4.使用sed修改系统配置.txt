@@ -1,0 +1,31 @@
+使用sed修改系统配置
+
+2.1 问题
+
+本案例要求熟悉课上的sed应用案例，并编写脚本anonftp.sh，实现以下功能：
+通过yum安装vsftpd软件包
+修改vsftpd服务配置，开启匿名上传
+调整/var/ftp/pub目录权限，允许写入
+启动vsftpd服务，并设置开机自运行
+
+2.2 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：编写anonftp.sh脚本，用来装配匿名FTP服务
+
+1）任务需求及思路分析
+vsftpd服务的安装、改目录权限、起服务等操作可以直接写在脚本中。
+修改vsftpd.conf配置的工作可以使用sed命令，根据默认配置，只需要定位到以#anon开头的行，去掉开头的注释即可。
+2）根据实现思路编写脚本文件
+[root@svr5 ~]# vim anonftp.sh
+#!/bin/bash
+yum -y install vsftpd                             //安装vsftpd软件
+cp /etc/vsftpd/vsftpd.conf{,.bak}                  //备份默认的配置文件
+sed -i "s/^#anon/anon/" /etc/vsftpd/vsftpd.conf      //修改服务配置
+chmod 777 /var/ftp/pub                              //调整目录权限
+systemctl start vsftpd                              //启动服务
+systemctl enable vsftpd                            //设为自动运行
+[root@svr5 ~]# chmod +x anonftp.sh
+[root@svr5 ~]# ./anonftp.sh
+
+

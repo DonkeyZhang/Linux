@@ -1,0 +1,49 @@
+软件包的管理
+
+1.由classroom提供光盘RHEL7.0所有内容，具备软件包
+  http:超文本传输协议
+   虚拟机classroom搭建Web服务器，共享光盘RHEL7.0所有内容
+
+   真机打开浏览器：http://classroom.example.com/
+
+  classroom.example.com/content/rhel7.0/x86_64/dvd
+
+2.下载软件包
+
+  wget 下载工具     打开网页，按Ctrl+f  输入vsftpd
+
+# cd /opt/
+
+# wget http://classroom.example.com/content/rhel7.0/x86_64/dvd/Packages/vsftpd-3.0.2-9.el7.x86_64.rpm
+
+# ls
+
+3.安装软件包的命令
+使用rpm命令管理软件,默认不允许用户做任何选择
+
+• RPM Package Manager,RPM包管理器
+– rpm -q 软件名...                       #查询当前系统软件是否安装
+– rpm -ivh 软件名-版本信息.rpm...   #安装软件包
+– rpm -e 软件名...                              #卸载
+
+[root@server0 opt]# rpm -ql vsftpd  #列出安装清单
+
+了解：导入红帽签名信息
+[root@server0 /]# wget http://classroom.example.com/content/rhel7.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+
+[root@server0 /]# rpm --import /RPM-GPG-KEY-redhat-release 
+
+##############################################
+[root@server0 /]# rpm -q vsftpd
+[root@server0 /]# rpm -q firefox    #查询软件是否安装
+
+[root@server0 /]# rpm -ivh /opt/vsftpd-3.0.2-9.el7.x86_64.rpm       #安装软件
+
+[root@server0 /]# rpm -e vsftpd     #卸载软件
+[root@server0 /]# rpm -q vsftpd     #查询软件是否卸载
+
+[root@server0 /]# rpm -ql firefox   #查询安装清单
+
+################################################
+   vsftpd-3.0.2-9.el7.x86_64.rpm(包名)
+   vsftpd(软件名)

@@ -1,0 +1,29 @@
+cron计划任务
+
+周期性任务
+• 软件包:cronie、crontabs
+• 系统服务:crond
+• 日志文件:/var/log/crond   排除故障
+
+• 配置任务格式
+– 分   时   日   月   周    任务命令行(绝对路径)
+ 23  14  *  *  *   /bin/echo hiya
+
+	*:匹配范围内任意时间
+	,:分隔多个不连续的时间点
+	-:指定连续时间范围
+	/n:指定时间频率,每n
+
+        每分钟记录当前系统的时间，写入到/opt/time.txt
+[root@A ~]# date >> /opt/time.txt
+[root@A ~]# cat /opt/time.txt
+
+[root@A ~]# crontab -e -u root   #以root书写计划任务
+[root@A ~]# crontab -l -u root
+*  *  *  *  *   date  >>  /opt/time.txt
+
+[root@A ~]# ls /var/spool/cron/   #任务文件存放路径
+[root@A ~]# cat /var/spool/cron/root  #查看任务文件内容 
+
+[root@A ~]# cat /opt/time.txt   #查看结果
+

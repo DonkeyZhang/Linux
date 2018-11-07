@@ -1,0 +1,240 @@
+1、useradd usermod 
+
+
+2、PATH USER HOSTANME
+   PWD 
+
+3、&> 2> >
+############################################
+4、
+1)#!/bin/bash
+read -p  "请输入第一个数字:" num1
+[ -z $num1 ] &&echo "请输入第一个数字"&&exit
+read -p  "请输入第二个数字:" num2
+[ -z $num2 ] &&echo "请输入第二个数字"&&exit
+read -p  "请输入第三个数字:" num3
+[ -z $num3 ] &&echo "请输入第一个数字"&&exit
+if [ $num1 -gt $num2 ];then
+    if [ $num2 -gt  $num3 ];then
+          echo "$num1 $num2 $num3"
+    else
+          echo"$num1 $num3 $num2"
+     fi
+else
+    if  [ $num2 -gt $num3 ];then
+         echo "$num2 $num3 $num1"
+    else
+         echo  "$num2 $num1 $num3"
+     fi
+fi
+
+
+########################################
+2)冒泡算法
+
+(从大到小)
+#!/bin/bash                    #n1 n2 n3
+read -p "请输入三个数字:"n1 n2 n3 # 1  3  5
+tmp=0                          #n1 n2 n3
+if [ $n1 -lt $n2 ];then        #3  1  5
+   tmp=$n1
+   n1=$n2
+   n2=$tmp
+fi
+if [ $n1 -lt $n3 ];then       #n1 n2 n3
+    tmp=$n1                   #5  1  3
+    n1=$n3
+    n3=$tmp
+fi
+if [ $n2 -lt $n3 ];then       #n1 n2 n3
+    tmp=$n2                   #5  3  1
+    n2=$n3
+    n3=$tmp
+fi
+echo " $n1 $n2 $n3"
+##########################################
+(从小到大）
+read -p "请输入三个数字：" n1 n2 n3 
+tmp=0
+if [ $n1 -gt $n2 ];then
+    tmp=$n1
+    n1=$n2
+    n2=$tmp
+fi
+if [ $n1 -gt $n3 ];then
+     tmp=$n1
+     n1=$n3
+     n3=$tmp
+fi
+if [ $n2 -gt $n3 ];then
+      tmp=$n2
+      n2=$n3
+      n3=$tmp
+fi
+echo "$n1 $n2 $n3"
+#################不对     ############
+3)比较100个数从小到大
+#!/bin/bash
+read -p "5个数：" n1 n2 n3 n4 n5
+for k in {1..3}
+do 
+  tmp=0
+  for i in {1..3}
+  do
+    if [ $ni -gt $nk ];then
+         tmp=$ni
+         ni=$nk
+         nk=$tmp
+    fi
+  done
+done
+echo "$n1 $n2 $n3 $n4 $n5"
+#################################
+5、
+echo "请出拳[1-3]:
+1.石头
+2.剪刀
+3.布" 
+read user
+random=$[RANDOM%3+1]
+case $user in
+1)
+  if   [ $random -eq 1 ];then
+       echo "平局 "
+  elif [ $random -eq 2 ];then
+       echo "你输了"
+  elif [ $random -eq 3 ];then       
+       echo "你输了"
+  fi;;
+2)
+  if   [ $random -eq 1 ];then
+       echo "你输了 "
+  elif [ $random -eq 2 ];then
+       echo "平局"
+  elif [ $random -eq 3 ];then       
+       echo "你赢了"
+  fi;;
+3)
+  if   [ $random -eq 1 ];then
+       echo "你输了 "
+  elif [ $random -eq 2 ];then
+       echo "你赢了"
+  elif [ $random -eq 3 ];then       
+       echo "平局"
+  fi;;
+*)
+ echo "你瞎输什么逼玩意!";;
+esac
+
+#########################################################
+6、
+#!/bin/bash
+myping(){
+ ping -c3 -W1 $1 &>/dev/null
+ if [ $? -eq 0 ];then
+     echo "$1 host is up"
+ else
+     echo "$1 host is down" 
+ fi
+}
+i=1
+while [ $i -le 254 ] 
+do
+  myping 172.40.54.$i &
+  let i++
+done
+wait
+##########################################################
+7、
+#!/bin/bash
+for i in {1..9}
+do
+   for k in `seq $i`
+   do
+     echo -n "$i*$k=$[i*k] "
+   done 
+done
+ 
+coulmn -t
+##########################################################################
+8、
+#!/bin/bash
+grep 'Intel' /proc/cpuinfo &>/dev/null
+
+if [ $? -eq 0 ];then
+   echo "intel"
+else
+  echo "AMD "
+fi
+#########################################################################
+9、
+#!/bin/bash
+while :
+do 
+   clear
+   ifconfig eth0 |grep "RX p"
+   ifconfig eth0 |grep "TX p"
+   sleep 0.5
+done
+
+####################################################################
+10、
+#!/bin/bash
+for i in $1 
+do  
+  if [  -f $1 ];then
+     for i in `cat $1` 
+     useradd  $i &>/dev/null
+     echo "$i 创建成功"
+     echo  $i |passwd --stdin $i &>/dev/null
+     echo "初始密码为用户名"
+  elif [ -z $1];then
+    echo "TMD文件呢?"
+  else
+    echo "不存在此文件！"
+   fi
+done
+##########################################################
+11、
+touch /mnt/{1..200}.txt
+#!/bin/bash
+for i in `find  *.txt`
+do 
+   mv $i ${i%%.*}.doc
+done
+
+################################################################
+12、
+#!/bin/bash
+for i in {1..254}
+do
+  expect <<EOF
+  expect "#"        {send "ssh -o StrictHostKeyChecking=no 172.40.54.$i\n"}
+  expext "password" {send "Taren1\n"}
+  expect "#"        {send "yum -y install httpd\n"}
+  expect "#"        {send "systemctl restary httpd\n"}
+  expect "#"        {send "systemctl enable  httpd\n"}
+  expect "#"        {send "exit\n"}
+
+  EOF
+done
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+

@@ -1,0 +1,26 @@
+选项 -F 可指定分隔符
+
+输出passwd文件中以分号分隔的第1、7个字段，显示的不同字段之间以逗号隔开，操作如下：
+[root@svr5 ~]# awk -F: '{print $1,$7}' /etc/passwd
+root /bin/bash
+bin /sbin/nologin
+daemon /sbin/nologin
+adm /sbin/nologin
+lp /sbin/nologin
+… …
+
+
+awk还识别多种单个的字符，比如以“:”或“/”分隔，输出第1、10个字段：
+[root@svr5 ~]# awk -F [:/] '{print $1,$10}' /etc/passwd
+root bash
+bin nologin
+daemon nologin
+adm sbin
+… …
+
+
+awk的print指令不仅可以打印变量，还可以打印常量
+[root@svr5 ~]# awk -F: '{print $1,"的解释器:",$7}' /etc/passwd
+root 的解释器: /bin/bash
+bin 的解释器: /sbin/nologin
+… …

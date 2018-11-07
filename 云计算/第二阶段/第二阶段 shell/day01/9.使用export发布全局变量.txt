@@ -1,0 +1,26 @@
+使用export发布全局变量
+
+默认情况下，自定义的变量为局部变量，只在当前Shell环境中有效，而在子Shell环境中无法直接使用。
+比如已定义的SCHOOL变量，当进入到sh或bash子Shell后，变量SCHOOL将处于未定义的状态：
+[root@svr5 ~]# yy="Tarena IT Group"
+[root@svr5 ~]# echo $yy
+Tarena IT Group
+[root@svr5 ~]# bash                              //开启bash子进程
+[root@svr5 ~]# echo $yy                          //查看SCHOOL变量值无结果
+[root@svr5 ~]# exit                              //返回原有Shell环境
+exit
+[root@svr5 ~]# echo $yy
+
+
+
+若希望定义的变量能被子进程使用，可以使用export命令将其发布为全局变量。
+使用export发布时，只需指定变量名（可以有多个）即可，也可以通过export命令直接设置新的全局变量：
+[root@svr5 ~]# export yy                              //发布已定义的变量
+[root@svr5 ~]# export XX="1234"                      //发布新变量
+验证刚刚发布的全局变量：
+[root@svr5 ~]# bash                                  //进入bash子Shell环境
+[root@svr5 ~]# echo $yy                              //查看全局变量的值 .. ..
+Tarena IT Group
+[root@svr5 ~]# echo $XX
+1234
+

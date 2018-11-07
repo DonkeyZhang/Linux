@@ -1,0 +1,113 @@
+使用Shell函数
+4.1 问题
+
+本案例要求编写脚本mycolor.sh，相关要求如下：
+将颜色输出的功能定义为函数
+调用函数，可以自定义输出内容和颜色
+
+
+
+4.2 方案
+
+在Shell脚本中，将一些需重复使用的操作，定义为公共的语句块，即可称为函数。通过使用函数，可以使脚本代码更加简洁，增强易读性，提高Shell脚本的执行效率
+1）函数的定义方法
+
+
+格式1：
+function  函数名 {
+    命令序列
+    .. ..
+}
+
+
+
+
+格式2：
+函数名() {
+    命令序列
+    .. ..
+}
+
+
+2）函数的调用
+直接使用“函数名”的形式调用，如果该函数能够处理位置参数，则可以使用“函数名 参数1 参数2 .. ..”的形式调用。
+注意：函数的定义语句必须出现在调用之前，否则无法执行。
+
+
+
+
+
+3) 测试语法格式
+[root@svr5 ~]# mycd(){                        //定义函数
+> mkdir /test
+> cd /test
+> }
+[root@svr5 ~]# mycd                            //调用函数
+[root@svr5 ~]# mycd(){                        //定义函数
+> mkdir $1
+> cd $1
+> }
+[root@svr5 ~]# mycd  /abc                            //调用函数
+[root@svr5 ~]# mycd  /360                            //调用函数
+
+
+echo -e "\033[32mOK\033[0m"
+0x是样式
+3x是颜色
+4X是背景色
+
+
+
+
+4.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：编写mycolor.sh脚本
+
+1）任务需求及思路分析
+用户在执行时提供2个整数参数，这个可以通过位置变量$1、$2读入。
+调用函数时，将用户提供的两个参数传递给函数处理。
+颜色输出的命令:echo -e "\033[32mOK\033[0m"。
+3X为字体颜色，4X为背景颜色。
+
+2）根据实现思路编写脚本文件
+[root@svr5 ~]# vim mycolor.sh
+#!/bin/bash
+cecho() {
+    echo -e "\033[$1m$2\033[0m"
+}
+cecho 32 OK
+cecho 33 OK
+cecho 34 OK
+cecho 35 OK
+[root@svr5 ~]# chmod +x mycolor.sh
+3）测试脚本执行效果
+[root@svr5 ~]# ./mycolor.sh
+
+
+
+使用函数，优化改进前面的脚本：
+[root@svr5 ~]# vim myping.sh
+#!/bin/bash
+myping(){
+    ping -c1 -W1  $1  &>/dev/null
+    if [ $? -eq 0 ];then
+        echo "$1 is up"
+    else
+        echo "$1 is down"
+    fi
+}
+for  i  in  {1..254}
+do
+     myping  192.168.4.$i  &
+done
+wait       #wait命令的作用是等待所有后台进程都结束才结束脚本。
+
+
+Shell版本的fork炸弹
+[root@svr5 ~]# vim test.sh
+#!/bin/bash
+.(){
+.|.&
+}
+.

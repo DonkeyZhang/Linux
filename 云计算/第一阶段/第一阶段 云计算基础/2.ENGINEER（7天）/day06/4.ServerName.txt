@@ -1,0 +1,26 @@
+– ServerName:本站点注册的DNS名称(空缺)
+
+DNS服务器：域名解析 classroom.example.com
+
+             今日可用域名：server0.example.com
+                      www0.example.com
+                      webapp0.example.com
+
+[root@desktop0 ~]# nslookup server0.example.com   # nslooup 查看DNS中有没有这个名字
+[root@desktop0 ~]# nslookup www0.example.com
+[root@desktop0 ~]# nslookup webapp0.example.com
+
+###############################################
+– ServerName:本站点注册的DNS名称(空缺)
+
+虚拟机Server0：
+1.修改主配置文件/etc/httpd/conf/httpd.conf 
+
+ 95行  ServerName  server0.example.com:80
+
+2.重起httpd服务
+[root@server0 ~]# systemctl restart httpd
+
+虚拟机Desktop0：测试访问
+[root@desktop0 ~]# firefox server0.example.com
+

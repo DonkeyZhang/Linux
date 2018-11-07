@@ -1,0 +1,47 @@
+sed多行文本处理
+
+3.1 问题
+
+本案例要求使用sed工具来完成下列任务操作：
+修改主机名配置文件
+修改hosts文件，添加两条映射记录：192.168.4.5 与 svr5.tarena.com、svr5，还有119.75.217.56与www.baidu.com
+3.2 方案
+
+# sed [选项] '条件指令' 文件..
+sed工具的多行文本处理操作：
+i： 在指定的行之前插入文本
+a：在指定的行之后追加文本
+c：替换指定的行
+
+
+3.3 步骤
+
+基本语法格式案例：
+注意：系统默认没有a.txt文件，需要自己创建一个测试文件！！！
+[root@svr5 ~]# sed  '2a XX'   a.txt            //在第二行后面，追加XX
+[root@svr5 ~]# sed  '2i XX'   a.txt            //在第二行前面，插入XX
+[root@svr5 ~]# sed  '2c XX'   a.txt            //将第二行替换为XX
+实现此案例需要按照如下步骤进行。
+步骤一：修改主机名配置文件
+
+1）确认修改前的配置
+[root@svr5 ~]# cat /etc/hostname
+svr5.tarena.com
+2）使用sed修改主机名配置所在行的内容（c整行替换）
+[root@svr5 ~]# sed  '1c mysvr.tarena.com' /etc/hostname 
+步骤二：修改hosts文件，添加新的记录
+
+1）确认修改前的配置
+[root@svr5 ~]# cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+2）使用sed修改hosts文件，添加两行新纪录（a追加）
+[root@svr5 ~]# sed  -i  '$a 192.168.4.5  svr5.tarena.com svr5'  /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.4.5  svr5.tarena.com svr5
+
+
+
+
+

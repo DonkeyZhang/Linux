@@ -1,0 +1,7 @@
+yum -y install gcc pcre-devel openssl
+yum -y httpd-tools
+cd /root
+tar -xf /root/lnmp_soft.tar.gz  .
+useradd nginx
+
+

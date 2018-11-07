@@ -1,0 +1,63 @@
+管理用户和组
+
+   用户帐号作用：
+      1. 访问控制的设置，不同的用户具备不同权限
+      2. 提高安全可靠性
+
+   组帐号作用：方便管理用户帐号
+
+     用户帐号标识： UID 
+                    管理员UID为0
+                    系统程序用户 默认1～999
+                    所有普通用户UID默认从1000起始
+
+     组帐号标识： GID
+
+     组帐号分类： 基本组     附加组（从属组）
+                   所有用户至少属于一个组
+     基本组：由Linux系统创建，由Linux将用户加入，与用户同名
+     附加组（从属组）：由root用户创建
+
+###############################################
+/etc/passwd:用户基本信息存放在 /etc/passwd 文件
+
+[root@server0 /]# head -1 /etc/passwd
+                 root:x       :0  :0        :root    :/root :/bin/bash
+                     用户名:密码占位符:UID:基本组GID:用户描述信息:家目录  解释器
+
+
+
+• 使用 useradd 命令
+– useradd [选项]... 用户名
+
+• 常用命令选项
+– -u 用户id
+  -d 家目录路径
+  -s 登录解释器
+  -G 附加组
+   用户名:密码占位符:UID:基本组GID:用户描述信息:家目录:解释器
+[root@server0 /]# useradd nsd01
+[root@server0 /]# id nsd01            #查看基本信息
+[root@server0 /]# grep nsd /etc/passwd
+[root@server0 /]# useradd nsd02
+[root@server0 /]# grep nsd /etc/passwd
+
+[root@server0 /]# useradd -u 1600 nsd05  #指定UID
+[root@server0 /]# grep nsd /etc/passwd
+[root@server0 /]# id nsd05
+
+# useradd -d /opt/nsd07  nsd07  #指定用户家目录创建
+# grep nsd07 /etc/passwd
+# ls /opt/
+
+
+  -s：登录解释器 
+
+  /sbin/nologin:禁止用户登陆系统
+
+[root@server0 /]# useradd -s /sbin/nologin nsd08
+[root@server0 /]# grep nsd08 /etc/passwd
+
+[root@server0 /]# groupadd tarena
+[root@server0 /]# useradd -G tarena harry  #指定附加组
+[root@server0 /]# id harry

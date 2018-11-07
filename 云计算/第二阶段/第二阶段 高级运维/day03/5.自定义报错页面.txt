@@ -1,0 +1,62 @@
+Nginx常见问题处理
+
+3.1 问题
+
+本案例要求对Nginx服务器进行适当优化，解决如下问题，以提升服务器的处理性能：
+如何自定义返回给客户端的404错误页面
+如何查看服务器状态信息
+如果客户端访问服务器提示“Too many open files”如何解决
+如何解决客户端访问头部信息过长的问题
+如何让客户端浏览器缓存数据
+日志切割
+开启gzip压缩功能，提高数据传输效率
+开启文件缓存功能
+然后客户机访问此Web服务器验证效果：
+使用ab压力测试软件测试并发量
+编写测试脚本生成长头部信息的访问请求
+客户端访问不存在的页面，测试404错误页面是否重定向
+
+3.2 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：自定义报错页面
+
+1）优化前，客户端使用浏览器访问不存在的页面，会提示404文件未找到
+[root@client ~]# firefox http://192.168.4.5/xxxxx        //访问一个不存在的页面
+
+2）修改Nginx配置文件，自定义报错页面
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+.. ..
+      error_page   404  /40x.html;    //自定义错误页面
+.. ..
+
+[root@proxy ~]# vim /usr/local/nginx/html/40x.html        //生成错误页面
+Oops,No NO no page …
+[
+
+root@proxy ~]# nginx -s reload
+#请先确保nginx是启动状态，否则运行该命令会报错,报错信息如下：
+#[error] open() "/usr/local/nginx/logs/nginx.pid" failed (2: No such file or directory)
+
+3）优化后，客户端使用浏览器访问不存在的页面，会提示自己定义的40x.html页面
+[root@client ~]# firefox http://192.168.4.5/xxxxx        //访问一个不存在的页面
+
+4）常见http状态码
+
+
+常见http状态码可用参考表-1所示。
+表－1 主机列表
+
+200 一切正常
+301 永久重定向
+302 临时重定向
+401 用户名或密码错误
+403 禁止访问（客户端ip地址被拒绝）
+404 文件不存在
+414 请求URL头部过长
+500 服务器内部错误
+502 bad gateway
+
+
+
+

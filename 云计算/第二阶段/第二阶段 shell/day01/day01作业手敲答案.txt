@@ -1,0 +1,25 @@
+#!/bin/bash
+useradd tomcat
+echo '123456' >passwd --stdin tomcat
+
+echo '
+[rhel7]
+name=rhel7
+baseurl=ftp://192.168.4.254/rhel7
+enabled=1
+gpgcheck=0'>/etc/yum.repos.d/yum.repo
+yum clean all &>/dev/null
+yum repolist
+
+nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.4.11/24 connection.autoconnect yes
+nmcli connection up eth0
+
+yum -y install httpd
+cd /etc/httpd/conf.d/
+wget ftp://192.168.4.254/haha.conf
+echo 'woshixixi'>/var/www/html/index.html
+systemctl restart httpd
+systemctl enable httpd
+echo '192.168.4.254 www.tarena.com'>/etc/hosts
+echo 'hello world'>/root/test.txt
+

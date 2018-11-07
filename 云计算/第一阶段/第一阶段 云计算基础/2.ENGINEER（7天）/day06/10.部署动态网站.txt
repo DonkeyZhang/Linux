@@ -1,0 +1,86 @@
+部署动态网站
+
+动态网站的运行
+• 服务端的原始网页 ≠ 浏览器访问到的网页
+  –  由Web服务软件接受请求,动态程序转后端模块处理
+ – PHP网页、Python网页、JSP网页
+
+为站点 webapp0.example.com 配置提供动态Web内
+容,要求如下:
+
+1.下载Python网页文件，到站点 webapp0.example.com网页根目录
+
+# cat /etc/httpd/conf.d/nsd.conf   #查看网页文件路径
+
+# cd /var/www/nsd02
+# wget http://classroom.example.com/pub/materials/webinfo.wsgi
+
+2.方便用户的访问，网页跳转   
+  
+配置字段格式：  Alias   网络路径      实际本地路径
+
+[root@server0 /]# vim /etc/httpd/conf.d/nsd.conf
+<VirtualHost  *:80>
+  ServerName  webapp0.example.com
+  DocumentRoot  /var/www/nsd02
+  Alias  /   /var/www/nsd02/webinfo.wsgi
+   #当客户端访问网页文件根目录时，跳转到webinfo.wsgi页面
+
+</VirtualHost>
+
+[root@server0 /]# systemctl restart httpd
+
+3.安装mod_wsgi软件包,专用于翻译Python代码页面
+[root@server0 /]# yum -y install mod_wsgi
+
+[root@server0 /]# vim /etc/httpd/conf.d/nsd.conf 
+<VirtualHost  *:80>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/nsd02
+  WsgiScriptAlias  /   /var/www/nsd02/webinfo.wsgi
+
+</VirtualHost>
+
+[root@server0 /]# systemctl restart httpd
+
+网页内容显示：显示当前系统的  Unix时间戳
+  Unix时间戳：自1970-1-1 0:0:0到当前系统时间经历秒数    
+
+
+4.此虚拟主机侦听在端口8909 
+[root@server0 /]# vim /etc/httpd/conf.d/nsd.conf
+Listen 8909
+<VirtualHost  *:8909>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/nsd02
+  WsgiScriptAlias  /   /var/www/nsd02/webinfo.wsgi
+</VirtualHost>
+
+5.SELinux非默认端口的开放
+# semanage port  -l  |  grep  http
+# semanage port -a  -t http_port_t   -p tcp 8909
+ -a:添加     -t：类型    -p：协议 
+[root@server0 /]# systemctl restart httpd
+客户端验证：
+[root@desktop0 ~]# firefox webapp0.example.com:8909
+
+##################################################
+
+虚拟Web主机匹配优先级：由上到下，匹配及停止
+
+端口的优先级大于域名
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

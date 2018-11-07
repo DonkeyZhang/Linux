@@ -1,0 +1,55 @@
+if双分支处理
+	if  [条件测试];then
+	   命令序列xx
+	else
+	   命令序列yy
+	fi
+
+案例：
+    利用read实现交互
+    用户输入一个用户名，脚本判断用户所输入的用户，是否存在
+    如果存在，输出用户存在
+    如果不存在，输出用户不存在
+[root@server0 ~]# vim /root/if01.sh
+   #!/bin/bash
+   read  -p   '请输入您要测试的用户名:'     user
+   id  $user &> /dev/null
+   if  [  $?  -eq  0  ];then   #判断上一条命令是否成功
+     echo $user用户已存在
+   else
+     echo $user用户不存在
+   fi
+
+
+案例：
+    利用位置变量实现命令行传递参数
+    参数为IP地址，脚本判断用户所输入IP地址，是否本机可以ping通
+    如果可以ping，输出 可以通信
+    如果不可以ping，输出  不可以通信
+
+[root@server0 ~]# vim /root/if02.sh 
+	#!/bin/bash
+	ping -c  2  $1  &> /dev/null
+	if  [ $?  -eq 0 ];then
+	  echo $1 本机可以通信
+	else
+	  echo $1 本机不可以通信
+	fi
+
+[root@server0 ~]# /root/if02.sh  192.168.1.1
+ 
+ 优化：
+
+[root@server0 ~]# vim /root/if02.sh 
+  #!/bin/bash
+  if  [  $#  -eq  0  ];then       #判断用户是否输入参数
+    echo 格式错误，请在脚本运行时添加参数
+    echo 参数为IP地址
+  else
+    ping -c 2   $1 &> /dev/null
+    if [ $?  -eq 0 ];then
+      echo $1 本机可以通信
+    else
+     echo $1 本机不可以通信
+    fi
+ fi

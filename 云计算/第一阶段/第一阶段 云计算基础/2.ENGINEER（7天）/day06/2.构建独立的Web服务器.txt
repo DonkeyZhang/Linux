@@ -1,0 +1,10 @@
+构建独立的Web服务器
+虚拟机Server
+1.安装软件
+[root@server0 ~]# yum -y install httpd
+2.书写页面文件
+# echo '<h1>Hello World' > /var/www/html/index.html 
+# cat /var/www/html/index.html
+3.重起httpd服务
+# systemctl restart httpd
+# systemctl enable httpd

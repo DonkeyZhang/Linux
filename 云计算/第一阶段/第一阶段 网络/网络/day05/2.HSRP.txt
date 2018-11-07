@@ -1,0 +1,47 @@
+二、HSRP
+1、HSRP概述 
+HSRP的相关概念
+1.热备份路由选择协议
+– HSRP(Hot Standby Routing Protocol)
+– Cisco私有协议
+
+
+2、HSRP配置
+1.HSRP的配置命令
+1）配置为HSRP的成员
+Switch(config-if)#standby group-number ip virtual-ip-address
+                          #HSRP备份组号      #备份组虚拟IP地址
+
+2)配置HSRP的优先级
+Switch(config-if)#standby group-number priority priority-value
+                                                             #范围0~255,默认100
+
+3)查看HSRP摘要信息
+Switch(config-if)#show standby brief
+
+
+4）HSRP占先权
+– 当本身优先级大于其他设备时立刻抢占活跃路由器身份
+
+– HSRP占先权配置
+Switch(config-if)#standby group-number preempt
+
+
+2.HSRP的配置案例
+1）MS1与MS2配置
+MS1(config)#interface vlan 1
+MS1(config-if)#ip address 192.168.1.252 255.255.255.0
+MS1(config-if)#standby 1 ip 192.168.1.254   #虚拟ip
+MS1(config-if)#standby 1 priority 105       #配置优先级
+
+MS2(config)#interface vlan 1
+MS2(config-if)#ip address 192.168.1.253 255.255.255.0
+MS2(config-if)#standby 1 ip 192.168.1.254  #虚拟ip、
+
+2）查看HSRP信息
+MS1#show standby brief
+          P indicates configured to preempt.
+             |
+Interface Grp Pri P State Active Standby        Virtual IP
+ Vl2      1  105 P Active local   192.168.1.253 192.168.1.254
+

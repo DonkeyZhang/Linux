@@ -1,0 +1,18 @@
+环境变量： 变量名一般大写，由系统定义完成 
+
+         PATH：存储命令程序的路径
+
+[root@server0 ~]# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+[root@server0 ~]# vim /opt/abc.sh
+    #!/bin/bash
+    echo  hello world
+
+[root@server0 ~]# chmod +x   /opt/abc.sh
+[root@server0 ~]# /opt/abc.sh
+
+[root@server0 ~]# abc.sh  #执行失败
+[root@server0 ~]# cp /opt/abc.sh   /usr/bin
+
+[root@server0 ~]# abc.sh  #执行成功
+

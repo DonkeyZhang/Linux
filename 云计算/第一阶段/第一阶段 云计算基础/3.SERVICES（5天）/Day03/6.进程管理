@@ -1,0 +1,74 @@
+进程管理
+
+一、进程的简介
+
+   1.程序：静态的代码，仅仅占用磁盘空间
+
+   2.进程：正在运行的代码，会占用CPU与内存
+
+    父进程与子进程，后台整个进程，进程树
+    进程唯一标识编号：PID  
+
+二、查看进程
+ systemd:Linux运行的第一个进程，由内核直接运行
+                 所有进程的父进程
+• 常用命令选项
+– -a:显示完整的命令行
+– -p:列出对应PID编号
+– -u:指定用户名
+
+[root@svr7 /]# pstree           #查看整个进程树
+[root@svr7 /]# pstree -u lisi   #查看lisi开启的进程
+[root@svr7 /]# pstree -pu lisi
+[root@svr7 /]# pstree -apu lisi
+
+[root@svr7 /]# pstree  lisi
+[root@svr7 /]# pstree  -ap lisi
+[root@svr7 /]# 
+
+
+• ps aux 操作(进程的信息详细)
+– 列出正在运行的所有进程
+
+用户 进程ID %CPU %内存 虚拟内存 固定内存 终端 状态 起始时间 CPU时间 程序指令
+
+• ps -elf 操作  (进程的父进程的信息PPID)
+– 列出正在运行的所有进程
+
+[root@svr7 /]# ps aux | grep lisi
+
+
+进程动态排名
+• top 交互式工具
+– 格式:top [-d 刷新秒数] [-U 用户名]
+
+[root@svr7 /]# top -d 1 
+     按键盘大写的P，进行CPU排序
+     按键盘大写的M，进行内存排序
+     按键盘的q,退出 
+    
+
+查询进程的指令
+• pgrep — Process Grep
+• 常用命令选项
+– -l:输出进程名,而不仅仅是 PID
+– -U:检索指定用户的进程
+– -t:检索指定终端的进程
+– -x:精确匹配完整的进程名   
+
+[root@svr7 /]# pgrep -l crond    #-l显示进程名字
+[root@svr7 /]# pgrep -l log
+[root@svr7 /]# pgrep crond
+
+[root@svr7 /]# a=`pgrep crond`    #将命令的输出赋值给变量
+[root@svr7 /]# echo $a
+
+[root@svr7 /]# pgrep -U lisi      #检索指定用户
+[root@svr7 /]# pgrep -lU lisi
+[root@svr7 /]# pgrep -lx systemd  #检索进程名，严格匹配
+
+  pts:图形命令行
+[root@svr7 /]# who        #查看正在登陆用户信息
+[root@svr7 /]# pgrep -lU lisi
+[root@svr7 /]# pgrep -lU lisi -t pts/2
+     -t：指定检索的终端

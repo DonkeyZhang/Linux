@@ -1,0 +1,64 @@
+acl访问控制列表
+
+acl策略的作用
+• 文档归属的局限性
+– 任何人只属于三种角色:属主、属组、其他人
+– 无法实现更精细的控制
+
+• acl访问策略
+– 能够对个别用户、个别组设置独立的权限
+– 大多数挂载的EXT3/4、XFS文件系统默认已支持
+
+[root@server0 /]# mkdir /nsd11
+[root@server0 /]# chmod o=--- /nsd11
+[root@server0 /]# su - zhangsan
+[zhangsan@server0 ~]$ cd  /nsd11      #切换失败
+-bash: cd: /nsd11: Permission denied
+[zhangsan@server0 ~]$ exit
+
+[root@server0 /]# setfacl -m u:zhangsan:rx /nsd11
+[root@server0 /]# getfacl /nsd11
+
+[root@server0 /]# su - zhangsan
+[zhangsan@server0 ~]$ cd  /nsd11    #切换成功
+[zhangsan@server0 nsd11]$ pwd
+[zhangsan@server0 nsd11]$ exit
+[root@server0 /]# 
+##################################################
+  创建一个文件1.txt，如果想要让lisi对文件具备读写权限
+  你有几种办法，请写出方案？
+   第一种：如果lisi为其他人   chmod o=rw  1.txt 
+   第二种：chown 修改所属组，将lisi所属的组设置为1.txt所属组
+                   chmod  g=rw  1.txt
+
+   第三种：chown 修改所有者，将lisi设置为1.txt的所有者
+                   chmod  u=rw  1.txt
+
+   第四种：通过ACL权限实现  setfacl -m u:lisi:rw 1.txt
+
+#################################################
+• 使用 getfacl、setfacl 命令
+– getfacl   文档...
+– setfacl  -m  u:用户名:权限类别    文档...
+– setfacl  -m  g:组名:权限类别   文档...
+– setfacl  -x  u:用户名    文档...      #删除指定的ACL
+– setfacl  -b   文档...                      #删除所有的ACL
+
+    [-R]：递归设置ACL权限
+
+# mkdir /nsd12
+# setfacl -m  u:zhangsan:rwx  /nsd12   #设置用户ACL
+# setfacl -m  u:lisi:rx  /nsd12        #设置用户ACL
+# setfacl -m  u:dc:rwx  /nsd12         #设置用户ACL
+
+# setfacl -x  u:zhangsan  /nsd12    #删除zhangsan的ACL
+# getfacl  /nsd12
+
+# setfacl  -b  /nsd12      #删除所有的ACL
+# getfacl  /nsd12
+
+################################################
+
+[root@server0 /]# setfacl -m u:lisi:---  /public/
+[root@server0 /]# getfacl  /public/
+ 

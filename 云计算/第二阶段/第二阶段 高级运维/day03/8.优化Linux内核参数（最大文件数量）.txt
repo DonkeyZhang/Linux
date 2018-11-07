@@ -1,0 +1,14 @@
+优化Linux内核参数（最大文件数量）
+[root@proxy ~]# ulimit -a                        //查看所有属性值
+[root@proxy ~]# ulimit -Hn 100000                //设置硬限制（临时规则）
+[root@proxy ~]# ulimit -Sn 100000                //设置软限制（临时规则）
+[root@proxy ~]# vim /etc/security/limits.conf
+    .. ..
+*               soft    nofile            100000
+*               hard    nofile            100000
+#该配置文件分4列，分别如下：
+#用户或组    硬限制或软限制    需要限制的项目   限制的值
+
+4）优化后测试服务器并发量（因为客户端没调内核参数，所以在proxy测试）
+[root@proxy ~]# ab -n 2000 -c 2000 http://192.168.4.5/
+

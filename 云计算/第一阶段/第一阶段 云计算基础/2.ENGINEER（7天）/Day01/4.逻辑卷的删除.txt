@@ -1,0 +1,21 @@
+逻辑卷的删除
+
+1.先删除逻辑卷本身（先卸载）
+2.再删除卷组
+3.最后删除物理卷（可选）
+
+# lvremove /dev/systemvg/mylv     #删除逻辑卷
+
+# umount /lvm
+# lvremove /dev/systemvg/mylv 
+# lvs
+
+# lvremove /dev/systemvg/lvtest
+# lvs
+
+# vgremove systemvg    #删除卷组
+# vgs
+
+# pvremove /dev/vdc[1-3]   #删除物理卷
+# pvs
+

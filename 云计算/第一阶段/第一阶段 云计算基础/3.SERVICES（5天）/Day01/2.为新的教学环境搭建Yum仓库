@@ -1,0 +1,31 @@
+二、为新的教学环境搭建Yum仓库
+
+真机上搭建服务端 ：
+  1.众多的软件包   2.仓库数据文件  3.搭建FTP服务共享内容
+
+  1）搭建FTP服务
+  [root@room9pc01 ~]# rpm -q vsftpd
+  vsftpd-3.0.2-22.el7.x86_64
+
+  [root@room9pc01 ~]# systemctl restart vsftpd
+  [root@room9pc01 ~]# systemctl enable vsftpd
+   2)挂载光盘内容到/var/ftp/rhel7
+  [root@room9pc01 ~]# ls /var/ftp/rhel7/
+  [root@room9pc01 ~]# vim /etc/fstab 
+  /var/lib/libvirt/images/iso/rhel-server-7.4-
+  x86_64-dvd.iso /var/ftp/rhel7  iso9660 defaults 0 0
+
+   3)最终测试
+  # firefox  ftp://192.168.4.254/rhel7
+
+客户端：两台虚拟机A与虚拟机B
+
+[root@svr7 ~]# vim /etc/yum.repos.d/rhel7.repo
+[rhel7]
+name=rhel7.4
+baseurl=ftp://192.168.4.254/rhel7
+enabled=1
+gpgcheck=0
+
+[root@svr7 ~]# yum -y install httpd
+

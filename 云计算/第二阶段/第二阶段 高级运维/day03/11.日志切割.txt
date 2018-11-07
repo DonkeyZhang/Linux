@@ -1,0 +1,22 @@
+日志切割
+
+日志文件越来越大怎么办？单个文件10G? 如何切割？（非常常见的面试题）
+步骤：1. 把旧的日志重命名
+2. kill USR1 PID(nginx的进程PID号)
+1）手动执行
+备注：/usr/local/nginx/logs/nginx.pid文件中存放的是nginx的进程PID号。
+[root@proxy ~]#  mv access.log access2.log
+[root@proxy ~]# kill -USR1 $(cat /usr/local/nginx/logs/nginx.pid)
+2）自动完成
+每周5的03点03分自动执行脚本完成日志切割工作。
+[root@proxy ~]# vim /usr/local/nginx/logbak.sh
+#!/bin/bash
+date=`date +%Y%m%d`
+logpath=/usr/local/nginx/logs
+mv $logpath/access.log $logpath/access-$date.log
+mv $logpath/error.log $logpath/error-$date.log
+kill -USR1 $(cat $logpath/nginx.pid)
+[root@proxy ~]# crontab -e
+03 03 * * 5  /usr/local/nginx/logbak.sh
+
+

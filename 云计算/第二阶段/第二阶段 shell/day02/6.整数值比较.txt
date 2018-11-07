@@ -1,0 +1,47 @@
+整数值比较
+
+参与比较的必须是整数（可以调用变量），比较非整数值时会出错：
+[root@svr5 ~]# A=20.4
+[root@svr5 ~]# [ $A -gt 10 ]                  //不支持小数比较
+-bash: [: 20.4: integer expression expected
+
+1）-eq 比较两个数是否相等。
+[root@svr5 ~]# X=20                          //定义一个测试变量
+[root@svr5 ~]# [ $X -eq 20 ] && echo "相等" || echo "不相等"
+相等
+[root@svr5 ~]# [ $X -eq 30 ] && echo "相等" || echo "不相等"
+不相等
+2）-ne 比较两个数是否不相等。
+[root@svr5 ~]# X=20                          //定义一个测试变量
+[root@svr5 ~]# [ $X -ne 20 ] && echo "不等于" || echo "等于"
+等于
+[root@svr5 ~]# [ $X -ne 30 ] && echo "不等于" || echo "等于"
+不等于
+
+3）-gt 比较前面的整数是否大于后面的整数。
+[root@svr5 ~]# X=20                          //定义一个测试变量
+[root@svr5 ~]# [ $X -gt 10 ] && echo "大于" || echo "否"
+大于
+[root@svr5 ~]# [ $X -gt 20 ] && echo "大于" || echo "否"
+否
+[root@svr5 ~]# [ $X -gt 30 ] && echo "大于" || echo "否"
+否
+
+4）-ge 比较前面的整数是否大于或等于后面的整数。
+[root@svr5 ~]# X=20                          //定义一个测试变量
+[root@svr5 ~]# [ $X -ge 10 ] && echo "大于或等于" || echo "否"
+大于或等于
+[root@svr5 ~]# [ $X -ge 20 ] && echo "大于或等于" || echo "否"
+大于或等于
+[root@svr5 ~]# [ $X -ge 30 ] && echo "大于或等于" || echo "否"
+否
+
+5）-lt 比较前面的整数是否小于后面的整数。
+[root@svr5 ~]# X=20                          //定义一个测试变量
+[root@svr5 ~]# [ $X -lt 10 ] && echo "小于" || echo "否"
+否
+[root@svr5 ~]# [ $X -lt 20 ] && echo "小于" || echo "否"
+否
+[root@svr5 ~]# [ $X -lt 30 ] && echo "小于" || echo "否"
+小于
+

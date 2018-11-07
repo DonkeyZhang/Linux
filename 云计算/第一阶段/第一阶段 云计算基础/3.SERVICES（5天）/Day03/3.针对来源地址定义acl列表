@@ -1,0 +1,15 @@
+针对来源地址定义acl列表
+– 若地址比较少,也可以不建立列表
+[root@svr7 ~]# vim /etc/named.conf
+options {
+directory "/var/named";
+};
+acl  test { 192.168.4.207; 192.168.7.0/24; 
+                     192.168.10.1;  };
+
+view "nsd" {
+  match-clients {   test; };
+  zone "tedu.cn" IN {
+      type master;
+      file "tedu.cn.zone";
+   };

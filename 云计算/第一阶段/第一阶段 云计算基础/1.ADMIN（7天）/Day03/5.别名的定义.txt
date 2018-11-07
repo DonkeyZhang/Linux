@@ -1,0 +1,30 @@
+别名的定义：简化复杂命令 
+• 查看已设置的别名
+– alias  [别名名称]
+• 定义新的别名
+– alias  别名名称= '实际执行的命令行'
+• 取消已设置的别名
+– unalias  [别名名称]
+
+
+[root@localhost /]# alias  hn='hostname'  #定义别名
+[root@localhost /]# alias   #查看当前系统生效的别名
+[root@localhost /]# hn      #执行成功
+
+[root@localhost /]# unalias  hn   #删除别名
+[root@localhost /]# hn            #执行失败
+
+[root@localhost /]# alias myls='ls -lh'  #定义别名
+[root@localhost /]# alias      #查看当前系统生效的别名
+[root@localhost /]# myls  /root        #执行成功
+
+[root@localhost /]# unalias  myls    #删除别名
+[root@localhost /]# myls   /root     #执行失败
+
+###############################################
+  请定义一个自定义的命令qstat
+  执行该命令可以运行：/bin/ps -Ao pid,tt,user,fname,rsz
+                  
+ # alias qstat='/bin/ps -Ao pid,tt,user,fname,rsz'
+ # qstat
+

@@ -1,0 +1,55 @@
+虚拟Web主机
+ 
+作用：一台服务器，提供多个不同的Web页面
+
+• 区分方式
+  – 基于域名的虚拟主机
+  – 基于端口的虚拟主机
+  – 基于IP地址的虚拟主机
+
+• 配置文件路径
+– /etc/httpd/conf/httpd.conf (主配置文件)
+– /etc/httpd/conf.d/*.conf(调用配置文件)
+
+ <VirtualHost  IP地址:端口>
+   ServerName  此站点的DNS名称
+   DocumentRoot  此站点的网页根目录
+ </VirtualHost>
+##############################################
+案例：构建基于域名的虚拟主机   find / -name *vhosts*
+
+虚拟机Server0:
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd.conf
+ <VirtualHost  *:80>           #本机所有IP启用虚拟Web
+   ServerName  www0.example.com  #网站的域名
+   DocumentRoot /var/www/nsd01   #网页文件路径
+ </VirtualHost>
+
+ <VirtualHost  *:80>
+   ServerName    webapp0.example.com
+   DocumentRoot  /var/www/nsd02
+ </VirtualHost>
+
+# mkdir  /var/www/nsd01     /var/www/nsd02
+# echo  '<h1>百度'    >   /var/www/nsd01/index.html
+# echo  '<h1>企鹅'   >   /var/www/nsd02/index.html
+# systemctl  restart  httpd
+######################################################
+
+一旦使用虚拟Web主机功能，所有网站都必须用虚拟Web主机完成 
+
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd.conf
+<VirtualHost  *:80>
+  ServerName www0.example.com
+  DocumentRoot /var/www/nsd01
+</VirtualHost>
+<VirtualHost  *:80>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/nsd02
+</VirtualHost>
+<VirtualHost  *:80>
+  ServerName server0.example.com
+  DocumentRoot /var/www/myweb
+</VirtualHost>
+
+

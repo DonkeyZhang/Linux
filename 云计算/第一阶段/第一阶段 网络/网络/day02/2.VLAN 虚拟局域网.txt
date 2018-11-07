@@ -1,0 +1,68 @@
+二、VLAN 虚拟局域网
+
+1.VLAN概述
+
+1、什么是VLAN
+– Virtual LAN(虚拟局域网)是物理设备上连接的不受物理位置限制的用户的一个逻辑组。
+
+2、为什么引入VLAN
+– 交换机的所有接口默认属于同一个广播域
+– 随着接入设备的增多,网络中广播增多,降低了网络的效率
+—为了分割广播域,引入了VLAN
+ 
+3、VLAN的作用
+– 广播控制
+– 增加安全性
+– 提高带宽利用
+– 降低延迟
+#基本上是基于接口划分的静态VLAN
+#也有动态的是基于mac地址的
+
+4、静态VLAN的配置
+1.配置VLAN的步骤
+– 创建VLAN
+– 将接口加入到相应的VLAN中
+– 验证
+
+1、创建VLAN
+Switch(config)#vlan vlan-id    #在全局配置模式下创建VLAN
+
+Switch(config)#no vlan vlan-id #删除已创建的VLAN
+
+2、将接口加入VLAN
+
+单个接口加入：
+Switch(config)# interface f0/1                      #在哪个接口 接口模式
+
+Switch(config-if)# switchport access vlan vlan-id   #将接口加入创建好的vlan里
+
+Switch(config-if)# no switchport access vlan vlan-id#将接口从vlan里移除，也可以移到vlan1
+
+也可以同时将多个接口添加到某个VLAN中:
+
+Switch(config)# interface range f0/1 – 10
+
+3、验证VLAN的配置
+
+Switch# show vlan brief
+
+
+案例1:划分VLAN
+
+在交换机上创建以下VLAN,按拓扑将接口加入到指定的VLAN并配置服务器IP地址,实现同vlan主机的
+通信。
+
+思路：配置ip —》连接网线 —》配置交换机—》创建vlan—》接口加入vlan—》验证
+ 
+案例2:多交换机VLAN的划分
+
+通过配置多交换机实现同VLAN主机互通
+
+原因:一个交换机的接口不够用了，但需要在一个广播域内通信，需配置新的交换机
+ 
+思路：配置同网段的ip的—》配置新的交换机—》在新的交换机创建一个和上一个交换机相同vlan—》
+      将新的接口加入新交换机的vlan—》连接交换机—》将连接交换机的接口加入两边的vlan
+      #新加入的pc的接口可以不一样  #连接交换机的接口最好相同，方便管理
+
+
+

@@ -1,0 +1,65 @@
+使用教学虚拟机
+
+• 每个学员机上有三台预先配置好的虚拟机
+ – server —— 作为练习用服务器
+ – desktop —— 作为练习用客户机
+ – classroom —— 提供网关/DNS/软件素材/DHCP服务等资源
+
+  优先开机classroom，再去开启server、desktop  
+
+一、真机还原命令：优先还原classroom
+
+[root@room9pc01 ~]# rht-vmctl reset classroom
+[root@room9pc01 ~]# rht-vmctl reset server
+[root@room9pc01 ~]# rht-vmctl reset desktop
+
+二、进入 虚拟机server 与  虚拟机desktop
+
+   用户名：root   密码为：redhat
+   
+    虚拟机server
+          主机名：server0.example.com
+          系统版本：RHEL7.0
+      eth0网卡IP地址：172.25.0.11
+
+    虚拟机desktop
+          主机名：desktop0.example.com
+          系统版本：RHEL7.0
+      eth0网卡IP地址：172.25.0.10
+
+三、真机远程管理
+[root@room9pc01 ~]# ping 172.25.0.11
+[root@room9pc01 ~]# ping 172.25.0.10
+
+远程管理的命令：ssh   登陆对方的用户名@对方的IP地址
+
+[root@room9pc01 ~]# ssh root@172.25.0.11
+Last login: Wed Sep  5 09:11:52 2018
+[root@server0 ~]# ifconfig 
+[root@server0 ~]# exit
+登出
+Connection to 172.25.0.11 closed.
+[root@room9pc01 ~]# 
+
+  Ctrl + shift + t :新开一个终端
+
+
+   ssh -X:在远程管理时，本地运行对方的图形程序
+
+[root@room9pc01 ~]# ssh -X root@172.25.0.11
+
+[root@server0 ~]# firewall-config    #防火墙图形工具
+
+#################################################
+四、为真机设置永久的别名，修改配置文件
+
+  设置永久的别名配置文件：/root/.bashrc   系统级配置文件
+[root@room9pc01 ~]# vim /root/.bashrc 
+ # .bashrc
+ alias  gos='ssh  -X  root@172.25.0.11'
+ alias  god='ssh  -X  root@172.25.0.10' 
+
+ 新开一个全新的终端
+[root@room9pc01 ~]# gos
+[root@room9pc01 ~]# god
+

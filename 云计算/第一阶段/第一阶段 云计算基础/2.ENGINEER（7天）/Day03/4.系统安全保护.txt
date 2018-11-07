@@ -1,0 +1,27 @@
+###############################################
+系统安全保护
+• Security-Enhanced Linux
+– 美国NSA国家安全局主导开发,一套增强Linux系统安全的强制访问控制体系
+– 集成到Linux内核(2.6及以上)中运行
+– RHEL7基于SELinux体系针对用户、进程、目录和文件提供了预设的保护策略,以及管理工具
+
+
+• SELinux的运行模式
+– enforcing(强制)、permissive(宽松)
+– disabled(彻底禁用)
+  
+任何一种运行模式，变成disabled(彻底禁用)都要经历重起系统
+
+切换运行模式
+– 临时切换:setenforce 1|0
+– 固定配置:/etc/selinux/config 文件
+
+修改两台虚拟机   Server与 Desktop
+[root@server0 ~]# getenforce 
+Enforcing   #强制模式                   
+[root@server0 ~]# setenforce 0   #修改当前状态为宽松模式
+[root@server0 ~]# getenforce 
+Permissive     
+              
+[root@server0 ~]# vim /etc/selinux/config 
+SELINUX=permissive

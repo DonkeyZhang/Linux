@@ -1,0 +1,72 @@
+基于case分支编写脚本           ###简化版的if，只能比较相不相同
+3.1 问题
+
+本案例要求编写test.sh脚本，相关要求如下：
+能使用redhat、fedora控制参数
+控制参数通过位置变量$1传入
+当用户输入redhat参数，脚本返回fedora
+当用户输入fedora参数，脚本返回redhat
+当用户输入其他参数，则提示错误信息
+3.2 方案
+
+case分支属于匹配执行的方式，它针对指定的变量预先设置一个可能的取值，判断该变量的实际取值是否与预设的某一个值相匹配，如果匹配上了，就执行相应的一组操作，如果没有任何值能够匹配，就执行预先设置的默认操作。
+case分支的语法结构如下所示：
+case  变量  in
+模式1)
+    命令序列1 ;;
+模式2)
+    命令序列2 ;;
+    .. ..
+*)
+    默认命令序列
+esac
+### 实现多功能的脚本############################################
+#!/bin/bash
+case $1 in
+-n|-N|--new)
+  touch $2;;
+-e|--edit)
+  vim $2;;
+-c|--check)
+ cat $2;;
+-d|--delete)
+ rm -rf $2;;
+*)
+echo "Usage: $0 [-n|-e|-c|-d] filename"
+esac
+######可以类似ls的功能############################################
+多用来写启动脚本
+允许
+#########################################################
+3.3 步骤
+
+实现此案例需要按照如下步骤进行。
+
+步骤一：编写脚本文件
+
+脚本编写参考如下：
+[root@svr5 ~]# vim test.sh
+#!/bin/bash
+case $1 in
+redhat)
+        echo "fedora";;
+fedora)
+        echo "redhat";;
+    *)                                              //默认输出脚本用法
+    echo "用法: $0 {redhat|fedora}"
+esac
+[root@svr5 ~]# chmod +x test.sh
+
+
+步骤三：验证、测试脚本
+
+未提供参数，或提供的参数无法识别时，提示正确用法：
+[root@svr5 ~]# ./test.sh
+用法: ./test.sh {redhat|fedora}
+确认脚本可以响应redhat控制参数：
+[root@svr5 ~]# ./test.sh redhat
+fedora
+确认脚本可以响应fedora控制参数：
+[root@svr5 ~]# ./test.sh fedora
+redhat
+

@@ -1,0 +1,31 @@
+bc交互式运算
+先执行bc命令进入交互环境，然后再输入需要计算的表达式。以计算小数12.34与5.678的四则运算为例，相关操作如下：
+[root@svr5 ~]# bc 
+bc 1.06.95
+Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc.
+This is free software with ABSOLUTELY NO WARRANTY.
+For details type `warranty'. 
+12.34+56.78                                        //加法
+69.12
+12.34-56.78                                        //减法
+-44.44
+12.34*56.78                                        //乘法
+700.66
+12.34/56.78                                        //除法
+0
+quit                                              //退出交互计算器
+[root@svr5 ~]#
+2）bc非交互式运算
+将需要运算的表达式通过管道操作交给bc运算。注意，小数位的长度可采用scale=N限制，除此以外也受参与运算的数值的小数位影响。以计算小数12.34与5.678的四则运算为例，相关操作如下：
+[root@svr5 ~]# echo 'scale=4;12.34+5.678' | bc
+18.018
+[root@svr5 ~]# echo 'scale=4;12.34*5.678' | bc 
+70.0665
+[root@svr5 ~]# echo 'scale=4;12.34/5.678' | bc 
+2.1733
+
+echo "1>2" |bc   #让bc判断
+0                    #错误0
+echo "2>1" |bc   #让bc判断
+1                    #正确1
+

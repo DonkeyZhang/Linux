@@ -1,0 +1,114 @@
+构建Nginx服务器
+
+
+1）使用源码包安装nginx软件包
+[root@proxy ~]# yum -y install gcc pcre-devel openssl-devel        //安装依赖包
+
+[root@proxy ~]# useradd -s /sbin/nologin nginx    #名字不要敲错.错了重新增加1个
+
+###################################################################
+#安全
+计算机安全机制（权限）-->用户
+QQ---> D:\a.txt
+谁启动的QQ 
+admin--->QQ 能读全部
+需要超级管理,屏幕变暗
+Linux中
+以root启动--->nginx服务  当有人通过nginx攻击,得到管理员的权限
+httpd的服务字自动创建用户
+systemctl restart  会自动降级为apche用户启动
+
+####################
+现代软件都是模块化
+100功能
+10
+非模块化:全安装.大.性能差,漏洞
+模块化:定义安装,50,默认模块20
+
+#########################################################################
+
+
+[root@proxy ~]# tar  -xf   nginx-1.10.3.tar.gz
+
+[root@proxy ~]# cd  nginx-1.10.3
+
+[root@proxy nginx-1.10.3]# ./configure   \
+> --prefix=/usr/local/nginx   \               //指定安装路径
+> --user=nginx   \                            //指定用户
+> --group=nginx  \                            //指定组
+> --with-http_ssl_module                      //开启SSL加密功能
+####################################################
+--with-模块 多1模块就1个功能
+http_ss_lmodule 加密企业必备
+--devel结尾都是依赖包
+##########################################################3
+  .. ..
+  nginx path prefix: "/usr/local/nginx"
+  nginx binary file: "/usr/local/nginx/sbin/nginx"
+  nginx configuration prefix: "/usr/local/nginx/conf"
+  nginx configuration file: "/usr/local/nginx/conf/nginx.conf"
+  nginx pid file: "/usr/local/nginx/logs/nginx.pid"
+  nginx error log file: "/usr/local/nginx/logs/error.log"
+  nginx http access log file: "/usr/local/nginx/logs/access.log"
+  nginx http client request body temporary files: "client_body_temp"
+  nginx http proxy temporary files: "proxy_temp"
+  nginx http fastcgi temporary files: "fastcgi_temp"
+  nginx http uwsgi temporary files: "uwsgi_temp"
+  nginx http scgi temporary files: "scgi_temp"
+
+[root@proxy nginx-1.10.3]# make && make install    //编译并安装
+
+2）nginx命令的用法
+[root@proxy ~]# /usr/local/nginx/sbin/nginx                    //启动服务
+
+[root@proxy ~]# /usr/local/nginx/sbin/nginx -s stop            //关闭服务
+
+[root@proxy ~]# /usr/local/nginx/sbin/nginx -s reload        //重新加载配置文件
+
+[root@proxy ~]# /usr/local/nginx/sbin/nginx –V                //查看软件信息
+
+[root@proxy ~]# ln -s /usr/local/nginx/sbin/nginx /sbin/        //方便后期使用
+
+netstat命令可以查看系统中启动的端口信息，该命令常用选项如下：
+
+-a显示所有端口的信息
+
+-n以数字格式显示端口号
+
+-t显示TCP连接的端口
+
+-u显示UDP连接的端口
+
+-l显示服务正在监听的端口信息，如httpd启动后，会一直监听80端口
+
+-p显示监听端口的服务名称是什么（也就是程序名称）
+
+nginx服务默认通过TCP 80端口监听客户端请求：
+
+root@proxy ~]# netstat  -anptu  |  grep nginx
+tcp        0        0 0.0.0.0:80        0.0.0.0:*        LISTEN        
+
+10441/nginx
+
+3）设置防火墙与SELinux
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+[root@proxy ~]# setenforce 0
+
+
+4）测试首页文件
+Nginx Web服务默认首页文档存储目录为/usr/local/nginx/html/，在此目录下默认有一个名为index.html的文件，使用客户端访问测试页面：
+[root@client ~]# curl http://192.168.4.5
+<html>
+<head>
+<title>Welcome to nginx!</title>
+</head>
+<body bgcolor="white" text="black">
+<center><h1>Welcome to nginx!</h1></center>
+</body>
+</html>
+
+
+
+
+
+

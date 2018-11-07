@@ -1,0 +1,69 @@
+识别文件/目录的状态
+
+1）-e 判断对象是否存在（不管是目录还是文件）
+[root@svr5 ~]# [ -e "/usr/" ] && echo "存在" || echo "不存在"
+存在
+[root@svr5 ~]# [ -e "/etc/fstab" ] && echo "存在" || echo "不存在"
+存在
+[root@svr5 ~]# [ -e "/home/nooby" ] && echo "存在" || echo "不存在"
+不存在
+
+2）-d 判断对象是否为目录（存在且是目录）
+[root@svr5 ~]# [ -d "/usr/" ] && echo "是目录" || echo "不是目录"
+是目录
+[root@svr5 ~]# [ -d "/etc/fstab" ] && echo "是目录" || echo "不是目录"
+不是目录
+[root@svr5 ~]# [ -d "/home/nooby" ] && echo "是目录" || echo "不是目录"
+不是目录
+
+3）-f 判断对象是否为文件（存在且是文件）
+[root@svr5 ~]# [ -f "/usr/" ] && echo "是文件" || echo "不是文件"
+不是文件
+[root@svr5 ~]# [ -f "/etc/fstab" ] && echo "是文件" || echo "不是文件"
+是文件
+[root@svr5 ~]# [ -f "/home/nooby" ] && echo "是文件" || echo "不是文件"
+不是文件
+
+4）-r 判断对象是否可读
+此测试对root用户无效，无论文件是否设置r权限，root都可读：
+[root@svr5 ~]# cp /etc/hosts /tmp/test.txt          //复制一个文件做测试
+[root@svr5 ~]# chmod -r /tmp/test.txt              //去掉所有的r权限
+[root@svr5 ~]# [ -r "/tmp/test.txt" ] && echo "可读" || echo "不可读"
+可读                                              //root测试结果仍然可读
+切换为普通用户，再执行相同的测试，结果变为“不可读”：
+[zengye@svr5 ~]$ [ -r "/tmp/test.txt" ] && echo "可读" || echo "不可读"
+不可读
+
+
+5）-w 判断对象是否可写
+此测试同样对root用户无效，无论文件是否设置w权限，root都可写：
+[root@svr5 ~]# chmod -w /tmp/test.txt             //去掉所有的w权限
+[root@svr5 ~]# ls -l /tmp/test.txt              //确认设置结果
+---------- 1 root root 33139 12-11 10:43 /tmp/test.txt
+[root@svr5 ~]# [ -w "/tmp/test.txt" ] && echo "可写" || echo "不可写"
+可写
+切换为普通用户，可以正常使用-w测试：
+[zengye@svr5 ~]$ ls -l /tmp/test.txt
+---------- 1 root root 33139 12-11 10:52 /tmp/test.txt
+[zengye@svr5 ~]$ [ -w "/tmp/test.txt" ] && echo "可写" || echo "不可写"
+不可写
+
+6）-x 判断对象是否具有可执行权限
+这个取决于文件本身、文件系统级的控制，root或普通用户都适用：
+[root@svr5 ~]# chmod 644 /tmp/test.txt          //重设权限，无x
+[root@svr5 ~]# ls -l /tmp/test.txt              //确认设置结果
+-rw-r--r-- 1 root root 33139 12-11 10:52 /tmp/test.txt
+[root@svr5 ~]# [ -x "/tmp/test.txt" ] && echo "可执行" || echo "不可执行"
+不可执行
+[root@svr5 ~]# chmod +x /tmp/test.txt          //添加x权限
+[root@svr5 ~]# [ -x "/tmp/test.txt" ] && echo "可执行" || echo "不可执行"
+可执行
+
+
+
+
+
+
+
+
+

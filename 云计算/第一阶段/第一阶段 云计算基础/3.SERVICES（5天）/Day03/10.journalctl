@@ -1,0 +1,35 @@
+• Linux内核定义的事件紧急程度
+– 分为 0~7 共8种优先级别
+– 其数值越小,表示对应事件越紧急/重要
+
+  0  EMERG（紧急）        会导致主机系统不可用的情况
+  1  ALERT（警告）         必须马上采取措施解决的问题
+  2  CRIT（严重）	        比较严重的情况
+  3  ERR（错误）	       运行出现错误
+  4  WARNING（提醒）    可能会影响系统功能的事件
+  5  NOTICE（注意）      不会影响系统但值得注意
+  6  INFO（信息）	      一般信息
+  7  DEBUG（调试）      程序或系统调试信息等
+
+使用journalctl工具
+• 提取由 systemd-journal 服务搜集的日志
+– 主要包括内核/系统日志、服务日志
+• 常见用法
+– journalctl -u 服务名 [-p 优先级]
+
+– journalctl | grep 关键词
+– journalctl -n 消息条数
+– journalctl --since="yyyy-mm-dd HH:MM:SS" --
+until="yyyy-mm-dd HH:MM:SS"
+
+
+
+[root@svr7 /]# yum -y install httpd
+[root@svr7 /]# systemctl restart httpd
+
+显示httpd服务，日志消息在6级别以上的信息
+[root@svr7 /]# journalctl -u httpd  -p 6
+    
+显示named服务，日志消息在6级别以上的信息
+[root@svr7 /]# journalctl -u named  -p 6
+

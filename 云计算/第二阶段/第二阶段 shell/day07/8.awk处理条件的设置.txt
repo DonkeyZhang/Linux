@@ -1,0 +1,106 @@
+awk处理条件
+2.1 问题
+
+本案例要求使用awk工具完成下列过滤任务，注意awk处理条件的设置：
+列出UID间于1~1000的用户详细信息
+输出/etc/hosts文件内以127或192开头的记录
+列出100以内整数中7的倍数或是含7的数
+2.2 步骤
+
+1）使用正则设置条件
+
+输出其中以bash结尾的完整记录：
+[root@svr5 ~]# awk -F: '/bash$/{print}' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+
+输出包含root的行数据：
+[root@svr5 ~]# awk -F: '/root/' /etc/passwd
+
+输出root或adm账户的用户名和UID信息：
+[root@svr5 ~]# awk -F: '/^(root|adm)/{print $1,$3}' /etc/passwd
+root 0
+adm 3
+
+输出账户名称包含root的基本信息（第1列包含root）：
+[root@svr5 ~]# awk -F: '$1~/root/' /etc/passwd
+
+输出其中登录Shell不以nologin结尾（对第7个字段做!~反向匹配）的用户名、登录Shell信息：
+[root@svr5 ~]# awk -F: '$7!~/nologin$/{print $1,$7}' /etc/passwd
+root /bin/bash
+sync /bin/sync
+shutdown /sbin/shutdown
+
+
+2）使用数值/字符串比较设置条件
+比较符号：==(等于) !=（不等于） >（大于）
+>=（大于等于） <（小于） <=（小于等于）
+
+输出第3行（行号NR等于3）的用户记录：
+[root@svr5 ~]# awk -F: 'NR==3{print}' /etc/passwd
+
+输出账户UID大于等于1000的账户名称和UID信息：
+[root@svr5 ~]# awk -F: '$3>=1000{print $1,$3}' /etc/passwd
+tom 1000
+jerry 1001
+
+输出账户UID小于10的账户名称和UID信息：
+[root@svr5 ~]# awk -F: '$3<10{print $1,$3}' /etc/passwd
+root 0
+bin 1
+daemon 2
+adm 3
+lp 4
+sync 5
+shutdown 6
+halt 7
+mail 8
+
+输出用户名为“root”的行：
+[root@svr5 ~]# awk -F: '$1=="root"' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+
+
+3）逻辑测试条件
+输出账户UID大于10并且小于20的账户信息：
+[root@svr5 ~]# awk -F: '$3>10 && $3<20' /etc/passwd
+operator:x:11:0:operator:/root:/sbin/nologin
+games:x:12:100:games:/usr/games:/sbin/nologin
+ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+输出账户UID大于1000或者账户UID小于10的账户信息：
+[root@svr5 ~]# awk -F: '$3>1000 || $3<10' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+sync:x:5:0:sync:/sbin:/bin/sync
+shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+halt:x:7:0:halt:/sbin:/sbin/halt
+mail:x:8:12:mail:/var/spool/mail:/sbin/nologin
+varnish:x:1001:1001::/home/varnish:/sbin/nologin
+nginx:x:1002:1002::/home/nginx:/sbin/nologin
+
+
+4）数学运算
+[root@svr5 ~]# awk 'BEGIN{x++;print x}'
+1
+[root@svr5 ~]# awk 'BEGIN{x=8;print x+=2}'
+10
+[root@svr5 ~]# awk 'BEGIN{x=8;x--;print x}'
+7
+[root@svr5 ~]# awk 'BEGIN{print 2+3}'
+5
+[root@svr5 ~]# awk 'BEGIN{print 2*3}'
+6
+[root@svr5 ~]# awk 'BEGIN{print 2*3}'
+6
+[root@svr5 ~]# awk 'BEGIN{ print 23%8}'
+7
+[root@svr5 ~]# seq  200 | awk  '$1%3==0'       //找200以内3的倍数
+… …
+
+
+
+
+
+

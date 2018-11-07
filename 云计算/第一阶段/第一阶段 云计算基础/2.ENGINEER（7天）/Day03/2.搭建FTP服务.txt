@@ -1,0 +1,11 @@
+虚拟机Server：搭建FTP服务:文件数据传输
+
+1.安装软件包vsftpd
+2.重起vsftpd服务
+[root@server0 ~]# systemctl restart vsftpd
+[root@server0 ~]# systemctl restart vsftpd
+
+ 默认共享数据路径：/var/ftp
+
+3.本机测试
+[root@server0 ~]# firefox  ftp://172.25.0.11

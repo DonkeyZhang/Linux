@@ -1,0 +1,29 @@
+Yum软件包仓库，自动解决依赖关系
+
+服务：为客户端自动解决依赖关系，安装软件包
+
+服务端：虚拟机classroom.example.com
+1.众多的软件包
+2.仓库清单文件（repodata）   
+3.构建Web服务或FTP服务传递数据
+
+
+客户端：虚拟机server0.example.com
+客户端配置文件：/etc/yum.repos.d/*.repo
+错误的配置文件会影响正确的配置文件
+[root@server0 ~]# rm -rf  /etc/yum.repos.d/*
+[root@server0 ~]# vim  /etc/yum.repos.d/abc.repo
+   [rhel7]          #仓库标识
+   name=rhel7.0     #仓库描述信息
+   baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/       #指定服务端位置
+   enabled=1        #是否启用该文件
+   gpgcheck=0       #是否检测红帽签名
+
+#################################################
+Yum使用
+	# yum  repolist           #列出仓库信息
+	# yum -y  install httpd   #安装软件包
+	# yum -y  install sssd
+	# yum -y  install gcc
+	# yum -y  install system-config-kickstart
+	# yum  remove   软件名          #卸载

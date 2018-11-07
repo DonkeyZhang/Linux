@@ -1,0 +1,32 @@
+
+
+目录和文件管理
+
+• pwd — Print Working Directory
+– 用途:查看当前工作目录
+
+• cd — Change Directory
+– 用途:切换工作目录
+– 格式:cd [目标文件夹位置]
+
+   ～：代表用户的家目录
+  ~user表示用户user的家目录
+
+   /root：管理员的家目录
+   /home：存放所有普通用户的家目录
+
+[root@localhost /]# cd  ~root     #去往root用户家目录
+[root@localhost ～]# pwd
+
+[root@localhost ～]# useradd  dc  #创建用户dc
+[root@localhost ～]# cd ~dc       #去往dc用户家目录
+[root@localhost dc]# pwd
+
+[root@localhost dc]# useradd  harry   #创建用户harry
+[root@localhost dc]# cd ~harry   #去往harry用户家目录
+[root@localhost harry]# pwd
+
+##############################################
+  . 表示当前目录，经常复制与移动
+  .. 表示父目录
+

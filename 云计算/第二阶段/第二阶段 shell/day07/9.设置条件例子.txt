@@ -1,0 +1,24 @@
+
+1）列出UID间于1~1000的用户详细信息：
+[root@svr5 ~]# awk -F: '$3>=1 && $3<=1000' /etc/passwd
+
+
+2）输出/etc/hosts映射文件内以127或者192开头的记录：
+[root@svr5 ~]# awk  '/^(127|192)/' /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+192.168.4.5  svr5.tarena.com svr5
+
+3）列出100以内整数中7的倍数或是含7的数：
+[root@svr5 ~]# seq 100 | awk '$1%7==0||$1~/7/'
+7
+14
+17
+21
+27
+28
+35
+37
+42
+47
+.. ..
+

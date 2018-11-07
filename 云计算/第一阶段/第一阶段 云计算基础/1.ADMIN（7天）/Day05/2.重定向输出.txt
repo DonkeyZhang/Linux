@@ -1,0 +1,23 @@
+重定向输出:将前面命令的输出结果，写入文本文件
+  
+   >：覆盖重定向
+   >>：追加重定向
+[root@server0 /]# ls --help
+[root@server0 /]# ls --help > /opt/ls.txt
+[root@server0 /]# vim /opt/ls.txt
+[root@server0 /]# less /opt/ls.txt
+[root@server0 /]# hostname > /opt/ls.txt
+[root@server0 /]# cat  /opt/ls.txt
+
+[root@server0 /]# hostname >> /opt/ls.txt
+[root@server0 /]# cat /opt/ls.txt
+[root@server0 /]# ifconfig eth0 >> /opt/ls.txt
+
+
+[root@server0 /]# echo hello world
+[root@server0 /]# echo hello world > /opt/ls.txt
+[root@server0 /]# cat /opt/ls.txt
+
+[root@server0 /]# echo A.tedu.cn  >  /etc/hostname
+[root@server0 /]# cat /etc/hostname
+[root@server0 /]# hostname

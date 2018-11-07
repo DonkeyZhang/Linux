@@ -1,0 +1,43 @@
+四、配置交换机
+1.交换机的工作模式：
+1、Switch>                                     #用户模式
+
+2、Switch>enable                               #Switch#特权模式
+
+3、Switch#configure  terminal                  #Switch(config)#全局配置模式
+
+4、Switch(config)#interface fastEthernet 0/1   #Switch(config-if)#接口模式
+
+5、exit返回上一模式
+
+6、end直接退到特权模式 #ctrl+Z
+
+命令输入错误被卡住时同时按键盘ctrl+shift+6这三个按键  #实验时
+
+2、常用命令： 
+1.Switch(config)#hostname S1    #修改主机名为S1
+
+2.Switch#show  running-config   #查看配置信息
+
+3.配置enable明文口令                   #配置进入特权模式的密码
+全局配置模式：enable  password  123
+
+保存交换机的配置
+特权： copy  running-config  startup-config 或 write
+
+恢复设备出厂默认值
+特权：erase  startup-config   #擦除配置文件
+重启：reload
+
+4.设备配置的准备工作                #防止有人去查看交换机
+空闲一段时间后，重回初始界面的问题
+switch(config)#line con 0
+switch(config-line)#exec-timeout 0 0
+ 
+5.配置输出日志同步                  #工作中会有机器的开机关机，可以不让弹出的信息打断配置过程
+Switch(config)#line console 0
+Switch(config-line)#logging synchronous
+
+6.禁用DNS查询#                     #打错命令，交换机会以为是域名，会反应一段时间，禁用之后就不会再去查询
+switch(config)#no ip domain-lookup
+

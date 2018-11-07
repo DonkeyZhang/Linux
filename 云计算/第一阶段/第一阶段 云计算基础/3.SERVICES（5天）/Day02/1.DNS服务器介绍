@@ -1,0 +1,41 @@
+DNS服务器构建
+
+DNS服务器的功能
+  – 正向解析:根据注册的域名查找其对应的IP地址
+  – 反向解析:根据IP地址查找对应的注册域名,不常用
+
+
+域名体系：
+            
+ 
+                                  .   根域       
+
+一级域名：  .com    .cn   .us  .hk   .tw   .jp   .kr 
+
+
+二级域名:  .cn.com    .us.com    .jp.com 
+
+
+三级域名:  sina.cn.com    nb.cn.com   dc.cn.com
+
+
+完整的主机名: web.sina.cn.com   ftp.sina.cn.com
+
+• Full Qualified Domain Name,完全合格主机名
+
+
+    设置FQDN为www.nb.com
+  
+        ServerName  www.nb.com
+
+###############################################
+
+bind-9.9.4-29.el7.x86_64   //域名服务包
+bind-chroot-9.9.4-29.el7.x86_64   //提供虚拟根支持
+
+– 运行时的虚拟根环境:/var/named/chroot/    #牢笼政策
+– 系统服务:named
+– 默认端口: 53
+
+• 主配置文件: /etc/named.conf   #设置本服务器负责解析的域名
+• 地址库文件: /var/named/     #主机名与IP地址的对应关系

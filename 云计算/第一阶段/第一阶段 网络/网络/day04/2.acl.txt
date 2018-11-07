@@ -1,0 +1,87 @@
+二、acl  
+
+1、访问控制列表概述
+
+1.访问控制列表作用
+• 访问控制列表(ACL)
+– 读取第三层、第四层 头部信息
+– 根据预先定义好的规则对数据进行过滤
+IP报头  TCP报头   数 据 
+源地址    源端口
+目的地址  目的端口  #访问控制列表利用这4个元素定义的规则
+
+2.访问控制列表的工作原理
+1） 访问控制列表在接口应用的方向
+– 出:已经过路由器的处理,正离开路由器接口的数据包
+– 入:已到达路由器接口的数据包,将被路由器处理
+
+#–列表应用到接口的方向与数据方向有关
+
+2）访问控制列表的处理过程
+到达访问控制组接口的数据包
+         
+  拒绝Y     匹配第一条         Y允许
+            N
+  拒绝Y     匹配下一条         Y允许      目的接口
+            N   
+  拒绝Y    匹配下一条          Y允许   
+            N
+             拒绝   #隐含的拒绝 —》丢弃
+
+3.访问控制列表的类型    #一个路由器口只能配置一张表
+1） 标准访问控制列表
+– 基于  源IP地址   过滤数据包
+– 标准访问控制列表的访问控制列表号是1~99
+
+2）扩展访问控制列表
+– 基于源IP地址、目的IP地址、指定协议、端口来过滤数据包
+– 扩展访问控制列表的访问控制列表号是100~199
+
+
+2、标准ACL配置
+
+1.标准访问控制列表的配置
+1）创建ACL
+Router(config)#access-list access-list-number
+{ permit | deny } source [ source-wildcard ]
+
+2）应用实例
+
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255  #192.168.1.0 允许这个网段  
+
+ #反掩码 255.255.255.255  全部  
+
+Router(config)# access-list 1 permit 192.168.2.2 0.0.0.0    #允许单个主机
+– 允许192.168.1.0/24和主机192.168.2.2的流量通过
+
+3）隐含的拒绝语句
+Router(config)# access-list 1 deny 0.0.0.0 255.255.255.255  #表上没有默认丢弃
+
+4）关键字
+– host
+– any
+
+5）将ACL应用于接口
+Router(config-if)# ip access-group access-list-number {in|out}
+
+6）在接口上取消ACL的应用
+Router(config-if)#no ip access-group access-list-number{in |out}
+
+7）查看访问控制列表
+Router(config)# Show access-lists
+
+8）删除ACL
+Router(config)# no access-list access-list-number
+
+2.扩展访问控制列表的配置
+
+1）创建ACL
+Router(config)# access-list access-list-number { permit | deny }
+protocol { source source-wildcard destination destination-
+wildcard } [ operator operan ]
+• 应用实例
+Router(config)# access-list 101 deny tcp 192.168.1.0 0.0.0.255
+host 192.168.2.2 eq 80
+
+Router(config)# access-list 101 permit ip any any
+

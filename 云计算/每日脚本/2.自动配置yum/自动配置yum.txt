@@ -1,0 +1,10 @@
+#!/bin/bash
+#自动配置yum
+ echo  "
+ [yum]
+ name=yum 
+ baseurl=ftp://192.168.4.254/rhel7
+ enabled=1
+ gpgcheck=0"> /etc/yum.repos.d/yum.repo
+ yum clean all &>/dev/null
+ yum repolist|awk '/repolist/{print $2} '|sed 's/,//

@@ -1,0 +1,26 @@
+for循环结构
+
+  循环:让计算机重复执行一个操作
+
+     for 变量名 in 值列表
+     do
+             命令序列
+     done
+
+
+     for  a   in  zhangsan  lisi  wangwu  dc
+      do
+          useradd $a
+         echo 123 | passwd --stdin $a
+      done
+
+ 造数：  {起始数值..结束数值}
+
+[root@server0 /]# cat /root/for01.sh
+	#!/bin/bash
+	for  a  in  {1..20}
+	do
+	  useradd stu$a  &> /dev/null
+	  echo stu$a创建成功
+	done
+[root@server0 /]# /root/for01.sh

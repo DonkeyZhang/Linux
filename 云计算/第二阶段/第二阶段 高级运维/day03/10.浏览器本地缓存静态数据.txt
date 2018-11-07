@@ -1,0 +1,31 @@
+浏览器本地缓存静态数据
+
+1）使用Firefox浏览器查看缓存
+以Firefox浏览器为例，在Firefox地址栏内输入about:cache将显示Firefox浏览器的缓存信息，如图-3所示，点击List Cache Entries可以查看详细信息。
+
+图-3
+2）清空firefox本地缓存数据，如图-4所示。
+
+
+图-4
+3）修改Nginx配置文件，定义对静态页面的缓存时间
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+server {
+        listen       80;
+        server_name  localhost;
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml)$ {
+expires        30d;            //定义客户端缓存时间为30天
+}
+}
+[root@proxy ~]# cp /usr/share/backgrounds/day.jpg /usr/local/nginx/html
+[root@proxy ~]# nginx -s reload
+#请先确保nginx是启动状态，否则运行该命令会报错,报错信息如下：
+#[error] open() "/usr/local/nginx/logs/nginx.pid" failed (2: No such file or directory)
+4）优化后，使用Firefox浏览器访问图片，再次查看缓存信息
+[root@client ~]# firefox http://192.168.4.5/day.jpg
+在Firefox地址栏内输入about:cache，查看本地缓存数据，查看是否有图片以及过期时间是否正确。
+

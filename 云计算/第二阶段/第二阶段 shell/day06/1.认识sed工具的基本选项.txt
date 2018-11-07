@@ -1,0 +1,50 @@
+认识sed工具的基本选项
+
+sed命令的常用选项如下：
+-n（屏蔽默认输出，默认sed会输出读取文档的全部内容）
+-r（让sed支持扩展正则）
+-i（sed直接修改源文件，默认sed只是通过内存临时修改文件，源文件无影响）
+
+
+
+
+1）sed命令的 -n 选项
+
+执行p打印等过滤操作时，希望看到的是符合条件的文本。但不使用任何选项时，默认会将原始文本一并输出，从而干扰过滤效果。比如，尝试用sed输出/etc/hosts的第1行：
+[root@svr5 ~]# sed '1p' /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+
+
+可以发现所有的行都被显示出来了（第1行重复2次）。—— 正确的用法应该添加 -n 选项，这样就可以只显示第1行了：
+[root@svr5 ~]# sed -n '1p' /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+行号可以是连续的行号，如打印passwd第3到第6行账户的信息：
+[root@svr5 ~]# sed  -n '3,6p' /etc/passwd
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+
+
+2）sed命令的 -i 选项
+正常情况下，sed命令所做的处理只是把操作结果（包括打印、删除等）输出到当前终端屏幕，而并不会对原始文件做任何更改：
+[root@svr5 ~]# sed 'd' /etc/passwd                      //删除所有行
+[root@svr5 ~]# cat /etc/passwd                          //查看原始文本，并未改动
+若希望直接修改文件内容，应添加选项 -i 。
+比如，直接删除test.txt（自行创建一个任意内容的文件）的第1~4行：
+[root@svr5 ~]# sed -i '1,4d' test.txt            //删除操作
+[root@svr5 ~]# cat test.txt                      //确认删除结果
+下文中关于使用sed修改文件的示例中，为了避免大家在练习过程中因误操作导致系统故障，命令省略 –i 选项，不再逐一说明。需要时，大家可自行加上此选项。
+
+
+
+3）多个指令可以使用分号隔离
+用分号来隔离多个操作，比如：
+[root@svr5 ~]# sed -n '1p;4p' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+
+

@@ -1,0 +1,25 @@
+mv 移动/重命名
+• mv — Move
+– 格式:mv    原文件...   目标路径
+
+[root@localhost /]# rm -rf /mnt/*
+[root@localhost /]# mkdir /mnt
+
+[root@localhost /]# mkdir  /mnt/nsd01
+[root@localhost /]# touch  /mnt/a.txt
+[root@localhost /]# ls  /mnt/
+
+[root@localhost /]# mv  /mnt/a.txt  /mnt/nsd01/
+[root@localhost /]# ls  /mnt
+[root@localhost /]# ls  /mnt/nsd01
+
+重命名：路径不变的移动
+[root@localhost /]# mv /mnt/nsd01/  /mnt/student
+[root@localhost /]# ls /mnt/
+
+[root@localhost /]# mv /mnt/student/  /mnt/file
+[root@localhost /]# ls /mnt/
+
+[root@localhost /]# mv /mnt/file  /mnt/abcd
+[root@localhost /]# ls /mnt/
+

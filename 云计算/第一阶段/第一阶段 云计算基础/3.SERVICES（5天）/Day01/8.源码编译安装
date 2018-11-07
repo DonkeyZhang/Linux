@@ -1,0 +1,48 @@
+源码编译安装
+
+ rpm包： rpm -ivh    yum 
+
+  源码包-----运行gcc与make--->可以执行的程序---》运行安装即可
+
+   源码包的优势：可以选择安装的功能及路径，更加的灵活
+
+虚拟机A：
+步骤1: 安装gcc与make
+[root@svr7 ~]# yum  -y   install   gcc
+
+步骤2: tar解包,释放源代码至指定目录
+# tar -xf  /tools/inotify-tools-3.13.tar.gz  -C  /
+# ls  /
+# ls  /inotify-tools-3.13/
+
+步骤3:  ./configure  配置,指定安装目录/功能模块等选项
+                                   作用：检测本机是否安装gcc
+
+# cd /inotify-tools-3.13/
+# ./configure  --prefix=/opt/myrpm   #指定安装位置
+
+
+常见错误提示：没有安装gcc
+checking for gcc... no
+checking for cc... no
+checking for cl.exe... no
+configure: error: no acceptable C compiler found in $PATH
+
+步骤4: make 编译,生成可执行的二进制程序文件
+ # cd /inotify-tools-3.13/
+ # make 
+
+步骤5: make install 安装,将编译好的文件复制到安装目录
+ # cd /inotify-tools-3.13/
+ # make install
+ # ls /opt/
+ # ls /opt/myrpm
+ # ls /opt/myrpm/
+ # ls /opt/myrpm/bin/
+ 
+###############################################
+
+[root@svr7 ~]# man  5  passwd
+
+               5:配置文件的帮助信息
+

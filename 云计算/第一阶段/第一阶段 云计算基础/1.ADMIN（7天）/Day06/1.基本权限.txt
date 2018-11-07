@@ -1,0 +1,133 @@
+基本权限
+
+• 访问方式(权限)
+– 读取:允许查看内容-read    r  
+– 写入:允许修改内容-write     w   
+– 可执行:允许运行和切换-execute   x
+
+对于文本文件作用：
+      r:查看文件内容      cat  less  head tail 
+      w:修改文件内容      vim  保存
+      x:双击运行该文件 
+
+• 权限适用对象(归属)
+  – 所有者:拥有此文件/目录的用户-user  u
+  – 所属组:拥有此文件/目录的组-group     g
+  – 其他用户:除所有者、所属组以外的用户-other   o
+
+
+• 使用 ls -l 命令
+– ls -ld 文件或目录...
+
+ 以 - 开头：代表文本文件
+ 以 d 开头：代表目录
+ 以 l 开头：快捷方式
+
+[root@server0 /]# ls -ld /etc/
+[root@server0 /]# ls -l  /etc/passwd
+
+[root@server0 /]# ls -ld /root
+[root@server0 /]# ls -ld /home/student
+
+[root@server0 /]# ls -ld /tmp
+[root@server0 /]# ls -ld /boot
+
+[root@server0 /]# ls -l  /etc/shadow
+
+###########################################
+设置基本权限
+• 使用 chmod 命令
+– chmod [-R] 归属关系+-=权限类别 文档...
+   [-R]:递归修改权限
+[root@server0 /]# mkdir  /nsd01
+[root@server0 /]# ls -ld  /nsd01
+
+[root@server0 /]# chmod u-w  /nsd01
+[root@server0 /]# ls -ld /nsd01
+
+[root@server0 /]# chmod g+w  /nsd01
+[root@server0 /]# ls -ld /nsd01
+
+[root@server0 /]# chmod o=---  /nsd01
+[root@server0 /]# ls -ld /nsd01
+
+[root@server0 /]# chmod u=rwx,g=rx,o=rx  /nsd01
+[root@server0 /]# ls -ld /nsd01
+[root@server0 /]# chmod ugo=rwx  /nsd01
+[root@server0 /]# ls -ld /nsd01
+
+################################################
+Linux判断用户具备的权限：匹配及停止
+   1.查看用户对于，文档处于什么身份    所有者>所属组>其他人
+   2.查看相应权限位置的权限
+
+  Permission denied:权限不足
+
+
+##########################################
+
+目录的 r 权限:能够 ls 浏览此目录内容
+
+目录的 w 权限:能够执行 rm/mv/cp/mkdir/touch/等更改目录内容的操作
+
+目录的 x 权限:能够 cd 切换到此目录
+
+###############################################
+以root用户新建/nsddir/目录，在此目录下新建readme.txt文件
+并进一步完成下列操作
+ 1）使用户lisi能够在此目录下创建子目录   切换用户  su  -  lisi
+     chmod o+w  /nsddir/
+ 2）使用户lisi不能够在此目录下创建子目录
+     chmod o-w  /nsddir/
+ 3）使用户lisi能够修改readme.txt文件
+     chmod o+w  /nsddir/readme.txt
+ 4）调整此目录的权限，使所有用户都不能cd进入此目录
+     chmod u-x,g-x,o-x  /nsddir/
+ 5）为此目录及其下所有文档设置权限 rwxr-x---
+     chmod -R  u=rwx,g=rx,o=---  /nsddir/ 
+  chmod -R 设置已存在的文档
+
+##############################################
+设置文档归属
+• 使用 chown 命令
+– chown [-R] 属主  文档...
+– chown [-R] :属组  文档...
+– chown [-R] 属主:属组  文档..
+
+        [-R]:递归修改归属关系
+
+[root@server0 /]# useradd zhangsan
+[root@server0 /]# groupadd tarena
+[root@server0 /]# mkdir /nsd03
+[root@server0 /]# ls -ld /nsd03
+
+[root@server0 /]# chown zhangsan:tarena /nsd03
+[root@server0 /]# ls -ld /nsd03
+
+[root@server0 /]# chown lisi /nsd03   #修改所有者
+[root@server0 /]# ls -ld /nsd03
+
+[root@server0 /]# chown :root /nsd03  #修改所属组
+[root@server0 /]# ls -ld /nsd03
+
+#################################################
+利用root用户新建/nsd06目录，并进一步完成下列操作
+1）将属主设为gelin01，属组设为tarena组
+[root@server0 /]# useradd gelin01
+[root@server0 /]# groupadd tarena
+[root@server0 /]# chown gelin01:tarena  /nsd06
+2）使用户gelin01对此目录具有rwx权限，其他人对此目录无任何权限
+[root@server0 /]# chmod o=--- /nsd06
+3）使用户gelin02能进入、查看此目录
+[root@server0 /]# gpasswd -a  gelin02  tarena
+4）将gelin01加入tarena组, 将nsd06目录的权限设为rw-r-x---
+      再测试gelin01用户能否进入此目录
+[root@server0 /]# chmod u=rw,g=rx /nsd06
+
+
+
+
+
+
+
+

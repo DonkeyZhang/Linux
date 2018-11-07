@@ -1,0 +1,293 @@
+第一天
+1、#自动配置yum#
+#!/bin/bash
+echo  "
+[yum]
+name=yum
+baseurl=ftp://192.168.4.254/rhel7
+enabled=1
+gpgcheck=0"
+> /etc/yum.repos.d/yum.repo
+yum clean all &>/dev/null
+yum repolist
+
+
+################################################
+2、#自动安装httpd#
+#!/bin/bash
+yum -y install httpd
+echo 'woshihttpd'>/var/www/html/index.html 
+systemctl restart httpd
+systemctl enable httpd
+ 
+#################################################
+
+3、#自动安装vsftpd#
+#!/bin/bash
+yum -y install vsftpd
+cp /etc/passwd /var/ftp
+sytsemctl restart ftpd
+systemctl enable ftpd
+
+##################################################
+
+4、#增加用户#
+#!/bin/bash
+[ $USER != root ] && exit                    #判断是否为root，不是就退出，非root不能用这个脚本
+read -p " 请输入用户名" user                   #定义一个可输入变量user
+[ -z $user ] && echo "未输入用户名：" && exit   #判断用户有没有输入变量（-z ，zero），没有输入，输出“未输入用户名“，然后退出
+stty -echo                                   #因为要输入密码了，关掉回显功能
+read -p "请的输入密码："  pass                  #定义可输入变量pass
+stty echo                                    #打开回显功能    
+[ -z $pass ] && "未输入密码" && exit           #判断用户有没有输入变量（-z ，zero），没有输入，输出“未输入密码“，然后退出
+useradd $user                                #以上都正常运行了，添加用户
+echo $pass |passwd --stdin $user             #设密码
+
+################################################################
+
+5、#检查登陆的用户，超过三人发邮件给root#
+#!/bin/bash
+[ ` who|wc -l ` -ge 3 ] && echo  "人数超过三人" | mail -s  'warning' root
+
+###################################################################
+
+6、#检查目录存在不存在，不存在创建一个#
+#!/bin/bash
+ dir='/media/cdrom'
+if [ ! -d dir ]
+then
+  mkdir -p $dir
+fi
+##################################################################
+
+7、#能不能ping通目标主机#
+#!/bin/bash
+read -p "请输入ip:" ip
+[ -z $ip ] && echo "你TM未输入ip啊!" && exit
+ping -c2 -W1 $ip &>/dev/null
+if [ $? -eq 0 ];then
+  echo "ping 通"
+else
+  echo "不可达"
+fi
+###################################################################3
+
+8、#猜随机数10之内#
+#num=`echo $RANDOM`#
+#num=$[RANDOM%10+1]#
+#let num=RANDOM%10+1#
+
+#!/bin/bash
+num=$[RANDOM%10+1]
+read -p "你猜:" cai
+while :
+do
+if   [ $cai -eq $num ];then
+  echo 'right!'
+  exit
+elif [ $cai -gt $num ];then
+  echo '大了'
+else
+  echo '小了'
+fi
+done
+##############################################################################
+
+
+9、#比较三个数大小，输出最大的#
+#!/bin/bash
+read -p '请输入三个值' n1 n2 n3
+if [ $n1 -gt $n2 ];then
+
+  if [  $n1 -gt $n3 ];then
+      echo "$n1"
+  else
+      echo  "$n3"
+  fi
+
+else
+
+  if [ $n2 -gt $n3 ];then
+     echo "$n2"
+  else
+     echo "$n3"
+  fi
+
+fi
+#计算机崩溃了，看谁cpu最大可以kill谁
+#######################################################################################
+
+第二天
+10、编写脚本,通过 3 个 read 命令读取用户输入的三个任意数字,脚本对输入的三个数字求和输出。
+#!/bin/bash
+read -p "请输入三个数" n1 n2 n3
+[ -z $n1 ] && echo '未输入数字'&&exit
+[ -z $n2 ] && echo '未输入完整数字'&&exit
+[ -z $n3 ] && echo '未输入完整数字'&&exit
+echo " $n1+$n2+$n3" |bc
+
+#############################################################################
+
+11、 判断当前系统启动的进程数量,如果进程数量超过 100 个,则发送邮件给 root 报警。
+(ps 命令可以查看所有进程,wc 可以统计数量)
+#!/bin/bash
+num=`ps aux|wc -l`
+if [ $num -gt 1 ];then
+   echo '程序超过1个' | mail -s "PCwarning" root
+fi
+#################################################################################
+
+12、编写脚本,通过 2 个 read 命令,2 次读取用户输入的密码,脚本判断 2 次密码是否一致,一致则返回 OK,否
+则返回 Error。
+
+#!/bin/bash
+stty -echo
+read -p "请输入用户密码：" pass1
+read -p "再次确认密码：" pass2
+stty echo
+[ -z $pass1 ]&&echo '未输入密码：'&&exit
+[ -z $pass2 ]&&echo '未确认密码：'&&exit
+if [ $pass1 == $pass2 ];then
+   echo 'OK'
+else
+   echo 'Error'
+fi
+###################################################################################
+
+13、 编写脚本,测试当前用户对/etc/passwd 文件是否具有读、写、执行的权限,脚本执行结果类似下面的效果
+1)
+#!/bin/bash
+file=/etc/passwd
+[ -r /etc/passwd ] && echo "当前用户对$file 有读权限" || echo "当前用户对$file 没有读权限"
+[ -w /etc/passwd ] && echo "当前用户对$file 有写权限" || echo "当前用户对$file 没有写权限"
+[ -x /etc/passwd ] && echo "当前用户对$file 有执行权限" || echo "当前用户对$file 没有执行权限"
+
+2)改进版 
+#!/bin/bash
+[ -e $1 ] && echo  当前用户对$1 存在" || echo " $1 不存在 "
+[ -d $1 ] && echo  当前用户对$1 是目录" || echo "$1 不是目录 "
+[ -f $1 ] && echo  当前用户对$1 是文件" || echo " $1 不是文件 "
+[ -r $1 ] && echo "当前用户对$1 有读权限" || echo "当前用户对$1 没有读权限"
+[ -w $1 ] && echo "当前用户对$1 有写权限" || echo "当前用户对$1 没有写权限"
+[ -x $1 ] && echo "当前用户对$1 有执行权限" || echo "当前用户对$1 没有执行权限"
+
+
+3)加强版
+
+#!/bin/bash
+for i in  `find $1`
+do
+  [ -e $i ] && echo  "当前用户对$i 存在"       || echo " $i 不存在 "  
+  [ -d $i ] && echo  "当前用户对$i 是目录"     || echo " $i 不是目录 "
+  [ -f $i ] && echo  "当前用户对$i 是文件"     || echo " $i 不是文件 "
+  [ -r $i ] && echo  "当前用户对$i 有读权限"   || echo "当前用户对$i 没有读权限"
+  [ -w $i ] && echo  "当前用户对$i 有写权限"   || echo "当前用户对$i 没有写权限"
+  [ -x $i ] && echo  "当前用户对$i 有执行权限" || echo "当前用户对$i 没有执行权限"
+done
+
+
+14、编写脚本,判断系统中是否启动了 sshd、httpd、crond、vsftpd 服务。
+
+#!/bin/bash
+s=` ps aux|grep -v grep|grep sshd|wc -l`
+h=` ps aux|grep -v grep|grep httpd|wc -l`
+c=` ps aux|grep -v grep|grep crond|wc -l`
+v=` ps aux|grep -v grep|grep vsftpd|wc -l`
+[ $s -gt 0 ]  &&echo  "sshd 已经启动" || echo  "sshd 未启动"
+[ $h -gt 0 ]  &&echo  "httpd 已经启动" ||echo  "httpd 未启动"
+[ $c -gt 0 ]  &&echo  "crond 已经启动"||echo "crond 未启动"
+[ $v -gt 0 ]  &&echo  "vsftpd 已启动"||echo "vsftpd 未启动"
+
+###########################################################
+
+15、编写脚本,通过 read 读取用户输入的一个圆半径,脚本输出圆的面积,面积公式如下:
+圆面积=πr 2 ,提示 r 2 就是 r 乘 r,π是 3.14
+
+#!/bin/bash
+read -p "请输入半径：" r
+[ -z $r ]&&echo "未输入半径"&&exit
+echo "3.14*$r*$r"|bc
+
+##################################################################
+
+16、编写脚本,通过 read 读取用户任意输入的用户名,脚本判断系统中是否有该账户
+1)判断在不在
+#!/bin/bash
+read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&exit
+id $user &>/dev/null
+if [ $? -eq 0 ];then
+   echo "用户已存在"
+else
+    echo "用户不存在"
+fi
+
+
+2）判断在不在，不在需不需创建
+#!/bin/bash
+read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&exit
+id $user &>/dev/null
+if [ $? -eq 0 ];then
+   echo "用户已存在"
+else
+    echo "用户不存在"
+    read -p "是否需要创建用户$user ？（y\n）" exist 
+    if [ $USER != root ];then
+         echo "没有权限" 
+         exit                    
+     elif [ -z $exist ];then
+         echo "未输入(y\n)"
+         exit
+     elif [ $exist == "n"];then
+            exit
+     elif [ $exist == "y"];then          
+      useradd  $user &>/dev/null              
+      echo "创建用户成功"
+      stty -echo
+      read -p "请输入用户密码：" pass1
+      read -p "再次确认密码：" pass2
+      stty echo
+        if  [ -z $pass1 ];then
+         echo '未输入密码：'
+         exit
+        elif [ -z $pass2 ];then
+         echo '未确认密码：'
+         exit
+        elif [ $pass1 == $pass2 ];then
+           echo 'OK'
+        else
+          echo 'Error'
+        fi         
+    fi
+fi
+
+
+17、 
+编写脚本,通过 find 找出系统中大于 1G 的文件有多数个,如果大于 1G 的文件数量少于 10 个,脚本仅输出
+文件个数即可,如果大于 1G 的文件大于等于 10 个则显示具体的文件名。
+
+#!/bin/bash
+findnum=` find /  -size +20M -type f |wc -l`
+if [ $findnum  -gt 30 ];then
+   echo `find / -size +20M -type f`
+else
+   echo "$findnum"
+fi
+ 
+
+第三天
+
+
+
+
+
+
+
+
+
+第四天
+
+

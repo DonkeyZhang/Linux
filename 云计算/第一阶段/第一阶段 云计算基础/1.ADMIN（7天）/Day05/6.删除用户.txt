@@ -1,0 +1,8 @@
+删除用户
+• 使用 userdel 命令
+– userdel [-r] 用户名       # -r:连同用户家目录一并删除
+
+[root@server0 ~]# userdel  alex
+[root@server0 ~]# id alex
+id: alex: no such user
+

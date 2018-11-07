@@ -1,0 +1,58 @@
+1、驱动精灵
+2、系统内核
+3、图形--打开-选择文件--open-01010100 
+图形太占用带宽，优化0.5ms goole 100k
+
+1、什么是shell？
+Shell是在Linux内核与用户之间的解释器程序，通常指的是bash，负责向内核翻译及传达用户/程序指令
+硬件-->系统内核->解释器
+#shell是个概念  比如 shell是汽车，那bash就是宝马汽车，shell是包含了很多种解释器
+
+[root@svr5 ~]# yum -y install ksh              //若缺少ksh请先安装ksh包
+[root@svr5 ~]# cat /etc/shells
+/bin/sh
+/bin/bash
+/sbin/nologin
+/bin/tcsh
+/bin/csh
+/bin/ksh                                        //确认当前系统已识别ksh
+#有多种解释器，bash是默认解释器，且是性能是最好的
+root@svr5 ~]# ksh                               //进入ksh环境
+[root@svr5]~# exit                              //返回到切换前的bash环境
+
+useradd -s #指定解释器
+usermod -s #修改解释器
+若希望修改用户的登录Shell，管理员可以直接通过usermod（或useradd）命令设置。
+比如，以下操作可将用户zhangsan的登录Shell改为/bin/ksh：
+[root@svr5 ~]# usermod -s /bin/ksh zhangsan              //执行修改操作
+[root@svr5 ~]# grep 'zhangsan' /etc/passwd
+zhangsan:x:516:516::/home/zhangsan:/bin/ksh              //修改后
+
+2、shell的使用方式：
+
+1.交互执行指令：人工干预，执行效率底。
+2.非交互执行指令：安静地在后台执行，执行效率高，方便写脚本。
+若需要临时使用另一种Shell环境，可以直接执行对应的Shell解释器程序，比如只要执行ksh可以切换到ksh命令行环境。
+
+3、
+[root@svr5 ~]# history -c                      //清空自己的历史命令
+[root@svr5 ~]# > ~/.bash_history                  //清空记录文件
+输出 输入
+|  内存条 性能高
+
+
+
+4、
+#!/bin/bash
+descrption: 描述
+version:1.0
+
+#！/bin/bash
+/etc/yum.repos.d/yum.repo
+[yum]
+name=yum
+baseurl
+不能数字开头，特殊符号
+env(environment)
+set(所有的变量）
+

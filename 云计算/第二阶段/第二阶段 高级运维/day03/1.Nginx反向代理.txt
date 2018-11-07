@@ -1,0 +1,82 @@
+Nginx反向代理
+
+1.1 问题
+
+使用Nginx实现Web反向代理功能，实现如下功能：
+后端Web服务器两台，可以使用httpd实现
+Nginx采用轮询的方式调用后端Web服务器
+两台Web服务器的权重要求设置为不同的值
+最大失败次数为1，失败超时时间为30秒
+
+1.2 方案
+
+使用4台RHEL7虚拟机，其中一台作为Nginx代理服务器，该服务器需要配置两块网卡，IP地址分别为192.168.4.5和192.168.2.5，两台Web服务器IP地址分别为192.168.2.100和192.168.2.200。客户端测试主机IP地址为192.168.4.10。如图-1所示。
+
+图-1
+外网 4.10-- 内网--4.5/2.5---2.100/2.200
+
+#################################################   
+
+安全
+只暴露一个ip，内部是真实的web服务，可以屏蔽真实位置，ip
+负载均衡
+
+###########################################
+
+checking 健康检查 会检查web有没有坏掉，会自动换掉，好了自动再用
+
+############################################
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：部署实施后端Web服务器
+
+1）部署后端Web1服务器
+后端Web服务器可以简单使用yum方式安装httpd实现Web服务，为了可以看出后端服务器的不同，可以将两台后端服务器的首页文档内容设置为不同的内容。
+[root@web1 ~]# yum  -y  install  httpd
+[root@web1 ~]# echo "192.168.2.100" > /var/www/html/index.html
+[root@web1 ~]# systemctl restart httpd
+[root@web1 ~]# firewall-cmd --set-default-zone=trusted
+[root@web1 ~]# setenforce 0
+
+2）部署后端Web2服务器
+[root@web2 ~]# yum  -y  install  httpd
+[root@web2 ~]# echo "192.168.2.200" > /var/www/html/index.html
+[root@web2 ~]# systemctl restart httpd
+[root@web2 ~]# firewall-cmd --set-default-zone=trusted
+[root@web2 ~]# setenforce 0
+
+步骤二：配置Nginx服务器，添加服务器池，实现反向代理功能
+
+1）修改/usr/local/nginx/conf/nginx.conf配置文件
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+.. ..
+http {
+.. ..
+#使用upstream定义后端服务器集群，集群名称任意(如webserver)
+#使用server定义集群中的具体服务器和端口
+upstream webserver {
+                server 192.168.2.100:80;
+                server 192.168.2.200:80;
+        }
+.. ..
+server {
+        listen        80;
+        server_name  localhost;
+      
+       location / {
+                   proxy_pass http://webserver;
+        }
+}
+
+2）重启nginx服务
+[root@proxy ~]# /usr/local/nginx/sbin/nginx -s reload
+#请先确保nginx是启动状态，否则运行该命令会报错,报错信息如下：
+#[error] open() "/usr/local/nginx/logs/nginx.pid" failed (2: No such file or directory)
+
+3）客户端使用浏览器访问代理服务器测试轮询效果
+[root@client ~]# curl http://192.168.4.5            //使用该命令多次访问查看效果
+[root@client ~]# curl http://192.168.4.5            //使用该命令多次访问查看效果
+
+
+

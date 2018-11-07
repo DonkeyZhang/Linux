@@ -1,0 +1,108 @@
+#########################################################
+
+crontab -e -u root
+* * * * *  mkdir /mnt/log-`date +%Y%m%D%H%M`
+ if  后面可以直接加命令
+
+if ping -c1 -i0.2 -w1 192.168.4.11   &>/dev/null;then
+if 只关心对错
+命令 
+if $?
+##########################################################
+
+
+1、脚本能遍历ping各主机，并反馈存活状态通
+#!/bin/bash
+for i in {1..50}
+do
+  if  ping -c3 -w1  192.168.4.$i &>/dev/null;then
+      echo "192.168.4.$i 可达"
+  else
+      echo  "192.168.4.$i 不可达"
+   fi
+done
+
+
+#################################################################
+
+2、对一个目录下文件的分别备份
+#!/bin/bash
+for i in ` ls /etc/*.conf`
+do
+    tar -zcf /mnt/lala/$i.tar.gz  /etc/$i &> /dev/null  
+done
+
+
+#########################################################
+
+3、批量创建用户
+#!/bin/bash
+for i in  `cat user.txt`
+do
+  id $i &>/dev/null     #判断存不存在
+  if [ $? -q 0 ];then
+     echo '用户已存在‘
+  else
+  useradd $i &>/dev/null
+  echo '123456'|passwd --stdin $i &>/dev/null
+  echo "$i is success!" 
+  echo "$i创建密码成功！"
+  fi
+done
+
+
+#####################################################################
+
+4、引用函数的急速ping网段
+#!/bin/bash
+myping(){                         #函数 
+   ping -c1 -W1 $1 &>/dev/null
+   if [ $? -eq 0 ];then
+      echo "$1 is up"
+   else
+      echo "$1 is down"
+   fi
+}
+for i in {1..254}
+do
+  myping 172.40.54.$i &
+done
+wait
+
+###########################################################################
+5、### 实现多功能的脚本###
+#!/bin/bash
+case $1 in
+-n|-N|--new)
+  touch $2;;
+-e|--edit)
+  vim $2;;
+-c|--check)
+ cat $2;;
+-d|--delete)
+ rm -rf $2;;
+*)
+echo "Usage: $0 [-n|-e|-c|-d] filename"
+esac
+
+#############################################################################
+
+6、shell版本的fork炸弹
+[root@svr5 ~]# vim test.sh
+#!/bin/bash
+.(){
+.|.&
+}
+.
+
+
+
+
+
+
+
+
+
+
+
+

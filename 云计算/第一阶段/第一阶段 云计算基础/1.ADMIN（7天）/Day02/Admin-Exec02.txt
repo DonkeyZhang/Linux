@@ -1,0 +1,63 @@
+案例：ls命令练习
+  1. 查看根目录下内容ls /
+  2. 显示根目录内容的详细属性ls -l /
+  3. 显示/boot目录内容的详细属性ls -l /boot
+  4. 显示/root的内容ls -l/root
+  5. 显示/bin/bash程序，详细属性ls -l /bin/bash
+  6. 显示/opt目录内容的详细属性ls -l/opt
+
+案例：查看文件内容练习
+  1.查看/etc/passwd文件内容cat /etc/passwd
+  2.查看/etc/default/useradd文件内容cat /default/useradd
+  3.查看内存信息cat /proc/meminfo
+  4.查看/etc/default/usercd add文件内容，并显示行号cat -n /etc/default/useradd
+  5.显示文件/etc/passwd文件内容的头3行内容head -3 /etc/passwd
+  6.显示文件/etc/passwd文件内容的尾4行内容tail -4 /etc/passwd
+  7.显示文件/etc/passwd文件内容的头12行内容head -12 /etc/passwd
+  8.利用less分屏阅读/etc/passwd文件内容less /etc/passwd
+  9.利用grep命令显示/etc/passwd文件内容中，包含root的行grep root /etc/passwd
+
+案例：cd命令练习
+  1.切换到根目录，利用pwd命令查看当前位置cd / pwd
+  2.切换到/root，利用pwd命令查看当前位置cd /root pwd
+  3.切换到/boot，利用pwd命令查看当前位置cd /boot pwd
+  4.切换到/opt，利用pwd命令查看当前位置cd /opt pwd
+  5.切换到/tmp，利用pwd命令查看当前位置cd /tmp pwd
+  6.切换到/var，利用pwd命令查看当前位置cd /var pwd
+  7.切换到/home，利用pwd命令查看当前位置cd /home pwd
+  8.切换到/etc，利用pwd命令查看当前位置cd /etc pwd
+  9.切换到/proc，利用pwd命令查看当前位置cd /proc pwd
+  10.切换到/etc/pki，利用pwd命令查看当前位置,再利用cd ..进行返回上一层目录
+cd /etc/pki pwd cd ..
+案例：主机名与查看网卡命令练习 
+  1.显示当前系统主机名hostname 
+  2.显示当前系统内核版本uname -r
+  3.设置eth0网卡IP地址为192.168.10.1 ifconfig eth0 192.168.10.1
+  4.查看当前系统eth0网卡IP地址信息ifconfig eth0
+  
+
+案例：创建命令练习
+  1.请在/root创建三个目录分别为student、file、nsd18 mkdir /root/student
+ /root/file /root/nsd18
+  2.请在/opt创建三个文本文件分别为1.txt、a.txt、nsd.txt touch /opt/1.txt
+/opt/a.txt /opt/nsd.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

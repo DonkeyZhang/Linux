@@ -1,0 +1,51 @@
+邮件服务
+
+• 电子邮件服务器的基本功能
+– 为用户提供电子邮箱存储空间(用户名@邮件域名)
+– 处理用户发出的邮件 —— 传递给收件服务器
+– 处理用户收到的邮件 —— 投递到邮箱
+
+   SMTP：用户发邮件协议   25
+   pop3：用户收邮件协议   110
+
+
+DNS服务器：classroom.example.com
+
+    yg@server0.example.com
+    xln@server0.example.com
+
+虚拟机Server0：
+1.安装 postfix软件
+[root@server0 /]# rpm -q postfix
+postfix-2.10.1-6.el7.x86_64
+
+2.修改主配置文件/etc/postfix/main.cf
+[root@server0 /]# vim /etc/postfix/main.cf
+  #在末行模式下  :set  nu  开启行号
+
+ 99 myorigin = server0.example.com  #默认补全域名后缀
+ 116 inet_interfaces = all    #允许所有使用邮件功能
+ 164 mydestination = server0.example.com
+                                                          #利用值来判断为本域邮件
+
+3.重起服务
+[root@server0 /]# systemctl restart postfix
+################################################
+使用mail命令发信/收信
+• mail 发信操作
+– mail  -s   '邮件标题'   -r 发件人   收件人[@收件域]...
+
+• mail 收信操作
+– mail  [-u 用户名]
+
+[root@server0 /]# useradd yg
+[root@server0 /]# useradd xln
+
+# echo  haha  |  mail -s   'test'   -r  yg  xln
+# mail -u  xln
+>N  1 yg@server0.example.com  
+&  1    #输入邮件的编号，查看邮件内容
+
+
+
+

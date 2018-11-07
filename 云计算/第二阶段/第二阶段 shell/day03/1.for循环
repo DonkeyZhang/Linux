@@ -1,0 +1,164 @@
+使用for循环结构
+1.1 问题
+
+本案例要求编写一个Shell脚本chkhosts.sh，利用for循环来检测多个主机的存活状态，相关要求及说明如下：
+对192.168.4.0/24网段执行ping检测
+脚本能遍历ping各主机，并反馈存活状态
+执行检测脚本以后，反馈结果如图-1所示。
+
+1.2 方案
+
+在Shell脚本应用中，常见的for循环采用遍历式、列表式的执行流程，通过指定变量从值列表中循环赋值，每次复制后执行固定的一组操作。
+for循环的语法结构如下所示：
+for  变量名  in  值列表
+do
+    命令序列
+done
+
+for  变量名  in  {1..5}                  # {区间}
+do
+    命令序列
+done
+
+for  变量名  in  `seq 5`                 #默认1到5，`seq  5 10`   5到10
+do
+    命令序列
+done
+
+for  变量名  in  `ls /etc/*.conf`       #不仅仅使用数字    
+do
+    命令序列
+done
+############################################################################
+
+# 对一个目录下文件的分别备份
+for i in ` ls /etc/*.conf`
+do
+    tar -zcf /mnt/lala/$i.tar.gz  /etc/$i &> /dev/null  
+done
+
+#批量创建用户
+for i in  `cat user.txt`
+do
+  id $i &>/dev/null
+  if [ $? -eq 0 ];then
+     echo '用户已存在’
+  else
+    useradd $i &>/dev/null
+    echo '123456'|passwd --stdin $i &>/dev/null
+    echo "$i is success!" 
+    echo "$i创建密码成功！"
+  fi
+done
+
+#在一行输出多个*   2个for 循环
+for  k  in {1..4}
+do
+ for i in {1..4} 
+ do
+    echo -n ' * '   # echo 换行输出，echo -n  不换行输出
+ done 
+ echo
+done 
+扩展:类c语言
+for ((i=1;i<=5;i++))
+do
+  echo $i
+done
+
+#while 循环 条件不成立的结束
+#!/bin/bash
+i=1
+while [ $i -le 5 ]
+do
+        echo "$i"
+        let i++
+done
+#执行5次，判断6次#
+
+
+##############################################################
+
+
+
+
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：练习for循环基本用法
+
+脚本1，通过循环批量显示5个hello world：
+[root@svr5 ~]# vim for01.sh
+#!/bin/bash
+for i in 1 2 3 4 5
+do
+        echo "hello world"
+done
+[root@svr5 ~]# chmod +x for01.sh
+[root@svr5 ~]# ./for01.sh
+
+
+脚本2，通过循环批量显示10个hello world：
+[root@svr5 ~]# vim for02.sh
+#!/bin/bash
+for i in {1..10}
+do
+        echo "hello world"
+done
+[root@svr5 ~]# chmod +x for02.sh
+[root@svr5 ~]# ./for02.sh
+
+
+脚本3，通过循环批量显示10个数字：
+[root@svr5 ~]# vim for03.sh
+#!/bin/bash
+for i in {1..10}
+do
+        echo "$i"
+done
+[root@svr5 ~]# chmod +x for03.sh
+[root@svr5 ~]# ./for03.sh
+
+步骤二：批量检测多个主机的存活状态
+
+1）编写脚本如下：
+命令备注：ping命令可以测试某台主机的连通性，
+使用-c选项可以设置ping的次数，
+使用-i选项可以设置多次ping之间的间隔时间（单位秒），
+使用-W选项可以设置ping不通时的超时时间（单位秒）。
+[root@svr5 ~]# vim chkhosts.sh
+#!/bin/bash
+for i in {1..254}
+do
+    ping -c 3 -i 0.2 -W 1 192.168.4.$i &> /dev/null
+    if [ $? -eq 0 ] ; then
+        echo "Host 192.168.4.$i is up."
+    else
+        echo "Host 192.168.4.$i is down."
+    fi
+done
+[root@svr5 ~]# chmod +x chkhosts.sh
+4）测试、验证脚本
+… …
+[root@svr5 ~]# ./chkhosts.sh
+Host 192.168.4.5 is up.
+Host 192.168.4.6 is down
+… …
+步骤三：创建账户的案例
+
+创建users.txt，写入无规律的账户名称，最后使用for循环读取该文件，批量创建账户并设置密码。
+[root@svr5 ~]# vim addfor.sh
+#!/bin/bash
+for i in `cat /root/user.txt`
+do
+     useradd $i
+     echo 123456 | passwd --stdin $i
+done
+附加扩展知识（C语言风格的for循环语法格式）
+[root@svr5 ~]# vim cfor.sh
+#!/bin/bash
+for ((i=1;i<=5;i++))
+do
+   echo $i
+done
+

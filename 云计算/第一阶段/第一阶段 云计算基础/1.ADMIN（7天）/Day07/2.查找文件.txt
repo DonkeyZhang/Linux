@@ -1,0 +1,122 @@
+查找文件
+• 根据预设的条件递归查找对应的文件
+– find [目录] [条件1] [-a|-o] [条件2] ...
+
+– 常用条件表示:
+  -type 类型(f文本文件、d目录、l快捷方式)
+  -name "文档名称"
+  -size +|-文件大小(k、M、G)
+  -user 用户名
+
+# find /boot/  -type d    #查找/boot目录下是目录的
+
+# find /boot/  -type f    #查找/boot目录下是文件的
+
+# find /boot/  -type l    #查找/boot目录下是快捷方式
+
+# ls /boot/grub/menu.lst 
+
+# ls -l /boot/grub/menu.lst
+
+统计命令
+[root@server0 ~]# wc -l /etc/passwd  #统计行数
+
+统计/etc目录下以".conf"结尾的有多少个？
+# find /etc/ -name "*.conf"  
+# find /etc/ -name "*.conf"  | wc -l
+
+
+# find /etc/ -name "*tab"  
+# find /etc/ -name "*tab"   | wc -l
+
+# find /dev/ -name "tty*"   
+# find /dev/ -name "tty*"   | wc -l 
+
+[root@server0 ~]# mkdir /root/nsd1808
+[root@server0 ~]# touch /root/nsd01.txt
+[root@server0 ~]# touch /root/nsd02.txt              
+
+# find /root/ -name "nsd*"
+
+# find /root/ -name "nsd*"  -type f  #默认两个条件都满足
+
+# find /root/ -name  "nsd*"  -type  d
+
+#############################################
+ -size  +10M   #大于10M
+ -size  -10M   #小于10M
+ 
+   k(小写)  M(大写)  G(大写)
+
+[root@server0 ~]# find /boot/ -size +10M
+
+[root@server0 ~]# ls -lh /boot/initr*
+
+[root@server0 ~]# find /boot/ -size -10M
+
+##############################################
+-user 用户名     #按照文档的所有者
+
+  /proc/:所占用的空间不是硬盘，而是内存
+
+[root@server0 ~]# find / -user student
+
+[root@server0 ~]# find / -user student -type d
+
+[root@server0 ~]# find / -user student -type f
+
+
+• 根据名称查找,忽略大小写
+– -iname
+[root@server0 /]# find /etc/ -iname "PASSWD"
+[root@server0 /]# find /etc/ -name "PASSWD"
+
+• 根据账号名称或所属组
+– -user、-group
+[root@server0 /]# find /home/ -group student
+
+• 限制目录查找的深度(最大层数)
+– -maxdepth
+# find  /etc/  -maxdepth  1    -name "*.conf"
+# find  /etc/  -maxdepth  2    -name "*.conf"
+# find  /etc/  -maxdepth  3    -name "*.conf"
+
+
+• 使用find命令的 -exec 操作
+– find .. .. -exec 处理命令 {} \;
+– 优势:以 {} 代替每一个结果,逐个处理,遇 \; 结束
+
+# rm -rf /opt/*
+# find /etc/ -name "*tab" 
+# find /etc/ -name "*tab"  -exec cp {}  /mnt/  \;
+# ls /mnt/
+
+# find /boot -size +10M  
+# find /boot -size +10M  -exec cp {}  /opt/   \;
+# ls /opt
+
+
+• 使用find命令完成以下任务
+– 找出所有用户 student 拥有的文件
+– 把它们拷贝到 /root/findfiles/ 文件夹中
+
+# mkdir /root/findfiles
+# find  /  -user  student   -type  f 
+
+# find  /  -user  student   -type  f  
+  -exec cp  {}    /root/findfiles/     \;
+
+# ls  -A  /root/findfiles/
+
+############################################
+• 根据文件修改时间，所有的时间都是过去时间
+
+ -mtime +10   #过去的   10天之前修改和创建的文档 
+
+ -mtime -10   #过去的   10天之内修改和创建的文档 
+
+  var:存放经常变化的数据
+
+[root@server0 /]# find /var/log/ -mtime -10
+[root@server0 /]# find /var/log/ -mtime +10
+[root@server0 /]# find /var/log/ -mtime +1000

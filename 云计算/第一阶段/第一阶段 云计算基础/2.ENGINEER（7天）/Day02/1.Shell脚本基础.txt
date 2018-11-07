@@ -1,0 +1,15 @@
+###################################################
+Shell脚本基础
+
+脚本：一个可以运行文件，可以实现某种功能
+
+案例：
+   请利用Shell语言实现，运行一个文件，可以再命令行
+   输出:hello world
+
+[root@server0 ~]# vim /root/hello.sh
+  echo hello world
+
+[root@server0 ~]# chmod +x /root/hello.sh [root@server0 ~]# ls -l /root/hello.sh
+
+[root@server0 ~]# /root/hello.sh

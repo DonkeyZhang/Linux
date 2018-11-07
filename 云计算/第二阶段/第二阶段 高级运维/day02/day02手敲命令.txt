@@ -1,0 +1,308 @@
+1、环境装准备
+1)
+准备工作
+nmcli connection add type ethernet con-name eth1 ifname eth1
+nmcli connection modify eth0 ipv4.method manual ipv4.addresses '192.168.4.25/24' connection.autoconnection yes
+nmcli connection up eth1
+
+mkdir /etc/yum.repos.d/others
+mv /etc/yum.repos.d/* /etc/yum.repos.d/others/
+echo "
+[yum] 
+name=yum 
+basesur=ftp://192.168.4.254/rhel7 
+enbled=1 
+gpgcheck=0 "> /etc/yum.repos.d/yum.repo
+yum clean all
+yum repolist
+
+scp /root/lnmp_soft.tar.gz root@192.168.4.5:/
+
+tar -xf  /lnmp_soft.tar.gz  -C /mnt/
+
+tar -xf /mnt/lmnp_soft/nginx-1.10.tar.gz -C /mmt/
+
+tar -xf /mnt/lmnp_soft/nginx-1.12.2.tar.gz -C /mmt/
+
+cd /mnt/nginx-1.10
+
+安装
+useradd -s /sbin/nologin nginx
+yum -y istall gcc prce-devel openssl-devel
+
+./configure \
+--prefix=/usr/local/nginx \
+--user=nginx \
+--group=nginx \
+--with-httpd_ssl_module 
+make
+make install
+
+软连接
+ln -s /usr/local/nginx/sbin/nginx /sbin
+
+验证
+nginx 
+nginx -s stop
+nginx -s reload
+ps aux|grep nginx
+netstat -antulp |grep :80
+netstat -antulp |grep :3306
+netstat -antulp |grep ：9000
+
+升级
+cd /mnt/nginx-1.12.2
+./configure \
+--prefix=/usr/local/nginx
+--user=nginx
+--group=nginx
+--with-httpd_ssl_module
+make
+
+mv /usr/local/nginx/sbin/nginx{,.bak}
+
+cp /mnt/nginx-1.12.2/objs/nginx /usr/local/nginx/sbin/
+
+killall nginx
+nginx
+
+ 
+1）
+1.yum -y install nginx
+2.yum -y mariadb mariadb-sever  mariadb-devel
+3.yum -y php  php-mysql
+4.rpm -ivh php-fpm
+
+2）
+1.niginx
+2.systemctl start mariadb
+3.sytsemctl enable mariadb 
+4.systemctl start php-fpm
+5.systemctl enable php-fpm
+
+3)
+1./usr/local/nginx/conf/nginx.conf
+sever  {
+     listen 80;
+     sever_name www.a.com;
+
+     location  / {
+     root html;
+     index index.html index.htm;
+      }
+   }  
+server {
+       listen 80;
+       server_name www.b.com;
+        
+       location / {
+       root   www;
+       index index.html index.htm;
+         }
+ }
+server {
+        listen  80;
+        server_name bbs.c.com
+
+        location / {
+        root   bbs;
+        index  index.html index.htm;
+          }
+ }
+server {
+        listen 80:
+        server_name mail.lala.com;
+        location /  {
+          ssl
+          ssl
+          ssl
+          ssl
+        root mail
+        index index.html .index.htm;
+       {
+}
+ 
+openssl genrsa >cert.key
+openssl req -new -x509 -key cert.key>cert.pem     
+4）
+
+用户认证网站
+
+auth_basic "lala";
+auth_basic_user_file "/usr/local/nginx/pass";
+
+yum -y install httpd-tools
+        
+htpasswd -c  /usr/local/nginx/pass  tom
+>1234
+>1234
+htpasswd /usr/local/nginx/pass jerry
+>1234
+>1234
+htpasswd -D 删除
+
+5)
+nginx -s reload
+
+firefow www.a.com
+
+
+2、构建LNMP平台
+1）
+grep -v "^$" /etc/php-fpm.d/www.conf|grep -v ";"
+
+2)
+sever {
+       listen 80;
+       server_name  www.a.com;
+      
+       location / {
+       root html;
+       index index.html index;
+        }
+           
+      location ~\.php$ {      
+      root  html;
+      fastcgi_pass  127.0.0.1:9000;
+      fastcgi_index index.php;
+      include fastcgi.conf;
+        }
+ }
+
+3)
+echo \
+' <?php \
+ $i=testphp;\
+echo $i\
+>' > /usr/local/nginx/html/test.php
+
+4）
+
+cp /mnt/lnmp_soft/php_script/mysql.php /usr/local/nginx/html/
+
+5)
+systemctl restart php-fpm
+nginx -s reload
+
+firefox www.a.com
+firefox www.a.com/test.php
+firefox www.a.com/mysql.php
+
+6)
+/usr/local/nginx/logs/access.logs
+/usr/local/nginx/logs/error.logs
+/var/log/php-fpm/www-error.log
+
+
+3、地址重写
+1）
+  server {
+  listen 80;
+  server_name www.a.com;
+  rwrite ^/a.html/b\.html
+ 
+
+2)
+  server {
+  listen 80;
+  server_name www.a.com;
+  rewrite /a.html /b.html redirect;
+
+3)
+  server {
+  listen 80;
+  server_name www.a.com;
+  rwrite ^/ /http://www.tmooc.cn/ redirect;
+4）
+  server {
+  listen 80;
+  server_name www.a.com;
+  rewrite ^/(.*)$ /http://www.tmooc.cn/$1 redirect;
+5)
+  server {
+  listen 80;
+  server_name www.a.com;
+  if ($http_user_agent ~* firefox){
+  rewrirte  ^/(.*) /firefox/$1;
+}:  
+
+
+
+ #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+                     ip 用户名 时间 请求 内容大小字节 协议版本系统    
+ 192.168.4.10 - - [01/Nov/2018:09:24:27 +0800] "GET /test3.html HTTP/1.1" ]302 161 "                                         
+ "Mozilla/5.0 (X11; Linux x86_64; rv:52.0)  Gecko/20100101  Firefox/52.0"
+
+500 服务器错误
+404 notfound
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+         
+           
+       
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+如何知道目录内容的变化，监控目录内容的变化
+
+1.真机传递软件包到虚拟机A中
+# scp /root/桌面/tools.tar.gz  root@192.168.4.7:/
+
+2.虚拟机A安装inotify-tools工具，实现监控目录内容的变化
+# tar -xf /tools.tar.gz -C /root/
+# mkdir /myrpm
+# tar -xf /root/tools/inotify-tools-3.13.tar.gz -C /myrpm
+# ls /myrpm/
+
+步骤1: 安装gcc与make
+步骤2:  ./configure      #首先切换到,解压目录内
+步骤3: make             #首先切换到,解压目录内
+步骤4: make install     #首先切换到,解压目录内
+[root@svr7 /]# which inotifywait  #查询命令所对应的程序
+/usr/local/bin/inotifywait
+[root@svr7 /]# echo $PATH   
+  
+##################################################
+
+inotifywait监控
+• 基本用法
+– inotifywait [选项] 目标文件夹
+• 常用命令选项
+– -m,持续监控(捕获一个事件后不退出)
+– -r,递归监控、包括子目录及文件
+– -q,减少屏幕输出信息
+– -e,指定监视的 modify、move、create、delete、
+attrib 等事件类别
+#######################################################################

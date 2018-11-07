@@ -1,0 +1,67 @@
+tar备份与恢复
+
+归档及压缩： 1.零散的文件归成一个 
+              2.占用硬盘空间变小
+
+常见的压缩格式及命令工具:
+  .gz ---> gzip    速度最快，但比较大
+  .bz2 ---> bzip2  速度一般，大小一般
+  .xz ---> xz      速度最慢，最小
+
+制作归档及压缩（打包----->tar包）
+格式：tar 选项    /路径/tar包名字     /路径/源文件   /路径/源文件
+ 
+解包
+格式：tar 选项    /路径/tar包名字     /路径/释放的位置
+
+
+– -c:创建归档
+– -x:释放归档
+– -f:指定归档文件名称
+– -z、-j、-J:调用 .gz、.bz2、.xz 格式的工具进行处理
+– -t:显示归档中的文件清单
+– -C（大写）:指定释放位置
+
+打包：
+    tar -zcf  /路径/tar包名字        /路径/源文件
+    tar -jcf  /路径/tar包名字        /路径/源文件
+    tar -Jcf  /路径/tar包名字        /路径/源文件
+     选项顺序要求：-f必须在最后
+
+解包：
+    
+    tar  -xf  /路径/tar包名字   -C  /路径/指定释放位置
+
+红色：压缩包
+
+ [root@A ~]# rm -rf /opt/*
+ [root@A ~]# rm -rf /mnt/*
+ # tar -zcf  /opt/nsd02.tar.gz   /home/  /boot/
+ # ls /opt/
+
+ # tar -jcf  /opt/test01.tar.bz2  /home/  /boot/
+ # ls /opt/
+
+ # tar -Jcf  /opt/file01.tar.xz   /home/  /boot/
+ # ls /opt/
+
+ # tar -xf   /opt/nsd02.tar.gz   -C    /mnt/
+ # ls  /mnt/
+ # ls  /mnt/boot/
+
+################################################
+查看tar包内的内容
+[root@A ~]# tar -tf /opt/file01.tar.xz 
+
+
+案例2:创建一个备份包
+使用 tar 工具完成以下备份任务:
+– 创建一个名为 /root/backup.tar.bz2 的归档文件
+– 其中包含 /usr/local 目录中的内容
+– tar 归档必须使用 bzip2 进行压缩
+
+# tar -jcf  /root/backup.tar.bz2     /usr/local/
+# ls /root/
+
+# tar -tf /root/backup.tar.bz2    #查看包内容
+

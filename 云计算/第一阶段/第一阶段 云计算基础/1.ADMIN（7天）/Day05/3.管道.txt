@@ -1,0 +1,13 @@
+
+管道  |  :将前面命令的输出结果，交由面后命令处理
+
+[root@A ~]# head -12 /etc/passwd
+[root@A ~]# head -12 /etc/passwd | tail -5
+     
+[root@A ~]# cat -n /etc/passwd 
+[root@A ~]# cat -n /etc/passwd | head -12 | tail -5
+
+[root@A ~]# ifconfig | less
+[root@A ~]# ifconfig | head -2
+
+[root@A ~]# echo 1+2 | bc 

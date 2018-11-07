@@ -1,0 +1,30 @@
+awk数组
+
+1）数组的语法格式
+数组是一个可以存储多个值的变量，具体使用的格式如下：
+定义数组的格式：数组名[下标]=元素值
+调用数组的格式：数组名[下标]
+遍历数组的用法：for(变量 in 数组名){print 数组名[变量]}。
+
+[root@svr5 ~]# awk 'BEGIN{a[0]=11;a[1]=88;print a[1],a[0]}'
+88 11
+
+[root@svr5 ~]# awk 'BEGIN{a++;print a}'
+1
+
+[root@svr5 ~]# awk 'BEGIN{a0++;print a0}'
+1
+
+[root@svr5 ~]# awk 'BEGIN{a[0]++;print a[0]}'
+1
+
+[root@svr5 ~]# awk 'BEGIN{a[0]=0;a[1]=11;a[2]=22; for(i in a){print i,a[i]}}'
+0 0
+1 11
+2 22
+
+
+注意，awk数组的下标除了可以使用数字，也可以使用字符串，字符串需要使用双引号：
+[root@svr5 ~]# awk 'BEGIN{a["hehe"]=11;print a["hehe"]}'
+11
+

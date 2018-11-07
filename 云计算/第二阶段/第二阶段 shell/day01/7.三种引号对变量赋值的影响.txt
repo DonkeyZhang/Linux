@@ -1,0 +1,22 @@
+三种引号对变量赋值的影响
+
+1）双引号的应用
+使用双引号可以界定一个完整字符串。
+[root@svr5 ~]# xx=Tarena IT Group
+-bash: IT: command not found                      //未界定时赋值失败
+[root@svr5 ~]# xx="Tarena IT Group"              //界定后成功
+[root@svr5 ~]# touch aa bb                      //创建了两个文件
+[root@svr5 ~]# touch "aa bb"                    //创建了一个文件
+[root@svr5 ~]# ls                                //查看结果
+
+2）单引号的应用
+界定一个完整的字符串，并且可以实现屏蔽特殊符号的功能。
+[root@svr5 ~]# test=11
+[root@svr5 ~]# echo "$test"
+[root@svr5 ~]# echo '$test'
+
+
+3）反撇号或$()的应用
+使用反撇号或$()时，可以将命令执行的标准输出作为字符串存储，因此称为命令替换。
+[root@svr5 ~]# tar -czf log-`date +%Y%m%d`.tar.gz /var/log
+

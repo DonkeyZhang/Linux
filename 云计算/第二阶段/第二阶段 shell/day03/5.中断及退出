@@ -1,0 +1,63 @@
+中断及退出
+5.1 问题
+
+本案例要求编写两个Shell脚本，相关要求如下：
+从键盘循环取整数（0结束）并求和，输出最终结果
+找出1~20以内6的倍数，并输出她的平方值
+
+
+5.2 方案
+
+通过break、continue、exit在Shell脚本中实现中断与退出的功能。
+break可以结束整个循环；
+continue结束本次循环，进入下一次循环；
+exit结束整个脚本，案例如下：
+
+[root@svr5 ~]# vim  test.sh
+#!/bin/bash
+for  i   in   {1..5}
+do
+       [  $i  -eq  3 ]&& break //这里将break替换为continue，exit分别测试脚本执行效果       echo $i
+done
+echo "Game Over"
+
+
+
+5.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：编写求和脚本sum.sh
+
+1）编写脚本文件
+[root@svr5 ~]# vim sum.sh 
+#!/bin/bash
+SUM=0
+while :
+do 
+read  -p  "请输入整数（0表示结束）："  x
+    [ $x -eq 0 ]  &&  break
+    SUM=$[SUM+x]
+done
+echo "总和是：$SUM"
+[root@svr5 ~]# chmod +x sum.sh
+[root@svr5 ~]# ./sum.sh
+
+
+步骤二：编写脚本文件，找出1-20内6的倍数，并打印她的平方值
+
+1）编写脚本文件
+注意：要求打印所有6的倍数的平方值，也就是非6的倍数都跳过！！！
+[root@svr5 ~]# vim test.sh 
+#!/bin/bash
+for i in {1..20}
+do
+    [ $[i%6] -ne 0 ]  &&  continue
+    echo $[i*i]
+done
+[root@svr5 ~]# chmod +x test.sh
+[root@svr5 ~]# ./test.sh
+
+
+
+
+

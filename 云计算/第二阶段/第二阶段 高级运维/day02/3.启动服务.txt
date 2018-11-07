@@ -1,0 +1,19 @@
+启动服务
+1）启动Nginx服务（如果已经启动nginx，则可以忽略这一步）
+这里需要注意的是，如果服务器上已经启动了其他监听80端口的服务软件（如httpd），则需要先关闭该服务，否则会出现冲突。
+[root@proxy ~]# systemctl stop httpd                //如果该服务存在则关闭该服务
+[root@proxy ~]# /usr/local/nginx/sbin/nginx             //启动Nginx服务
+[root@proxy ~]# netstat -utnlp | grep :80
+tcp    0    0 0.0.0.0:80        0.0.0.0:*        LISTEN        32428/nginx         
+2）启动MySQL服务
+[root@proxy ~]# systemctl start  mariadb           //启动服务器
+[root@proxy ~]# systemctl status mariadb           //查看服务状态
+[root@proxy ~]# systemctl enable mariadb           //设置开机启动
+3）启动PHP-FPM服务
+[root@proxy ~]# systemctl start php-fpm           //启动服务
+[root@proxy ~]# systemctl status php-fpm          //查看服务状态
+[root@proxy ~]# systemctl enable php-fpm          //设置开机启动
+4）设置防火墙与SELinux
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+[root@proxy ~]# setenforce 0
+

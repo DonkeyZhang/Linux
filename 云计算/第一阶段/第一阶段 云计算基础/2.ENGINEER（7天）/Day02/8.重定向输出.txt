@@ -1,0 +1,17 @@
+重定向输出
+
+     >：只收集前面命令的正确输出信息，写入文本文件中
+     2>：只收集前面命令的错误输出信息，写入文本文件中
+     &>：收集前面命令的正确与错误输出信息，写入文本文件中
+      
+	# echo 123 > /opt/1.txt
+	# cat /opt/1.txt /2.txt  #有正确信息与错误信息的输出
+
+	# cat /opt/1.txt /2.txt > /mnt/a.txt
+	# cat /mnt/a.txt
+
+	# cat /opt/1.txt /2.txt 2> /mnt/a.txt 
+	# cat /mnt/a.txt
+
+    # cat /opt/1.txt /2.txt &> /mnt/a.txt 
+    # cat /mnt/a.txt

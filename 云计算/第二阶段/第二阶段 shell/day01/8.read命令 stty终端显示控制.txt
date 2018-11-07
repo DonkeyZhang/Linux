@@ -1,0 +1,35 @@
+使用read命令从键盘读取变量值
+
+1）read基本用法
+执行后从会等待并接受用户输入（无任何提示的情况），并赋值给变量str：
+[root@svr5 ~]# read str
+What's happen ?                          //随便输入一些文字，按Enter键提交
+[root@svr5 ~]# echo $str                  //查看赋值结果
+What's happen ?
+为了不至于使用户不知所措、莫名其妙，推荐的做法是结合-p选项给出友好提示：
+[root@svr5 ~]# read -p "请输入一个整数：" i
+请输入一个整数：240
+[root@svr5 ~]# echo $i
+240
+
+
+2stty终端显示控制
+将回显功能关闭（stty -echo），
+将回显功能恢复（stty echo）。
+可参考下列操作创建一个测试脚本：
+[root@svr5 ~]# vim user.sh                   //创建一个测试脚本
+#!/bin/bash
+read -p "请输入用户名:"  username              //读取用户名
+stty -echo                                  //关闭回显
+read -p "请输入密码:"  passwd                  //读取密码
+stty echo                                   //恢复回显
+echo ""                                     //恢复回显后补一个空行
+useradd "$username"
+echo "$passwd" | passwd --stdin "$username"
+[root@svr5 ~]# chmod +x user.sh             //添加执行权限
+
+执行测试脚本user.sh，验证效果：
+[root@svr5 ~]# ./user.sh
+请输入用户名:  root                           //输入root，回车
+请输入密码:                                            //输入1234567（不会显示），回车
+

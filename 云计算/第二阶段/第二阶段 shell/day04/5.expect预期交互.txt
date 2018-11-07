@@ -1,0 +1,100 @@
+expect预期交互
+3.1 问题
+
+本案例要求编写一个expect脚本，实现SSH登录的自动交互：
+提前准备好目标主机，IP地址为192.168.4.5
+执行脚本后自动登入，并且在目标主机建立测试文件 /tmp/mike.txt
+
+3.2 方案
+
+expect可以为交互式过程（比如FTP、SSH等登录过程）自动输送预先准备的文本或指令，而无需人工干预。触发的依据是预期会出现的特征提示文本。
+储备知识（发送邮件的几种方式）：
+[root@svr5 ~]# echo "test mail" | mail -s test root
+[root@svr5 ~]# mail -s test root < /etc/passwd
+[root@svr5 ~]# mail -s test root << EOF
+test mail
+hell world
+EOF
+
+
+3.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：准备expect及SSH测试环境
+
+1）安装expect工具
+[root@svr5 ~]# yum  -y  install  expect                  //安装expect
+.. ..
+Installed:
+  expect.x86_64 0:5.44.1.15-5.el6_4                                                            
+Dependency Installed:
+  tcl.x86_64 1:8.5.7-6.el6 
+[root@svr5 ~]# which expect                              //确认expect
+
+路径
+/usr/bin/expect
+
+
+步骤二：编写脚本，实现免交互登录
+
+1）任务需求及思路分析
+在SSH登录过程中，如果是第一次连接到该目标主机，则首先会被要求接受密钥，然后才提示输入密码：
+注意：不要照抄这里的IP地址，需要根据自己的实际IP填写！！！
+[root@svr5 ~]# ssh root@192.168.4.5                              //连接目标主机
+The authenticity of host '192.168.4.5 (192.168.4.5)' can't be established.
+RSA key fingerprint is 58:a0:d6:00:c7:f1:34:5d:6c:6d:70:ce:e0:20:f8:f3.
+Are you sure you want to continue connecting (yes/no)? yes          //接受密钥
+Warning: Permanently added '192.168.4.5' (RSA) to the list of known hosts.
+root@192.168.4.5's password:                                   //验证密码
+Last login: Thu May  7 22:05:44 2015 from 192.168.4.5
+[root@svr5 ~]$ exit                                             //返回客户端
+logout
+Connection to 192.168.4.5 closed.
+当然，如果SSH登录并不是第一次，则接受密钥的环节就没有了，而是直接进入验证密码的过程：
+注意：不要照抄这里的IP地址，需要根据自己的实际IP填写！！！
+[root@svr5 ~]# ssh root@192.168.4.5                              //连接目标主机
+root@192.168.4.5's password:                                   //验证密码
+Last login: Mon May 11 12:02:39 2015 from 192.168.4.5
+[root@svr5 ~]$ exit                                             //返回客户端
+logout
+Connection to 192.168.4.5 closed.
+
+
+
+2）根据实现思路编写脚本文件
+脚本内容参考如下版本1：
+注意：不要照抄脚本里的IP地址与密码，需要根据自己的实际情况填写！！！
+[root@svr5 ~]# vim  expect_ssh.sh 
+#!/bin/bash
+expect << EOF
+spawn ssh 192.168.4.5                               #//创建交互式进程
+expect "password:" { send "123456\r" }              #//自动发送密码
+expect "#"          { send "touch /tmp.txt\r" }     #//发送命令
+expect "#"          { send "exit\r" }
+EOF
+[root@svr5 ~]# chmod  +x  expect_ssh.sh 
+通过循环批量操作，版本2：
+注意：不要照抄脚本里的IP地址与密码，需要根据自己的实际情况填写！！！
+[root@svr5 ~]# vim  expect_ssh.sh 
+#!/bin/bash
+for i in 10 11                                        #注意IP根据实际情况填写
+do
+expect << EOF
+spawn ssh 192.168.4.$i                               #//创建交互式进程
+expect "password:" { send "123456\r" }              #//自动发送密码
+expect "#"          { send "touch /tmp.txt\r" }      #//发送命令
+expect "#"          { send "exit\r" }
+EOF
+done
+
+
+[root@svr5 ~]# chmod  +x  expect_ssh.sh 
+注意事项：
+expect脚本的最后一行默认不执行
+如果不希望ssh时出现yes/no的提示，远程时使用如下选项:
+# ssh -o StrictHostKeyChecking=no server0
+
+
+
+
+

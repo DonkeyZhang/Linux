@@ -1,0 +1,54 @@
+
+• cp — Copy
+– 格式:cp [选项]... 原文件...    目标路径
+
+• 常用命令选项
+– -r:递归,复制目录时必须有此选项
+
+[root@localhost /]# rm -rf  /mnt/*
+[root@localhost /]# ls  /mnt/
+[root@localhost /]# cp  /etc/passwd  /mnt/
+[root@localhost /]# ls  /mnt/
+
+[root@localhost /]# cp  /etc/redhat-release   /mnt/
+[root@localhost /]# ls  /mnt/
+
+[root@localhost /]# cp -r  /boot/   /mnt/
+[root@localhost /]# ls  /mnt/
+[root@localhost /]# ls  /mnt/boot/
+
+处理复制时出现重名，强制覆盖
+在本次操作临时取消别名的操作
+
+[root@localhost /]# \cp -r /boot/ /mnt/
+[root@localhost /]# \cp -r /boot/ /mnt/
+
+[root@localhost /]# cp -r /boot/ /mnt/
+
+可以支持两个以上的参数，永远把最后一个参数作为目标，其他的所有参数都作为源
+
+# cp -r  /home/ /etc/fstab  /tmp/   /opt/   /mnt/
+# ls  /mnt
+
+复制与 点 的结合应用: 将源文档复制到，当前路径下
+  .表示 当前路径
+
+# cd  /etc/sysconfig/network-scripts
+# cp  /etc/fstab       .
+
+ 复制时候，可以重新命名，目标路径文档的名字
+[root@localhost /]# rm -rf /mnt/*
+[root@localhost /]# cp /etc/redhat-release /mnt/
+[root@localhost /]# ls /mnt/
+
+[root@localhost /]# cp /etc/redhat-release /mnt/a
+[root@localhost /]# ls /mnt/
+
+[root@localhost /]# rm -rf /mnt/*
+[root@localhost /]# cp -r /home/   /mnt/test
+[root@localhost /]# ls  /mnt
+[root@localhost /]# cp -r /home/   /mnt/test
+[root@localhost /]# ls  /mnt/test
+  请描述 两次复制的不同？
+   1.将/home目录复制到/mnt下重命名为test  
+   2.将/home目录复制到/mnt/test/目录下

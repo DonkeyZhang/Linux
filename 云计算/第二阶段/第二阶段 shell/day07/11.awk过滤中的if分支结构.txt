@@ -1,0 +1,42 @@
+awk流程控制
+4.1 问题
+
+本案例要求了解awk的流程控制操作，可自行设置awk语句来有验证以下操作：
+if分支结构（单分支、双分支、多分支）
+练习awk数组的使用
+
+
+4.2 步骤
+
+实现此案例需要按照如下步骤进行。
+
+
+步骤一：awk过滤中的if分支结构
+
+1）单分支
+统计/etc/passwd文件中UID小于或等于1000的用户个数：
+[root@svr5 ~]# awk -F: '{if($3<=1000){i++}}END{print i}' /etc/passwd
+39
+
+
+统计/etc/passwd文件中UID大于1000的用户个数：
+[root@svr5 ~]# awk -F: '{if($3>1000){i++}}END{print i}' /etc/passwd
+8
+
+统计/etc/passwd文件中登录Shell是“/bin/bash”的用户个数：
+[root@svr5 ~]# awk -F: '{if($7~/bash$/){i++}}END{print i}'  /etc/passwd
+29
+
+
+2）双分支
+
+
+分别统计/etc/passwd文件中UID小于或等于1000、UID大于1000的用户个数：
+[root@svr5 ~]# awk -F: '{if($3<=1000){i++}else{j++}}END{print i,j}' /etc/passwd
+39 8
+
+
+分别统计/etc/passwd文件中登录Shell是“/bin/bash”、 登录Shell不是“/bin/bash”的用户个数：
+[root@svr5 ~]# awk -F: '{if($7~/bash$/){i++}else{j++}} END{print i,j}' /etc/passwd
+29 38
+

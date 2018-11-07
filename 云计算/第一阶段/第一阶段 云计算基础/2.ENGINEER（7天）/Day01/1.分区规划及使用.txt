@@ -1,0 +1,118 @@
+扇区的大小为512字节
+
+分区规划及使用
+
+一块硬盘的“艺术”之旅
+• 识别硬盘 => 分区规划=> 格式化 => 挂载使用
+    毛坯楼层 => 打隔断 =>  装修 => 入驻
+
+一、识别硬盘
+[root@server0 ~]# lsblk
+ NAME    SIZE  TYPE  MOUNTPOINT
+ vda      10G   disk 
+ └─vda1  10G   part  /
+ vdb      10G   disk 
+
+二、分区规划
+
+• MBR/msdos 分区模式
+  – 分区类型：主分区、扩展分区、逻辑分区
+  – 1~4个主分区,或者  3个主分区+1个扩展分区(n个逻辑分区)
+  – 最大支持容量为 2.2TB 的磁盘
+  – 扩展分区不能格式化
+
+   /dev/sda5：SCSI接口设备第一块硬盘的第一个逻辑分区
+
+• GPT分区模式，最大到18EB
+    1EB=1000PB
+    1PB=1000TB
+
+[root@server0 ~]# fdisk /dev/vdb
+ n 创建新的分区---->回车---->回车--->回车--->在last结束时 +2G
+ p 查看分区表
+ n 创建新的分区---->回车---->回车--->回车--->在last结束时 +1G
+ d 删除分区
+ w 保存并退出
+
+[root@server0 ~]# lsblk
+[root@server0 ~]# ls  /dev/vdb[1-2]
+
+
+三、格式化，赋予空间 文件系统（规则）
+
+ # mkfs.ext4 /dev/vdb1   #格式化ext4文件系统
+ # blkid /dev/vdb1       #查看文件系统类型
+ # mkfs.xfs /dev/vdb2    #格式化xfs文件系统
+ # blkid /dev/vdb2       #查看文件系统类型
+
+四、挂载使用分区
+[root@server0 ~]# mkdir /mypart1  /mypart2
+[root@server0 ~]# mount /dev/vdb1  /mypart1
+[root@server0 ~]# mount /dev/vdb2  /mypart2
+[root@server0 ~]# df  -h   #显示已经挂载的设备使用情况
+
+五、开机自动挂载
+      配置/etc/fstab
+  设备路径        挂载点        类型     参数      备份标记    检测顺序
+
+[root@server0 ~]# tail -2 /etc/fstab 
+/dev/vdb1  /mypart1 ext4  defaults  0 0
+/dev/vdb2  /mypart2 xfs  defaults   0 0
+[root@server0 ~]# umount /mypart1
+[root@server0 ~]# umount /mypart2
+[root@server0 ~]# df -h
+[root@server0 ~]# mount -a
+   检测/etc/fstab开机自动挂载配置文件,格式是否正确
+   检测/etc/fstab中,书写完成,但当前没有挂载的设备,进行挂载
+[root@server0 ~]# df -h
+
+六、继续分区
+[root@server0 ~]# fdisk  /dev/vdb
+   p 查看分区表
+   n 创建主分区----->回车----->回车---->回车----->在last结束时 +1G
+   p 查看分区表
+   n 创建扩展分区 
+               ----->回车---->起始回车----->结束回车  将所有空间给扩展分区
+   p 查看分区表
+   n 创建逻辑分区----->起始回车------>结束+1G
+   n 创建逻辑分区----->起始回车------>结束+1G
+   p 查看分区表
+   w 保存并退出
+[root@server0 ~]# lsblk 
+[root@server0 ~]# partprobe  #刷新  新的分区表
+[root@server0 ~]# lsblk 
+############################################
+总结：
+  1.识别硬盘    lsblk
+  2.划分分区    fdisk
+  3.刷新分区表  partprobe
+  4.格式化      mkfs.ext4  mkfs.xfs---->blkid查看文件系统
+  5.利用mount挂载使用  ----> /etc/fstab完成开机自动挂载
+
+################################################
+为虚拟机添加新的硬盘60G
+ 1.关闭虚拟机server
+ 2.利用图形 为虚拟机server添加60G硬盘
+
+开机之后：
+ [root@room9pc01 ~]# gos
+ [root@server0 ~]# lsblk 
+
+ [root@server0 ~]# ls /dev/vdc
+
+################################################
+新加的60G硬盘进行分区
+ 三个主分区10G，划分扩展分区， 两个逻辑分区10G
+[root@server0 ~]# fdisk  /dev/vdc 
+   p 查看分区表
+   n 创建主分区----->回车----->回车---->回车----->在last结束时 +10G
+         连续创建3个10G主分区
+      ......
+   n 创建扩展分区 
+         ----->回车---->起始回车----->结束回车  将所有空间给扩展分区
+   p 查看分区表
+   n 创建逻辑分区----->起始回车------>结束+10G
+   n 创建逻辑分区----->起始回车------>结束+10G
+   p 查看分区表
+   w 保存并退出
+[root@server0 ~]# lsblk

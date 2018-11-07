@@ -1,0 +1,103 @@
+
+
+1. 编写脚本,通过 3 个 read 命令读取用户输入的三个任意数字,脚本对输入的三个数字求和输出。
+#!/bin/bash
+read -p "请输入三个数" n1 n2 n3
+[ -z $n1 ] && echo '未输入数字'&&exit
+[ -z $n2 ] && echo '未输入完整数字'&&exit
+[ -z $n3 ] && echo '未输入完整数字'&&exit
+echo " $n1+$n2+$n3" |bc
+######################################################################################
+
+
+2. 判断当前系统启动的进程数量,如果进程数量超过 100 个,则发送邮件给 root 报警。
+(ps 命令可以查看所有进程,wc 可以统计数量)
+#!/bin/bash
+num=`ps|wc -l`
+if [ $num -gt 1 ];then
+   echo '程序超过1个' | mail -s "PCwarning" root
+fi
+
+###########################################################################################
+
+
+3. 编写脚本,通过 2 个 read 命令,2 次读取用户输入的密码,脚本判断 2 次密码是否一致,一致则返回 OK,否
+则返回 Error。
+
+#!/bin/bash
+stty -echo
+read -p "请输入用户密码：" pass1
+read -p "再次确认密码：" pass2
+stty echo
+[ -z $pass1 ]&&echo '未输入密码：'&&exit
+[ -z $pass2 ]&&echo '未确认密码：'&&exit
+if [ $pass1 == $pass2 ];then
+   echo 'OK'
+else
+   echo 'Error'
+fi
+
+############################################################################################
+
+4. 编写脚本,测试当前用户对/etc/passwd 文件是否具有读、写、执行的权限,脚本执行结果类似下面的效果#
+#!/bin/bash
+file=/etc/passwd
+[ -r /etc/passwd ] && echo "当前用户对$file 有读权限" || echo "当前用户对$file 没有读权限"
+[ -w /etc/passwd ] && echo "当前用户对$file 有写权限" || echo "当前用户对$file 没有写权限"
+[ -x /etc/passwd ] && echo "当前用户对$file 有执行权限" || echo "当前用户对$file 没有执行权限"
+
+
+#########################################################################################
+5. 编写脚本,判断系统中是否启动了 sshd、httpd、crond、vsftpd 服务。
+
+#!/bin/bash
+sshd=` ps aux|grep -v grep|grep sshd|wc -l`
+httpd=` ps aux|grep -v grep|grep httpd|wc -l`
+crond=` ps aux|grep -v grep|grep crond|wc -l`
+vsftpd=` ps aux|grep -v grep|grep vsftpd|wc -l`
+[ $sshd -gt 0 ]  &&echo  "sshd 已经启动" || echo  "sshd 未启动"
+[ $httpd -gt 0 ]  &&echo  "httpd 已经启动" ||echo  "httpd 未启动"
+[ $crond -gt 0 ]  &&echo  "crond 已经启动"||echo "crond 未启动"
+[ $vsftpd -gt 0 ]  &&echo  "vsftpd 已启动"||echo "vsftpd 未启动"
+
+
+
+###########################################################################################
+6.编写脚本,通过 read 读取用户输入的一个圆半径,脚本输出圆的面积,面积公式如下:
+圆面积=πr 2 ,提示 r 2 就是 r 乘 r,π是 3.14
+#！/bin/bash
+read -p "请输入半径：" r
+[ -z $r ]&&echo "未输入半径"&&exit
+echo "3.14*$r*$r"|bc
+
+
+
+##########################################################################################
+7.编写脚本,通过 read 读取用户任意输入的用户名,脚本判断系统中是否有该账户
+#!/bin/bash
+read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&read -p "请输入用户名：" user
+[ -z $user ]&&echo "未输入名字"&&exit
+id $user &>/dev/null
+if [ $? -eq 0 ];then
+   echo "用户已存在"
+else
+    echo "用户不存在"
+fi
+
+
+#################################################################################################3333
+8. 编写脚本,通过 find 找出系统中大于 1G 的文件有多数个,如果大于 1G 的文件数量少于 10 个,脚本仅输出
+文件个数即可,如果大于 1G 的文件大于等于 10 个则显示具体的文件名。
+
+#!/bin/bash
+findnum=` find /  -size +20M -type f |wc -l`
+if [ $findnum  -gt 30 ];then
+   echo `find / -size +20M -type f`
+else
+   echo "$findnum"
+fi
+
+
+
+

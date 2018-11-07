@@ -1,0 +1,23 @@
+1.awk '{print}' grade.txt 
+
+2.awk '{print $1,$4}' grade.txt |column -t
+
+3.awk 'BEGIN{print "Name","Belt"}{print $1,$4}' grade.txt|column -t
+
+4.awk '$4~/Brown/{print}' grade.txt
+
+5.awk '/$3~/48/{print}' grade.txt 
+
+6.awk  '$3=="48"{print}' grade.tx
+
+7.awk '!/Brown/{print}' grade.txt 
+
+8.awk  '$4!="Brown-2"{print}' grade.txt
+
+9.awk  '$6>$7{print}' grade.txt
+
+10.awk '$1~/^..a/{print}' grade.txt 
+
+11.awk '/Yellow|Brown/{print}' grade.txt
+
+12.awk '{if($1=="M.Tansley") $6=$6-1; print $1,$6,$7}' grade.txt

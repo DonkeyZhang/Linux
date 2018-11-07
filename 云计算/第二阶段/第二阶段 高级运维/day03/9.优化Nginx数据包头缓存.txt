@@ -1,0 +1,34 @@
+优化Nginx数据包头缓存
+
+1）优化前，使用脚本测试长头部请求是否能获得响应
+[root@proxy ~]# cat lnmp_soft/buffer.sh 
+#!/bin/bash
+URL=http://192.168.4.5/index.html?
+for i in {1..5000}
+do
+    URL=${URL}v$i=$i
+done
+curl $URL                                //经过5000次循环后，生成一个长的URL地址栏
+[root@proxy ~]# ./buffer.sh
+.. ..
+<center><h1>414 Request-URI Too Large</h1></center>        //提示头部信息过大
+2）修改Nginx配置文件，增加数据包头部缓存大小
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+.. ..
+http {
+client_header_buffer_size    1k;        //默认请求包头信息的缓存    
+large_client_header_buffers  4 4k;        //大请求包头部信息的缓存个数与容量
+.. ..
+}
+[root@proxy ~]# nginx -s reload
+3）优化后，使用脚本测试长头部请求是否能获得响应
+[root@proxy ~]#cat cat buffer.sh 
+#!/bin/bash
+URL=http://192.168.4.5/index.html?
+for i in {1..5000}
+do
+    URL=${URL}v$i=$i
+done
+curl $URL
+[root@proxy ~]# ./buffer.sh
+

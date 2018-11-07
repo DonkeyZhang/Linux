@@ -1,0 +1,52 @@
+Web访问控制（DocumentRoot）
+
+针对 DocumentRoot 网页目录的权限控制
+                – httpd 运行身份(用户/组):apache
+
+服务配置
+• 使用 <Directory> 配置区段
+– 每个文件夹自动继承其父目录的访问权限
+– 除非针对子目录有明确设置
+              /opt 拒绝所有人访问
+              /opt/test   拒绝所有人访问
+              /opt/class  单独书写配置允许
+ <Directory 目录的绝对路径>
+      .. ..
+   Require all denied|granted
+   Require ip IP或网段地址 .. ..
+ </Directory>
+#############################################################
+案例3:配置网页内容访问
+
+在 Web 网站 http://server0.example.com 的DocumentRoot 目录下创建一个名为 private 的子目录
+
+1.查看DocumentRoot 路径
+# cat /etc/httpd/conf.d/nsd.conf
+
+2.创建相应目录
+[root@server0 ~]# mkdir /var/www/myweb/private
+
+3.书写一个网页文件
+# echo '<h1> wo shi private' > /var/www/myweb/private/index.html
+
+# cat /var/www/myweb/private/index.html
+
+4.从 server0 上,任何人都可以浏览 private 的内容,但是从其他系统不能访问这个目录的内容
+
+[root@server0 ~]# vim /etc/httpd/conf.d/test.conf
+<Directory  /var/www/myweb/private>
+    Require  ip  172.25.0.11
+</Directory>
+
+5.重起httpd服务
+
+客户端与服务端均做访问测试：
+
+firefox  server0.example.com/private
+
+验证最终结果：虚拟机desktop被拒绝，虚拟机server可以访问
+
+
+
+
+

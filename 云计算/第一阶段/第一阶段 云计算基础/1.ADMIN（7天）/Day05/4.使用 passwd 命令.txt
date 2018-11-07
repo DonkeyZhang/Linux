@@ -1,0 +1,33 @@
+• 使用 passwd 命令
+– passwd [用户名]
+
+[root@A ~]# passwd nsd01
+更改用户 nsd01 的密码 。
+新的 密码：                                 #输入密码
+无效的密码： 密码是一个回文
+重新输入新的 密码：                    #输入密码
+passwd：所有的身份验证令牌已经成功更新。
+[root@A ~]# su - nsd01  #临时切换用户身份： su  -  用户名
+[nsd01@A ~]$ passwd 
+Changing password for user nsd01.
+Changing password for nsd01.
+(current) UNIX password:           #输入旧密码
+New password:                      #输入新密码
+Retype new password:               #重新输入新密码
+passwd: all authentication tokens updated successfully.
+[nsd01@A ~]$ exit
+
+################################################
+非交互式设置用户密码
+
+– echo '密码' | passwd --stdin 用户名
+
+[root@A ~]# echo  123  |  passwd --stdin nsd01
+
+[root@A ~]# echo  123  |  passwd --stdin nsd02
+
+################################################
+用户密码信息存放在 /etc/shadow 文件
+用户名：密码加密字符串:上一次修改密码的时间
+
+自1970-1-1到上一次修改密码时间经过的天数

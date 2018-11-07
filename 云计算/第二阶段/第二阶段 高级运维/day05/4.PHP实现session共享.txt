@@ -1,0 +1,66 @@
+4 案例4：PHP实现session共享
+
+4.1 问题
+沿用练习三，通过修改PHP-FPM配置文件，实现session会话共享，本案例需要在练习三的基础上实现：
+配置PHP使用memcached服务器共享Session信息
+客户端访问两台不同的后端Web服务器时，Session 信息一致
+
+4.2 方案
+在练习三拓扑的基础上，Nginx服务器除了承担调度器外，还需要担任memcached数据库的角色，并在两台后端LNMP服务器上实现PHP的session会话共享。拓扑结构如图-4所示。
+
+图-4
+
+4.3 步骤
+实现此案例需要按照如下步骤进行。
+步骤一：构建memcached服务
+
+1）安装Memcached服务（如果192.168.4.5上已经有本软件包，此步骤可以忽略）
+[root@proxy ~]# yum -y install memcached
+
+2）启动服务并查看网络连接状态验证是否开启成功：
+[root@proxy ~]# systemctl restart memcached
+[root@proxy ~]# netstat  -anptu  |  grep memcached
+tcp    0    0 0.0.0.0:11211        0.0.0.0:*        LISTEN        2839/memcached      
+tcp    0    0 :::11211            :::*                LISTEN        2839/memcached      
+udp    0    0 0.0.0.0:11211        0.0.0.0:*                    2839/memcached      
+udp    0    0 :::11211            :::*                            2839/memcached
+
+3）关闭SELinux、防火墙
+[root@proxy ~]# setenforce 0
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+
+步骤二：在后端LNMP服务器上部署Session共享
+注意：这些操作在两台后端Web服务器上均需要执行，以下操作以Web1（192.168.2.100）服务器为例。
+
+1）为PHP添加memcache扩展
+注意，因为后端两台web服务器(web1,web2)都需要连接memcached数据库，所以两台主机都需要安装PHP扩展模块(下面也web1为例)。
+[root@web1 ~]# yum -y install  php-pecl-memcache
+
+
+
+2）修改PHP-FPM配置文件，并重启服务
+注意，因为后端两台web服务器(web1,web2)都需要修改配置文件(下面也web1为例)。
+[root@web1 ~]# vim  /etc/php-fpm.d/www.conf            //修改该配置文件的两个参数
+//文件的最后2行
+修改前效果如下:
+php_value[session.save_handler] = files
+php_value[session.save_path] = /var/lib/php/session
+//原始文件，默认定义Sessoin会话信息本地计算机（默认在/var/lib/php/session）
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+修改后效果如下:
+php_value[session.save_handler] = memcache
+php_value[session.save_path] = "tcp://192.168.2.5:11211"
+//定义Session信息存储在公共的memcached服务器上，主机参数中为memcache（没有d）
+//通过path参数定义公共的memcached服务器在哪（服务器的IP和端口）
+[root@web1 ~]# systemctl  restart  php-fpm
+
+
+
+步骤三：客户端测试
+客户端使用浏览器访问两台不同的Web服务器。
+操作步骤与练习三一致，最终可以获得相关的Session ID信息。
+
+
+
+
+

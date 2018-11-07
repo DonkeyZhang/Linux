@@ -1,0 +1,44 @@
+常用的测试选项
+• 检查文档状态
+	-e:文档存在为真
+	-d:文档存在,且为目录才为真
+	-f:文档存在,且为文件才为真
+	-r:文档存在,且具备读取权限才为真
+	-w:文档存在,且具备写入权限才为真
+	-x:文档存在,且具备执行权限才为真
+
+[root@server0 ~]# [ -d   /etc/passwd  ]
+[root@server0 ~]# echo $?
+[root@server0 ~]# [ -d  /home  ]
+[root@server0 ~]# [ -e  /home  ]
+[root@server0 ~]# [ -f  /home  ]
+[root@server0 ~]# [ -f  /etc/passwd  ]
+
+
+• 比较整数大小
+   -gt：大于
+   -ge：大于等于
+   -eq：等于
+   -ne：不等于
+   -lt：小于
+   -le：小于等于
+
+[root@server0 ~]# [  1  -gt  2  ]
+[root@server0 ~]# echo $?
+[root@server0 ~]# [  1  -eq  2  ]
+[root@server0 ~]# echo $?
+[root@server0 ~]# [  1  -ge  1  ]
+[root@server0 ~]# echo $?
+
+• 字符串比对
+   ==:两个字符串相等为真
+   !=:两个字符串不相等为真
+
+[root@server0 ~]# [ student == root ]
+[root@server0 ~]# echo $?
+
+[root@server0 ~]# [ student != root ]
+[root@server0 ~]# echo $?
+
+[root@server0 ~]# [ $USER == root ]
+[root@server0 ~]# echo $?

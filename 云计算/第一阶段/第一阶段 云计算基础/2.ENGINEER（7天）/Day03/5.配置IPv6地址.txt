@@ -1,0 +1,20 @@
+配置IPv6地址
+
+IPv4地址：32个二进制组成,利用点分隔,用4个十进制数表示
+
+IPv6地址：128个二进制组成,利用冒号分隔8部分,
+                 最终每一部分利用4个16进制数表示
+
+   每段内连续的前置 0 可省略、连续的多个 : 可简化为 ::
+   例如:        2003:ac18:0000:0000:0000:0000:0000:0305
+          2003:ac18::305
+
+虚拟机Server0
+# nmcli connection modify 'System eth0' 
+ipv6.method manual ipv6.addresses 2003:ac18::305/64  
+connection.autoconnect  yes
+
+# nmcli connection up 'System eth0'
+
+# ifconfig | head -4
+

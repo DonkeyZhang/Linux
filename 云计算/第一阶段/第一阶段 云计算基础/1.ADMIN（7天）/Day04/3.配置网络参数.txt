@@ -1,0 +1,55 @@
+配置网络参数
+一、配置永久的主机名
+[root@server0 ~]# vim /etc/hostname
+[root@server0 ~]# cat /etc/hostname
+A.tedu.cn
+[root@server0 ~]# hostname
+[root@server0 ~]# exit
+登出
+Connection to 172.25.0.11 closed.
+[root@room9pc01 ~]# gos
+[root@A ~]# hostname
+
+二、配置永久的IP地址、子网掩码、网关地址
+
+网卡配置文件/etc/sysconfig/network-scripts/ifcfg-eth0
+
+通过命令nmcli connection  #可以修改网卡配置文件
+
+1.查看命令识别网卡的名称
+[root@A ~]# nmcli connection show
+
+2.进行配置永久的IP地址、子网掩码、网关地址
+# nmcli connection     modify 'System eth0'      ipv4.method manual    ipv4.addresses '172.25.0.110/24 172.25.0.254'   connection.autoconnect yes
+
+# nmcli connection  修改   '识别的网卡名'
+ ipv4.方法   手工配置
+ ipv4.addresses 'IP地址/子网掩码  网关地址' 
+ 每次开机自动激活配置
+
+3.激活配置 
+[root@A ~]# nmcli connection up 'System eth0'
+
+方式2：nmtui  修改IP地址为172.25.0.120/24
+
+      1. Edit a connection（回车）#编辑连接
+      2. System eth0（回车）          #选择网卡
+      3. Require IPv4 addressing for this connection
+                 #利用IPv4进行激活 
+      4. Automatically connect
+                 #每次开机自动激活配置  
+
+[root@A ~]# nmcli  connection  up  'System eth0'
+
+
+查看网关命令：
+[root@A ~]# route  -n    #以数字的方式显示
+
+          Gateway         
+             172.25.0.254     
+#################################################
+三、配置永久的DNS服务器地址
+[root@A ~]# vim /etc/resolv.conf 
+nameserver  172.25.254.254
+
+

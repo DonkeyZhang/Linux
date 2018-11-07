@@ -1,0 +1,21 @@
+虚拟机Server：搭建基本Web服务
+1.安装httpd(Apache)软件包（服务端软件）
+[root@server0 ~]# yum -y install httpd 
+
+2.重起程序（服务）
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# systemctl enable httpd  #开机自起
+ln -s '/usr/lib/systemd/system/httpd.service' '/etc/systemd/system/multi-user.target.wants/httpd.service'
+
+3.验证本机访问测试
+[root@server0 ~]# firefox 172.25.0.11
+
+4.书写一个页面
+    网页文件默认存放路径:/var/www/html/
+    默认网页文件的名字:index.html
+
+[root@server0 ~]# cat /var/www/html/index.html
+<marquee><font color=red><h1>NSD1808 阳光明媚
+ 滚动效果       字体颜色             最大字体
+
+[root@server0 ~]# firefox 172.25.0.11

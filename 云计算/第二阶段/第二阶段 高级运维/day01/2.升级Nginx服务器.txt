@@ -1,0 +1,55 @@
+升级Nginx服务器
+################
+操作系统更新2年
+软件更新6个月
+################
+
+1）编译新版本nginx软件
+
+[root@proxy ~]# tar  -zxvf   nginx-1.12.2.tar.gz
+
+[root@proxy ~]# cd nginx-1.12.2
+
+[root@proxy nginx-1.12.2]# ./configure   \
+> --prefix=/usr/local/nginx   \ 
+> --user=nginx   \ 
+> --group=nginx  \ 
+> --with-http_ssl_module
+
+[root@proxy nginx-1.12.2]# make            
+
+2) 备份老的nginx主程序，并使用编译好的新版本nginx替换老版本
+[root@proxy nginx-1.12.2]# mv /usr/local/nginx/sbin/nginx  \
+
+
+>/usr/local/nginx/sbin/nginxold
+[root@proxy nginx-1.12.2]# cp objs/nginx  /usr/local/nginx/sbin/         //拷贝新版本
+
+#例子：我们写文档，需要打开同名的文档，先将这个文档保存为另为的另一个名字
+
+#######################################
+重启nginx服务，先杀死现在的进程，在重启更新现有的程序
+kiiall nginx
+nginx
+##################################
+
+[root@proxy nginx-1.12.2]# make upgrade                            //升级
+/usr/local/nginx/sbin/nginx -t
+nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful
+kill -USR2 `cat /usr/local/nginx/logs/nginx.pid`
+sleep 1
+test -f /usr/local/nginx/logs/nginx.pid.oldbin
+kill -QUIT `cat /usr/local/nginx/logs/nginx.pid.oldbin`
+
+[root@proxy ~]# /usr/local/nginx/sbin/nginx –v                //查看版本
+
+
+步骤三：客户端访问测试
+
+1）分别使用浏览器和命令行工具curl测试服务器页面
+如果使用firefox火狐浏览器，注意在ssh远程的时候一定要加-X选项。
+[root@client ~]# firefox http://192.168.4.5
+[root@client ~]# curl http://192.168.4.5
+
+

@@ -1,0 +1,55 @@
+管理组账号
+
+组基本信息存放在 /etc/group 文件
+[root@A ~]# grep stugrp  /etc/group
+          stugrp:  x      : 2002  :  
+             组名   ：密码占位符：组的GID：组的成员列表
+
+• 使用 groupadd 命令
+– groupadd [-g 组ID] 组名
+
+[root@A ~]# groupadd  stugrp
+[root@A ~]# grep  stugrp   /etc/group   #查看组的信息
+stugrp:x:2002:
+[root@A ~]# useradd  kenji
+[root@A ~]# useradd  chihiro
+[root@A ~]# useradd  jack
+[root@A ~]# useradd  natasha
+################################################
+• 使用 gpasswd 命令
+– gpasswd -a 用户名  组名
+– gpasswd -d 用户名  组名
+
+[root@A ~]# gpasswd -a kenji stugrp
+[root@A ~]# grep stugrp  /etc/group
+
+[root@A ~]# gpasswd -a natasha stugrp
+[root@A ~]# grep stugrp /etc/group
+
+[root@A ~]# gpasswd -d kenji stugrp
+[root@A ~]# grep stugrp /etc/group
+
+[root@A ~]# gpasswd -a jack stugrp
+[root@A ~]# grep stugrp /etc/group
+
+[root@A ~]# gpasswd -a chihiro stugrp
+[root@A ~]# grep stugrp /etc/group
+
+删除组
+• 使用 groupdel 命令
+– groupdel 组名
+###############################################
+创建一个用户Linux有那些文件会改变？
+
+[root@A ~]# grep nsd20 /etc/passwd
+[root@A ~]# ls /home/
+[root@A ~]# grep nsd20 /etc/shadow
+[root@A ~]# grep nsd20 /etc/group
+
+
+
+
+
+
+
+

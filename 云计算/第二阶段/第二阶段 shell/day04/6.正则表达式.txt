@@ -1,0 +1,255 @@
+基本正则列表
+
+表－1 扩展正则列表
+
+4.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：正则表达式匹配练习
+
+1）典型的应用场合：grep、egrep检索文本行
+grep命令不带-E选项时，支持基本正则匹配模式。比如“word”关键词检索、“^word”匹配以word开头的行、“word$”匹配以word结尾的行……等等。
+
+输出以“r”开头的用户记录：
+[root@svr5 ~]# grep '^r' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+rpc:x:32:32:Portmapper RPC user:/:/sbin/nologin
+rpcuser:x:29:29:RPC Service User:/var/lib/nfs:/sbin/nologin
+
+输出以“localhost”结尾的行：
+[root@svr5 ~]# grep 'localhost$' /etc/hosts
+127.0.0.1               localhost.localdomain localhost
+
+若希望在grep检索式同时组合多个条件，比如输出以“root”或者以“daemon”开头的行：
+[root@svr5 ~]# grep '^root|^daemon' /etc/passwd          //搜索无结果
+[root@svr5 ~]#
+
+而若若使用grep -E或egrep命令，可支持扩展正则匹配模式，能够自动识别 |、{} 等扩展正则表达式中的特殊字符，用起来更加方便，比如：
+[root@svr5 ~]# grep -E '^(root|daemon)' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+
+或者
+
+[root@svr5 ~]# egrep '^(root|daemon)' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+使用grep -E 与 使用egrep命令完全等效，推荐使用后者，特别是涉及到复杂的正则表达式的时候。
+
+
+2）grep、egrep命令的-q选项
+选项 -q 表示 quiet（静默）的意思，结合此选项可以只做检索而并不输出，通常在脚本内用来识别查找的目标是否存在，通过返回状态 $? 来判断，这样可以忽略无关的文本信息，简化脚本输出。
+
+比如，检查/etc/hosts文件内是否存在192.168.4.4的映射记录，如果存在则显示“YES”，否则输出“NO”，一般会执行：
+[root@svr5 ~]# grep '^192.168.4.4' /etc/hosts && echo "YES" || echo "NO"
+192.168.4.4     svr5.tarena.com svr5
+YES
+
+这样grep的输出信息和脚本判断后的提示混杂在一起，用户不易辨别，所以可以改成以下操作：
+[root@svr5 ~]# grep -q '^192.168.4.4' /etc/hosts && echo "YES" || echo "NO"
+YES
+是不是清爽多了，从上述结果也可以看到，使用 -q 选项的效果与使用 &> /dev/null的效果类似。
+
+
+3）基本元字符 ^、$ —— 匹配行首、行尾
+输出注释的配置行（以#开头的行）：
+[root@svr5 ~]# egrep '^#' /etc/inittab
+统计本地用户中登录Shell为“/sbin/nologin”的用户个数：
+提示：-m10仅在文件的前10行中过滤，后面的行不再过滤。
+
+[root@svr5 ~]# egrep -m10 '/sbin/nologin$' /etc/passwd  //先确认匹配正确
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+mail:x:8:12:mail:/var/spool/mail:/sbin/nologin
+uucp:x:10:14:uucp:/var/spool/uucp:/sbin/nologin
+operator:x:11:0:operator:/root:/sbin/nologin
+games:x:12:100:games:/usr/games:/sbin/nologin
+gopher:x:13:30:gopher:/var/gopher:/sbin/nologin
+ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+
+
+[root@svr5 ~]# egrep -c '/sbin/nologin$' /etc/passwd
+32                                      //结合 -c 选项输出匹配的行数
+使用 -c 选项可输出匹配行数，这与通过管道再 wc -l的效果是相同的，但是写法更简便。比如，统计使用“/bin/bash”作为登录Shell的正常用户个数，可执行：
+[root@svr5 ~]# egrep -c '/bin/bash$' /etc/passwd
+26
+
+或者
+[root@svr5 ~]# egrep '/bin/bash$' /etc/passwd | wc -l
+26
+
+4）基本元字符 . —— 匹配任意单个字符
+以/etc/rc.local文件为例，确认文本内容：
+[root@svr5 ~]# cat /etc/rc.local
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+touch /var/lock/subsys/local
+
+
+输出/etc/rc.local文件内至少包括一个字符（\n换行符除外）的行，即非空行：
+[root@svr5 ~]# egrep '.' /etc/rc.local
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+touch /var/lock/subsys/local
+
+
+输出/etc/rc.local文件内的空行（用 –v 选项将条件取反）：
+[root@svr5 ~]# egrep -v '.' /etc/rc.local
+[root@svr5 ~]#
+上述取空行的操作与下列操作效果相同：
+[root@svr5 ~]# egrep '^$' /etc/rc.local
+[root@svr5 ~]#
+
+
+5）基本元字符 +、?、* —— 目标出现的次数
+还以/etc/rc.local文件为例：
+[root@svr5 ~]# cat /etc/rc.local
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+touch /var/lock/subsys/local
+
+输出包括 f、ff、ff、……的行，即“f”至少出现一次：
+[root@svr5 ~]# egrep 'f+' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+输出包括init、initial的行，即末尾的“ial”最多出现一次（可能没有）：
+[root@svr5 ~]# egrep 'init(ial)?' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+
+输出包括stu、stuf、stuff、stufff、……的行，即末尾的“f”可出现任意多次，也可以没有。重复目标只有一个字符时，可以不使用括号：
+[root@svr5 ~]# egrep 'stuf*' /etc/rc.local
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+输出所有行，单独的“.*”可匹配任意行（包括空行）：
+[root@svr5 ~]# egrep '.*' /etc/rc.local
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+touch /var/lock/subsys/local
+
+输出/etc/passwd文件内“r”开头且以“nologin”结尾的用户记录，即中间可以是任意字符：
+[root@svr5 ~]# egrep '^r.*nologin$' /etc/passwd
+rpc:x:32:32:Portmapper RPC user:/:/sbin/nologin
+rpcuser:x:29:29:RPC Service User:/var/lib/nfs:/sbin/nologin
+
+6）元字符 {} —— 限定出现的次数范围
+
+创建一个练习用的测试文件：
+[root@svr5 ~]# vim brace.txt
+ab def ghi abdr
+dedef abab ghighi
+abcab CD-ROM
+TARENA IT GROUP
+cdcd ababab
+Hello abababab World
+
+输出包括ababab的行，即“ab”连续出现3次：
+[root@svr5 ~]# egrep '(ab){3}' brace.txt
+cdcd ababab
+Hello abababab World
+
+输出包括abab、ababab、abababab的行，即“ab”连续出现2~4次：
+[root@svr5 ~]# egrep '(ab){2,4}' brace.txt
+dedef abab ghighi
+cdcd ababab
+Hello abababab World
+
+输出包括ababab、abababab、……的行，即“ab”最少连续出现3次：
+[root@svr5 ~]# egrep '(ab){3,}' brace.txt
+cdcd ababab
+Hello abababab World
+
+7）元字符 [] —— 匹配范围内的单个字符
+还以前面的测试文件bracet.txt为例：
+[root@svr5 ~]# cat brace.txt
+ab def ghi abdr
+dedef abab ghighi
+abcab CD-ROM
+TARENA IT GROUP
+cdcd ababab
+Hello abababab World
+
+输出包括abc、abd的行，即前两个字符为“ab”，第三个字符只要是c、d中的一个就符合条件：
+[root@svr5 ~]# egrep 'ab[cd]' brace.txt
+ab def ghi abdr
+abcab CD-ROM
+
+输出包括大写字母的行，使用[A-Z]匹配连续范围：
+[root@svr5 ~]# egrep '[A-Z]' brace.txt
+abcab CD-ROM
+TARENA IT GROUP
+Hello abababab World
+
+过滤“非小写字母”的其他字符：
+[root@svr5 ~]# egrep '[^a-z]' brace.txt
+
+8）单词边界匹配
+以文件/etc/rc.local为例：
+[root@svr5 ~]# cat /etc/rc.local
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+touch /var/lock/subsys/local
+
+输出包括单词“init”的行，文件中“initialization”不合要求：
+[root@svr5 ~]# egrep '\binit\b' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# want to do the full Sys V style init stuff.
+或者：
+[root@svr5 ~]# egrep '\<init\>' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# want to do the full Sys V style init stuff.
+
+输出包括以“ll”结尾的单词的行，使用 \> 匹配单词右边界：
+[root@svr5 ~]# egrep 'll\>' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# want to do the full Sys V style init stuff.
+或者：
+[root@svr5 ~]# egrep 'll\b' /etc/rc.local
+# This script will be executed *after* all the other init scripts.
+# want to do the full Sys V style init stuff.
+
+
+
+9）多个条件的组合
+
+通过dmesg启动日志查看蓝牙设备、网卡设备相关的信息：
+[root@svr5 ~]# egrep -i 'eth|network|bluetooth' /var/log/dmesg
+Initalizing network drop monitor service
+Bluetooth: Core ver 2.10
+Bluetooth: HCI device and connection manager initialized
+Bluetooth: HCI socket layer initialized
+Bluetooth: HCI USB driver ver 2.9
+Intel(R) PRO/1000 Network Driver - version 7.3.21-k4-3-NAPI
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+
+
+
+
+
+
+
+
+
+

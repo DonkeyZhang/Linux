@@ -1,0 +1,102 @@
+LNMP+memcached
+
+2.1 问题
+沿用练习一，部署LNMP+memcached网站平台,通过PHP页面实现对memcached服务器的数据操作，实现以下目标：
+部署LNMP实现PHP动态网站架构
+为PHP安装memcache扩展
+创建PHP页面，并编写PHP代码，实现对memcached的数据操作
+
+
+2.2 方案
+使用2台RHEL7虚拟机，其中一台作为memcached及LNMP服务器（192.168.4.5）、另外一台作为测试用的Linux客户机（192.168.4.10），如图-1所示。
+
+图-1
+在RHEL7系统光盘中包含有我们需要的MariaDB、PHP，我们需要使用源码安装Nginx，使用RPM包安装FPM。另外如果希望使用PHP来操作memcached，注意必须要为PHP安装memcache扩展（php-pecl-memcache），否则PHP无法解析连接memcached的指令。客户端测试时需要提前安装telnet远程工具。
+
+
+2.3 步骤
+实现此案例需要按照如下步骤进行。
+步骤一：部署LNMP环境（如果环境中已经存在LNMP环境本步骤可以忽略）
+
+1）使用yum安装基础依赖包
+[root@proxy ~]# yum -y install gcc openssl-devel pcre-devel zlib-devel
+.. ..
+
+2）源码安装Nginx
+[root@proxy ~]# tar -xf nginx-1.12.2.tar.gz
+[root@proxy ~]# cd nginx-1.12.2
+[root@proxy nginx-1.12.2]#  ./configure   \
+> --with-http_ssl_module 
+[root@proxy nginx-1.12.2]# make && make install
+
+3）安装MariaDB数据库
+[root@proxy ~]# yum -y install  mariadb  mariadb-server  mariadb-devel
+
+4）安装PHP
+[root@proxy ~]# yum -y install  php  php-mysql
+[root@proxy ~]# yum -y install  php-fpm-5.4.16-42.el7.x86_64.rpm
+
+5）修改Nginx配置文件
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+location / {
+            root   html;
+            index  index.php  index.html   index.htm;
+        }
+ location  ~  \.php$  {
+            root           html;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+           # fastcgi_param   SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi.conf;
+        }
+
+步骤二：启动服务（如果所有服务已经启动，也可以忽略这一步骤）
+
+1）启动Nginx服务
+这里需要注意的是，如果服务器上已经启动了其他监听80端口的服务软件（如httpd），则需要先关闭该服务，否则会出现冲突。
+[root@proxy ~]# systemctl stop  httpd                //如果该服务存在，则关闭该服务
+[root@proxy ~]# /usr/local/nginx/sbin/nginx
+[root@proxy ~]# netstat -utnlp | grep :80
+tcp    0    0 0.0.0.0:80        0.0.0.0:*        LISTEN        32428/nginx         
+
+2）启动MySQL服务
+[root@proxy ~]# systemctl start mariadb
+[root@proxy ~]# systemctl status mariadb
+
+3）启动PHP-FPM服务
+[root@proxy ~]# systemctl start php-fpm
+[root@proxy ~]# systemctl status php-fpm
+
+4）关闭SELinux、防火墙
+[root@proxy ~]# setenforce 0
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+
+步骤三：创建PHP页面，使用PHP语言测试memcached服务
+
+
+1）部署测试页面
+
+创建PHP首页文档/usr/local/nginx/html/index.php，测试页面可以参考lnmp_soft/php_scripts/mem.php：
+
+[root@proxy ~]# vim /usr/local/nginx/html/test.php
+<?php
+$memcache=new Memcache;                   //创建memcache对象
+$memcache->connect('localhost',11211) or die ('could not connect!!');
+$memcache->set('key','test');             //定义变量
+$get_values=$memcache->get('key');        //获取变量值
+echo $get_values;
+?>
+
+2）客户端测试（结果会失败）
+客户端使用浏览器访问服务器PHP首页文档，检验对memcached的操作是否成功：
+[root@client ~]# firefox http://192.168.4.5/test.php
+注意：这里因为没有给PHP安装扩展包，默认PHP无法连接memcached数据库，需要给PHP安装扩展模块才可以连接memcached数据库。
+
+3）为PHP添加memcache扩展
+[root@proxy ~]# yum -y install  php-pecl-memcache
+
+
+[root@proxy ~]# systemctl restart  php-fpm
+
+4）客户端再次测试（结果会成功显示数据结果）
+[root@client ~]# firefox http://192.168.4.5/test.php

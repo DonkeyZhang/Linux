@@ -1,0 +1,39 @@
+自定义Yum仓库
+
+1.具备互联网下载的包，真机传递tools.tar.gz到虚拟机A
+     ssh+cp=scp
+ 
+# scp /root/桌面/tools.tar.gz  root@192.168.4.7:/root         
+
+2.虚拟机A解tar包
+[root@svr7 ~]# tar -xf /root/tools.tar.gz -C / 
+[root@svr7 ~]# ls /
+[root@svr7 ~]# ls /tools/
+[root@svr7 ~]# ls /tools/other/
+
+3.运行createrepo生成仓库数据文件
+[root@svr7 ~]# createrepo  /tools/other/
+[root@svr7 ~]# ls  /tools/other/
+
+4.书写客户端配置文件
+[root@svr7 ~]# vim /etc/yum.repos.d/rhel7.repo 
+ [myrpm]
+ name=rhel7.4
+ baseurl=file:///tools/other  #指定本机为Yum服务端
+ enabled=1
+ gpgcheck=0
+
+[root@svr7 ~]# yum repolist 
+################################################
+
+[root@svr7 ~]# yum -y install sl
+ 
+查询rpm包安装的清单
+[root@svr7 ~]#  rpm -ql   sl
+
+[root@svr7 ~]#  yum -y install oneko
+
+[root@svr7 ~]#  oneko  &   #放入后台运行
+
+[root@svr7 ~]#  killall oneko  #杀死所有的oneko
+

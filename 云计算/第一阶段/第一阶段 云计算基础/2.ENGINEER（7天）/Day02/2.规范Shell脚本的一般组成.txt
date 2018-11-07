@@ -1,0 +1,20 @@
+规范Shell脚本的一般组成
+• #! 环境声明(以下的代码有那个程序进行翻译)
+• # 注释文本
+• 可执行代码
+    
+案例：
+   1)输出当前红帽系统的版本信息
+   2)输出当前使用的内核版本
+   3)输出当前系统的主机名
+
+[root@server0 ~]# vim /root/hello.sh
+	#!/bin/bash
+	echo hello world
+	hostname 
+	cat /etc/redhat-release
+	uname -r
+	ifconfig | head -2 | tail -1
+
+[root@server0 ~]# /root/hello.sh
+

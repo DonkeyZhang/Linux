@@ -1,0 +1,118 @@
+session
+/var/lib/session
+用户登录的时候
+重复登录
+
+换主机，刷新了
+在某一台机上装memcache
+怎么做
+session 共享
+php-memcache
+/etc/php-fpm.d/www.conf
+cache memcache
+path="tcp://192.168.4.25：11211"
+restart php-fpm
+get uuid
+index.php自动跳到home.php
+nginx:php
+
+tomcat+java+
+复制安装
+yum -y install jdk
+cd /usr/local/tomcat
+conf/server.xml
+webapps
+bin
+logs
+lib
+
+<server>
+   <service>
+     <connoector>
+       <connector>
+         <engine>
+            <Host   name= "www.a.com" appbase="a">
+              < Context path="a" docBase="b" />
+
+
+Varnish只是其中一个 
+gcc pcre-devel readline ncureses 
+
+python
+./configure
+make
+make install
+cp example.vcl defaults.vcl
+varnishd -f  
+
+#####################################################################
+
+
+web1
+
+yum -y install subversion
+
+mkdir /var/svn
+svnadmin create /var/svn/project  #project1  2.......
+cd /usr/lib/systemd/system/ 
+svnadmin import . file:///var/svn/project -m "解释"
+du -sh /var/svn/project
+
+cd /var/svn/project/conf
+vim svnserve.conf
+4行
+anon-access = none
+auth-access = write
+password-db = password
+authz-db = authz
+vim passwd
+harry = 123456
+tom = 123456
+vim authz
+[/]
+harry = rw
+tom = rw
+[/test]
+harry = r
+* =
+ 
+svnserve -d -r /var/svn/project
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

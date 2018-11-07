@@ -1,0 +1,25 @@
+[root@desktop1 ~]# grep -n 'the' regular_express.txt
+[root@desktop1 ~]# grep -vn 'the' regular_express.txt
+[root@desktop1 ~]# grep -in 'the' regular_express.txt
+[root@desktop1 ~]# grep -n '[ae]st'regular_express.txt
+[root@desktop1 ~]# grep -n 'oo' regular_express.txt
+[root@desktop1 ~]# grep -n '[^g]oo' regular_express.txt
+[root@desktop1 ~]# grep -n '[^a-z]oo' regular_express.txt
+[root@desktop1 ~]# grep -n '[^[:lower:]]oo' regular_express.txt
+[root@desktop1 ~]# grep -n '[0-9]' regular_express.txt
+[root@desktop1 ~]# grep -n '[[:digit:]]' regular_express.txt
+[root@desktop1 ~]# grep -n '^the' regular_express.txt
+[root@desktop1 ~]# grep -n '^[a-z]' regular_express.txt
+[root@desktop1 ~]# grep -n '^[[:lower:]]' regular_express.txt
+[root@desktop1 ~]# grep -n '^[^a-zA-Z]' regular_express.txt
+[root@desktop1 ~]# grep -n '^[^[:alpha:]]' regular_express.txt
+[root@desktop1 ~]# grep -n '\.$' regular_express.txt
+[root@desktop1 ~]# grep -n '^$' regular_express.txt
+[root@desktop1 ~]# grep -n 'g..d' regular_express.txt
+[root@desktop1 ~]# grep -n 'ooo*' regular_express.txt
+[root@desktop1 ~]# grep -n 'goo*g' regular_express.txt
+[root@desktop1 ~]# grep -n 'goo*g' regular_express.txt
+[root@desktop1 ~]# grep -n '[0-9][0-9]*' regular_express.txt
+[root@desktop1 ~]# grep -n 'o\{2\}' regular_express.txt
+[root@desktop1 ~]# grep -n 'go\{2,5\}g' regular_express.txt
+[root@desktop1 ~]# grep -n 'go\{2,\}g' regular_express.txt

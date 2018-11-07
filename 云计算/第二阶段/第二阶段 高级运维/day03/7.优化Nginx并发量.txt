@@ -1,0 +1,26 @@
+优化Nginx并发量
+yum -y install httpd-tools
+ab模拟器 模拟访问网站
+-c 200人 client
+-n 200次 number 
+200个人访问200次
+
+
+1）优化前使用ab高并发测试
+[root@proxy ~]# ab -n 2000 -c 2000 http://192.168.4.5/
+Benchmarking 192.168.4.5 (be patient)
+socket: Too many open files (24)                //提示打开文件数量过多
+
+
+2）修改Nginx配置文件，增加并发量
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+.. ..
+worker_processes  2;                    //与CPU核心数量一致
+
+events {
+worker_connections 65535;        //每个worker最大并发连接数
+use epoll;
+}
+.. ..
+[root@proxy ~]# nginx -s reload
+

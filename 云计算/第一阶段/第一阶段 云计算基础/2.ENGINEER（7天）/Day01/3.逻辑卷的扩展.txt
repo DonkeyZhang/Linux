@@ -1,0 +1,36 @@
+逻辑卷的扩展
+
+一、卷组有足够的剩余空间
+1.扩展空间的大小
+[root@server0 ~]# vgs
+[root@server0 ~]# lvextend -L 18G /dev/systemvg/mylv 
+[root@server0 ~]# lvs
+
+2.扩展文件系统的大小
+   resize2fs:扩展ext4文件系统
+   xfs_growfs:扩展xfs文件系统
+[root@server0 ~]# df  -h
+[root@server0 ~]# resize2fs /dev/systemvg/mylv 
+[root@server0 ~]# df  -h
+
+二、卷组没有足够的剩余空间
+
+1.扩展卷组
+[root@server0 ~]# vgextend systemvg /dev/vdc3
+[root@server0 ~]# vgs
+
+2.扩展空间的大小
+[root@server0 ~]# vgs
+[root@server0 ~]# lvextend -L 25G /dev/systemvg/mylv 
+[root@server0 ~]# lvs
+
+3.扩展文件系统的大小
+   resize2fs:扩展ext4文件系统
+[root@server0 ~]# df  -h
+[root@server0 ~]# resize2fs /dev/systemvg/mylv 
+[root@server0 ~]# df  -h
+
+#################################################
+了解内容：缩减空间
+     ext4文件系统支持缩减
+     xfs文件系统不支持缩减

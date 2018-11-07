@@ -1,0 +1,29 @@
+• ls — List
+– 格式:ls [选项]... [目录或文件名]
+
+• 常用命令选项
+– -l :以长格式显示，显示详细属性
+– -h:提供易读的容量单位(K、M等)
+– -d:显示目录本身(而不是内容)的属性
+– -A:包括名称以 . 开头的隐藏文档
+
+[root@localhost ~]# ls --help     #显示ls命令的帮助信息
+[root@localhost ~]# ls -l  /boot
+[root@localhost ~]# ls -lh  /boot
+
+[root@localhost ~]# ls -ld  /boot
+[root@localhost ~]# ls -ld  /root
+
+[root@localhost ~]# ls   /home
+[root@localhost ~]# ls -lh  /home
+
+[root@localhost ~]# mkdir /mnt/.nsd1808
+[root@localhost ~]# ls /mnt/
+[root@localhost ~]# ls -A /mnt/
+[root@localhost ~]# ls -A /root
+[root@localhost ~]# ls -A /boot
+
+[root@localhost ~]# man passwd   #查看权威帮助信息
+[root@localhost ~]# man ls       #查看权威帮助信息
+  /example    #全文搜索example
+  

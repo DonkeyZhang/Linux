@@ -1,0 +1,35 @@
+搭建DNS服务器
+
+虚拟机A：
+1.安装bind与bind-chroot包
+
+2.修改主配置文件/etc/named.conf
+[root@svr7 ~]# cp /etc/named.conf /root/
+[root@svr7 ~]# vim /etc/named.conf
+  options {
+    	directory 	"/var/named";  #指定地址库文件位置
+    };
+
+  zone "tedu.cn" IN {      #指定本机服务负责解析的域名
+  	type master;           #指定本机为权威DNS服务器
+  	file "tedu.cn.zone";   #指定地址库文件名称
+   };
+
+3.建立地址库文件
+# cd  /var/named/
+# cp -p named.localhost  tedu.cn.zone  #保持属性不变
+# ls -l tedu.cn.zone
+# vim   tedu.cn.zone 
+
+	tedu.cn.    NS  svr7
+	svr7        A   192.168.4.7
+	www         A   1.1.1.1 
+
+4.重起named服务
+
+虚拟机B:
+# vim /etc/resolv.conf 
+ nameserver 192.168.4.7
+
+# nslookup www.tedu.cn 
+

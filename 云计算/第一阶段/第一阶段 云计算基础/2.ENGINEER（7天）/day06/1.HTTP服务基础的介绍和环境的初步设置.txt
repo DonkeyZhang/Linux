@@ -1,0 +1,17 @@
+HTTP服务基础的介绍和环境的初步设置
+
+• 基于 B/S (Browser/Server)架构的网页服务
+– 服务端提供网页
+– 浏览器下载并显示网页
+
+• Hyper Text Markup Language(HTML),超文本标记语言
+• Hyper Text Transfer Protocol（HTTP）,超文本传输协议
+
+    HTTP默认端口 ： 80
+#################################################
+环境的初步设置：修改防火墙默认区域为允许所有
+虚拟机Server
+ # firewall-cmd --set-default-zone=trusted
+
+虚拟机Desktop
+ # firewall-cmd --set-default-zone=trusted 

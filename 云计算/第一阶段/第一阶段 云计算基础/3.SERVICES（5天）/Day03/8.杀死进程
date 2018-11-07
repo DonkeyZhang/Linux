@@ -1,0 +1,25 @@
+杀死进程
+
+• 干掉进程的不同方法
+– Ctrl+c 组合键,中断当前命令程序
+– kill [-9]   PID... 
+– killall [-9] 进程名...
+– pkill  查找条件
+
+     [-9]:强制杀死
+[root@svr7 /]# sleep 1000 &      
+[root@svr7 /]# sleep 2000 &
+[root@svr7 /]# sleep 3000 &
+[root@svr7 /]# jobs -l
+[root@svr7 /]# kill 14986
+[root@svr7 /]# jobs -l
+
+[root@svr7 /]# jobs -l
+[root@svr7 /]# killall sleep   #杀死所有叫sleep
+[root@svr7 /]# jobs -l
+
+[root@svr7 /]# sleep 4000 &
+[root@svr7 /]# jobs
+[root@svr7 /]# killall -9 sleep
+[root@svr7 /]# jobs
+

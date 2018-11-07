@@ -1,0 +1,19 @@
+网络路径与服务器实际路径
+
+网络路径：在浏览器输入的路径
+
+firefox server0.example.com---》DNS--》firefox 172.25.0.11-->服务端 80-->httpd-->主配置文件-->DocumentRoot  /var/www/myweb
+
+浏览器： server0.example.com
+服务端：/var/www/myweb
+
+浏览器： server0.example.com/abc
+服务端：/var/www/myweb/abc
+#########################################################
+虚拟机Server0：
+# mkdir /var/www/myweb/abc/
+
+# echo '<h1>wo shi abc' > /var/www/myweb/abc/index.html
+
+虚拟机Desktop0：
+#  firefox  server0.example.com/abc

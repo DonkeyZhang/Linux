@@ -1,0 +1,16 @@
+实时同步
+
+一、部署公钥、私钥  实现ssh无密码认证
+
+1.虚拟机A生成 公钥、私钥
+[root@svr7 ~]# ssh-keygen    #一路回车
+
+2.公钥、私钥生成的位置
+[root@svr7 ~]# ls /root/.ssh/
+
+3.传递公钥到虚拟机B
+[root@svr7 ~]# ssh-copy-id root@192.168.4.207
+
+# rsync -avz --delete /opt/  root@192.168.4.207:/opt/
+
+ wget ----》 /root/.ssh ---》mv  authorized_keys

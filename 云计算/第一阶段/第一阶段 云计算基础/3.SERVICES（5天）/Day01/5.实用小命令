@@ -1,0 +1,38 @@
+历史命令
+• 管理/调用曾经执行过的命令
+– history:查看历史命令列表
+– history -c:清空历史命令
+– !n:执行命令历史中的第n条命令
+– !str:执行最近一次以str开头的历史命令
+
+• 调整历史命令的数量
+[root@svr7 ~]# vim /etc/profile
+  HISTSIZE=1000    //默认记录1000条
+
+[root@svr7 /]# history -c
+[root@svr7 /]# cat /etc/redhat-release 
+[root@svr7 /]# uname -r
+[root@svr7 /]# ifconfig | head -2
+[root@svr7 /]# history
+
+[root@svr7 /]# !cat   #执行历史命令最近一条以cat开头的命令
+[root@svr7 /]# !u
+
+################################################
+实用小命令工具
+• du,统计文件的占用空间
+– du [选项]... [目录或文件]...
+– -s:只统计每个参数所占用的总空间大小
+– -h:提供易读容量单位(K、M等)
+
+[root@svr7 /]# du -sh /
+
+[root@svr7 /]# du -sh /root  /etc/  /boot  /home
+[root@svr7 /]# du -sh  /*
+
+#################################################
+• date,查看/调整系统日期时间
+ – date +%F、date +%R
+ – date +"%Y-%m-%d %H:%M:%S"
+ – date -s "yyyy-mm-dd HH:MM:SS"  #修改时间
+

@@ -1,0 +1,6 @@
+3）根据/var/log/secure日志文件，过滤远程连接密码失败的IP地址
+[root@svr5 ~]# awk '/Failed/{print $11}' /var/log/secure
+192.168.2.254
+192.168.2.100
+... ...
+

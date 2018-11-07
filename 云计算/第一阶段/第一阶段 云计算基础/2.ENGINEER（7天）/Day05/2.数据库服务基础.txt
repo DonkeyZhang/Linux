@@ -1,0 +1,196 @@
+数据库服务基础
+
+什么是数据库 : 存放数据的仓库
+
+  在数据库中，有很多的库，在每一个库中会有很多的表格
+
+
+一、部署mariadb数据库服务器，默认端口 3306
+• RHEL7 中的 MariaDB 相关包
+1.安装mariadb-server:提供服务端有关的系统程序
+[root@server0 ~]# yum -y install mariadb-server
+
+2.重起服务
+[root@server0 ~]# systemctl restart mariadb
+[root@server0 ~]# systemctl enable mariadb
+
+二、数据库简单的使用
+[root@server0 ~]# mysql
+  > show   databases;         #显示所有的库
+
+  > create  database  nsd1808;   #创建nsd1808库
+  > show  databases;             #显示所有的库
+  > drop  database  nsd1808;     #删除nsd1808库
+
+  > show  databases;    #显示所有的库
+  > exit                #退出
+  Bye
+[root@server0 ~]# mysql
+  > create  database  nsd;  #创建nsd库
+  > show    databases;      #显示所有的库
+  
+三、为数据库管理员设置密码
+
+   数据库管理员root，用户信息存储mysql库中表user
+
+   系统管理员root，用户信息存储/etc/passwd
+
+• 为数据库账号修改密码
+ – mysqladmin [-u用户名] [-p[旧密码]] password '新密码'
+
+    在Linux系统命令行，为数据库管理员设置密码123
+  # mysqladmin  -u  root  password  '123' 
+
+  # mysql -u root -p         #交互式登陆
+  Enter password: 
+
+  # mysql -u root -p123      #非交互式登陆
+
+命令行操作已知旧密码，修改新的密码
+# mysqladmin -u root -p123   password '321'
+
+
+了解：/etc/my.cnf
+• 禁止监听,只服务于本机
+[root@server0 ~]# vim /etc/my.cnf
+[mysqld]
+skip-networking    //跳过网络监听
+.. ..
+[root@server0 ~]# systemctl restart mariadb
+
+################################################
+四、数据库恢复数据
+
+1.Linux命令行，下载备份文件
+[root@server0 ~]# wget http://classroom.example.com/pub/materials/users.sql
+
+[root@server0 ~]# ls
+
+
+2.Linux命令行，导入数据到nsd库
+
+  # mysql -u root -p123 nsd < users.sql 
+
+###############################################
+五、进行表格的操作（表字段    表记录）
+
+      增 insert    删 delete   改 update   查select
+
+[root@server0 ~]# mysql -u root -p321
+
+MariaDB [(none)]> show databases;
+MariaDB [(none)]> use nsd;         #进入nsd库
+
+查寻格式：select  表字段  from 表名
+
+	> show  tables;             #查看所有表格
+	> select  *  from  base;    #查询base所有字段内容
+	> select  *  from  location;
+
+	>  desc   表名                 #查询表结构
+
+查询内容多的表格
+[root@server0 ~]# mysql -u root -p123
+MariaDB [nsd]> use mysql;
+
+MariaDB [mysql]> show  tables;    #查看所有表格
+MariaDB [mysql]> desc  user ;     #查询表结构
+
+MariaDB [mysql]> select user,host,password from user;
+
+MariaDB [mysql]> select * from nsd.base;
+
+有条件的查询  where  表字段='值'
+[root@server0 ~]# mysql -u root -p123
+
+> use nsd;
+> select * from base
+> select * from base where password='123';
+
+> select * from base where password='tarena';
+
+> select * from base where name='tom'  and 
+  password='123';
+
+> select * from base where password='456'  or 
+  password='123';
+
+
+################################################
+六、数据库的授权
+
+除了 root 用户,此nsd数据库只能被用户 lisi查询,
+此用户的密码为123
+
+用户授权设置
+– GRANT 权限列表 ON 数据库名.表名 TO 用户名@
+客户机地址  IDENTIFIED  BY  '密码';
+
+  grant  select  on  nsd.*  to  lisi@localhost
+  identified  by  '123';
+
+   当lisi在localhost进行登陆，输入密码123，
+   将会获得nsd库中所有表的查询权限
+
+MariaDB [(none)]> grant  select  on  nsd.*   to 
+   lisi@localhost   identified   by  '123';
+
+MariaDB [(none)]> select user,host,password from 
+   mysql.user;
+
+[root@server0 ~]# mysql -u lisi -p123
+MariaDB [(none)]> exit
+
+################################################
+案例5:使用数据库查询
+
+2. 在系统 server0 上使用数据库 nsd,并使用相
+应的 SQL 查询以回答下列问题:
+1)密码是 solicitous 的人的名字?
+ > use nsd;
+ > select * from base ;
+
+ > select * from base where password='solicitous';
+
+ > select name from base where password='solicitous';
+
+
+2)有多少人的 姓名是 Barbara 同时居住在 Sunnyvale?
+
+> select  *  from    base,location    
+  where   base.name='Barbara'   and 
+  location.city='Sunnyvale'   and 
+  base.id=location.id;
+ 
+> select  count(*)   from   base,location    
+   where   base.name='Barbara'   and 
+   location.city='Sunnyvale'   and 
+   base.id=location.id;
+
+> insert  base  values  ('6','Barbara','123456');
+> select  *  from   base;
+> insert  location  values  ('6','Sunnyvale');
+> select  *  from   location;
+
+
+
+
+
+1. 禁止空密码   root用户访问 mariadb 数据库
+  > use mysql;
+
+  > select user,host,password   from user;
+
+  > select user,host,password   from user where 
+    password='';
+
+  > delete from  user  where  password='';  #删除记录
+
+  > select user,host,password   from  user;
+
+  > flush  privileges;   #刷新数据所有策略
+
+命令行测试： mysql -u root -h server0.example.com
+                   登陆失败
+###############################################
+

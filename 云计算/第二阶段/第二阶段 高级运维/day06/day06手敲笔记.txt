@@ -1,0 +1,238 @@
+rpm -qa |grep JDK
+
+java (sun)-->oracle(jaba)
+
+openoffice-->oracle(openoffice)
+
+--> libreoffice  
+
+openoffice-->apache(关闭)
+
+###################################################
+
+
+yum   $1 
+
+yum   函数
+
+shell 函数
+
+java  类，调用他的类，功能已经写好了
+
+python 模块，海量的模块，人脸识别开源，两行代码实
+
+#################################################
+a.php
+
+a.py
+
+a.sh
+
+a.jsp---java变了,同步--a.xx
+
+#####################################################
+
+
+开启的时候要读乱码，加快速度
+mv  /dev/random /dev/random.bak
+ln -s  /dev/urandom /dev/random
+#############################
+httpd+php+mysql
+
+nginx+php+mysql
+
+tomcat+java+mysql
+
+#############################
+1.
+yum -y install  java-1.8.0-openjdk
+yum -y install  java-1.8.0-openjak-headless
+
+tar  -xf apache-tomcat.1.8.30.tar.gz -C
+mv apache-tomcat.1.8.30 /usr/local/tomcat
+
+mv /dev/random /dev/random.bak
+ln -s /dev/urandom /dev/random
+
+/usr/local/tomcat/bin/startup.sh
+/usr/local/tomcat/bin/shutdown.sh
+ss -ntulp |grep java
+8005 8080  8009
+2.
+/usr/local/tomcat/conf/server.xml
+<Server>
+    <Service>
+       <Connector>
+          <Host name="www.a.com" appbase="a"      
+               upWARS="true" autodepoly="true" >
+               <Context path="" docBase="base" reloadable="true" />
+               <Context  path="/test" docBase="/var/www/htmlreloadable="true" />
+               </Host>
+      </Service>
+</Server>
+默认首页
+mkdir -p /usr/local/tomcat/webapps/ROOT
+不定义path docBase
+mkdir -p /usr/local/tomcat/a/ROOT
+######################
+加密网站
+keytool -genkeypair -alias tomcat -keyalg RSA -keystore /usr/local/tomcat/keystore
+keystoreFile="/usr/local/tomcat/keystore"
+keystorePass="123456"
+https://www.a.com:8443
+开启日志
+3.varnish缓存
+tar -xf varnish.8.0.13.tar.gz -C /mnt
+
+useradd -s /sbin/nologin
+
+yum -y install gcc pcre-devel readline-devel ncurses 
+cd /lnmp_soft
+yum -y install python....
+
+cp /mmnt/varnish/etc/example.vcl  /usr/local/etc/defaults.vcl
+
+vim /usr/local/etc/defaults.vcl 
+端口
+服务器
+varnishd -f /usr/local/etc/defaults.vcl
+varnish -s  malloc 128M
+varnish -s  file,/usr/lib/varnish_storage.bin,2G
+
+varnishlog
+varnishncsa
+varnishadm
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

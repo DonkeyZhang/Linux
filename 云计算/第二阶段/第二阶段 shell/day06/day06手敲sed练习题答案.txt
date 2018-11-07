@@ -1,0 +1,29 @@
+1.sed -n '/San/p' data.txt
+
+2.sed -n '/^J/p' data.txt 
+
+3.sed -n '/700$/p' data.txt 
+
+4.grep -v "834" data.txt 
+  sed -n '/834/!p'data.txt
+
+5.sed -n '/:834\b/p' data.txt 
+
+#6.sed -n -r '/[A-Z][a-z]{4},[A-Z]/p' data.txt
+   sed -n '/[A-Z][a-z]\{4\}, [A-Z]/p' datafile
+7.sed -n -r '/^K|^k/p' data.txt 
+#sed -n '/^[Kk]/p' datafile
+8.sed -n -r '/[0-9]{6}$/p' data.txt 
+
+9.sed -n '/[Ll]incoln/p' data.txt 
+
+10.sed -n 's/Jon/Jonathan/p' data.txt
+
+11.sed '1,3d' data.txt
+
+12.sed -n '5,10p' data.txt \
+
+13.sed -n -r 's/(Fred)/***\1/p' data.txt
+
+14.sed '/^$/d' data.txt 
+

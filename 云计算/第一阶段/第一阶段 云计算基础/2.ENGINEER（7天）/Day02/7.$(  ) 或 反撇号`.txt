@@ -1,0 +1,12 @@
+ $(  ) 或 反撇号`   `   
+         :将命令的输出，作为另一个命令的参数，参与下一个命令的运行
+
+[root@server0 /]# date +%F
+2018-09-12
+[root@server0 mnt]# cd /mnt
+[root@server0 mnt]# mkdir nsd-`date +%F`
+[root@server0 mnt]# ls
+[root@server0 mnt]# mkdir nsd-`date +%F`
+[root@server0 mnt]# ls
+[root@server0 mnt]# mkdir $(hostname)-$(date +%F)
+[root@server0 mnt]# ls

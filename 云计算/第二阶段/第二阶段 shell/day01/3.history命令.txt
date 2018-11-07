@@ -1,0 +1,47 @@
+3、练习命令历史
+1）检查历史命令的容量。
+默认记录1000条，通过全局变量HISTSIZE设置，对所有用户有效：
+[root@svr5 ~]# grep HISTSIZE /etc/profile
+HISTSIZE=1000
+查看已为当前用户记录的历史命令条数：
+[root@svr5 ~]# history | wc -l
+1000
+
+2）查看历史命令列表。
+列出最近执行的10条历史命令：
+[root@svr5 ~]# history |tail                      //清空自己的历史命令
+
+3）调用指定的历史命令。
+重新执行历史命令列表中的第1028条操作：
+[root@svr5 ~]# !1028
+grep 'zhangsan' /etc/passwd
+zhangsan:x:516:516::/home/zhangsan:/bin/bash
+
+4）清空历史的命令。
+[root@svr5 ~]# history -c                      //清空自己的历史命令
+[root@svr5 ~]# > ~/.bash_history                  //清空记录文件 #> 前面是空的，重定进去变空
+[root@svr5 ~]# history                          //再次检查历史命令列表
+   42  > ~/.bash_history
+   43  history
+
+4、练习命令别名
+1）查看已经定义的命令别名列表。
+当前的别名列表：
+[root@svr5 ~]# alias
+alias cp='cp -i'
+alias l.='ls -d .* --color=tty'
+
+5、重定向标准输入/输出/错误输出
+标准输入（stdin），描述号为0；
+标准输出（stdout），描述号为1；
+标准错误（stderr），描述号为2
+>只输入正确的信息
+2>只输入错误的信息
+&>正确和错误的信息
+
+6、管道操作实践
+
+借助于管道符“|”，可以将一条命令的标准输出交给另一条命令处理，在一条命令行内可依次使用多个管道。
+
+#输出 输入 管道将数据暂时存在内存条，性能高
+

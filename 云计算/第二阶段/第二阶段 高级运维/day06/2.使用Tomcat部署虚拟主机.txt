@@ -1,0 +1,306 @@
+使用Tomcat部署虚拟主机
+2.1 问题
+
+沿用练习二，使用Tomcat部署加密虚拟主机，实现以下要求：
+实现两个基于域名的虚拟主机，域名分别为：www.a.com和 www.b.com
+使用www.a.com域名访问的页面根路径为/usr/local/tomcat/a/ROOT
+使用www.b.com域名访问的页面根路径为/usr/local/tomcat/b/base
+访问www.a.com/test时，页面自动跳转到/var/www/html目录下的页面
+访问页面时支持SSL加密通讯
+私钥、证书存储路径为/usr/local/tomcat/conf/cert
+每个虚拟主机都拥有独立的访问日志文件
+配置tomcat集群环境
+
+2.2 方案
+
+修改server.xml配置文件，创建两个域名的虚拟主机，修改如下两个参数块：
+# cat /usr/local/tomcat/conf/server.xml
+<Server>
+   <Service>
+     <Connector port=8080 />
+     <Connector port=8009 />
+     <Engine name="Catalina" defaultHost="localhost">
+<Host name="www.a.com" appBase="a" unpackWARS="true" autoDeploy="true">
+</Host>
+<Host name="www.b.com" appBase="b" unpackWARS="true" autoDeploy="true">
+</Host>
+… …
+2.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：配置服务器虚拟主机
+
+1）修改server.xml配置文件，创建虚拟主机
+[root@web1 ~]# vim /usr/local/tomcat/conf/server.xml
+… …
+<Host name="www.a.com" appBase="a" unpackWARS="true" autoDeploy="true">
+</Host>
+
+<Host name="www.b.com" appBase="b" unpackWARS="true" autoDeploy="true">
+</Host>
+
+
+############################################ 
+xml
+看你描述的多不多
+1.
+<a>
+</a>
+
+2.
+<man>
+name=tom
+sex=male
+age
+</man>
+
+3.
+<man>
+age
+</man>
+
+4.
+<man name=tom />
+#以 / 结尾
+
+5.复制在别人的Host里面
+6.严格区分大小写
+7.没有创建/usr/local/tomcat/a/ROOT
+根/usr/local/tomcat/a
+###############################
+unpackWARS="true" 
+autoDeploy="true"
+war、jar包可以解压部署
+
+
+默认首页可以多个
+nginx index index.html index.php index.htm 
+
+
+
+#####################3
+
+2）创建虚拟主机对应的页面根路径
+[root@web1 ~]# mkdir -p  /usr/local/tomcat/{a,b}/ROOT
+[root@web1 ~]# echo "AAA"   > /usr/local/tomcat/a/ROOT/index.html
+[root@web1 ~]# echo "BBB" > /usr/local/tomcat/b/ROOT/index.html
+
+
+3）重启Tomcat服务器
+[root@web1 ~]# /usr/local/tomcat/bin/shutdown.sh
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+
+4）客户端设置host文件，并浏览测试页面进行测试(proxy充当客户端角色)
+注意：ssh远程连接时使用使用-X参数才可以！！！
+[root@proxy ~]# vim /etc/hosts
+… …
+192.168.2.100      www.a.com  www.b.com
+[root@proxy ~]# firefox http://www.a.com:8080/        //注意访问的端口为8080
+[root@proxy ~]# firefox http://www.b.com:8080/
+
+
+
+步骤二：修改www.b.com网站的首页目录为base
+######################################
+<Context path="" docBase="base" reloadable="true"/>
+不写的话，默认是/b/ROOT/
+写的话，/b/base/
+######################################
+
+1）使用docBase参数可以修改默认网站首页路径
+[root@web1 ~]# vim /usr/local/tomcat/conf/server.xml
+… …
+<Host name="www.a.com" appBase="a" unpackWARS="true" autoDeploy="true">
+</Host>
+
+<Host name="www.b.com" appBase="b" unpackWARS="true" autoDeploy="true">
+
+<Context path="" docBase="base" reloadable="true"/>
+
+:wq
+</Host>
+… …
+[root@web1 ~]# mkdir  /usr/local/tomcat/b/base
+[root@web1 ~]# echo "BASE" > /usr/local/tomcat/b/base/index.html
+[root@web1 ~]# /usr/local/tomcat/bin/shutdown.sh
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+2）测试查看页面是否正确(proxy充当客户端角色)
+
+[root@proxy ~]# firefox http://www.b.com:8080/        //结果为base目录下的页面内容
+
+
+
+步骤三：跳转
+####################################################
+在apache-httpd和nginx中虚拟主机，一个端口和一个域名绑定了。
+
+<VirtualHost *:8000>  :访问：8000
+SeverName www.a.com
+DocumentRoot /var/www/html
+</VirtualHost>
+<VirtualHost *:80>
+SeverName www.b.com
+DocumentRoot /var/www/web
+</VirtualHost>
+
+server { 
+       listen   80;
+       server_name www.a.com;
+           
+       root html;
+       index index.html index.html;
+}
+server { 
+       listen   8000;
+       server_name www.b.com;
+           
+       root www;
+       index index.html index.html;
+}           
+
+##################
+Server
+
+
+
+1）当用户访问http://www.a.com/test打开/var/www/html目录下的页面
+[root@web1 ~]# vim /usr/local/tomcat/conf/server.xml
+… …
+<Host name="www.a.com" appBase="a" unpackWARS="true" autoDeploy="true">
+<Context path="/test" docBase="/var/www/html/" />
+
+</Host>
+<Host name="www.b.com" appBase="b" unpackWARS="true" autoDeploy="true">
+<Context path="" docBase="base" />
+</Host>
+… …
+[root@web1 ~]# echo "Test" > /var/www/html/index.html
+[root@web1 ~]# /usr/local/tomcat/bin/shutdown.sh
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+
+
+2）测试查看页面是否正确(proxy充当客户端角色)
+[root@proxy ~]# firefox http://www.a.com:8080/test    
+//返回/var/www/html/index.html的内容
+//注意，访问的端口为8080
+
+步骤四：配置Tomcat支持SSL加密网站
+##################
+保证key的加密
+##################
+
+
+1）创建加密用的私钥和证书文件
+[root@web1 ~]# keytool -genkeypair -alias tomcat -keyalg RSA -keystore /usr/local/tomcat/keystore                //提示输入密码为:123456
+//-genkeypair     生成密钥对
+//-alias tomcat  ::   密钥别名
+//-keyalg RSA     定义密钥算法为RSA算法
+//-keystore         定义密钥文件存储在:/usr/local/tomcat/keystore
+
+2)再次修改server.xml配置文件，创建支持加密连接的Connector
+[root@web1 ~]# vim /usr/local/tomcat/conf/server.xml
+… …
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
+keystoreFile="/usr/local/tomcat/keystore" keystorePass="123456" clientAuth="false" sslProtocol="TLS" />
+//备注，默认这段Connector被注释掉了，打开注释，添加密钥信息即可
+
+
+3）重启Tomcat服务器
+[root@web1 ~]# /usr/local/tomcat/bin/shutdown.sh
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+
+4）客户端设置host文件，并浏览测试页面进行测试(proxy充当客户端角色)
+[root@proxy ~]# vim /etc/hosts
+… …
+192.168.2.100      www.a.com  www.b.com
+[root@proxy ~]# firefox https://www.a.com:8443/
+[root@proxy ~]# firefox https://www.b.com:8443/
+[root@proxy ~]# firefox https://192.168.2.100:8443/
+
+
+步骤五：配置Tomcat日志
+
+1)为每个虚拟主机设置不同的日志文件
+[root@web1 ~]# vim /usr/local/tomcat/conf/server.xml
+.. ..
+<Host name="www.a.com" appBase="a" unpackWARS="true" autoDeploy="true">
+<Context path="/test" docBase="/var/www/html/" />
+#从默认localhost虚拟主机中把Valve这段复制过来，适当修改下即可
+<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix=" a_access" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+</Host>
+<Host name="www.b.com" appBase="b" unpackWARS="true" autoDeploy="true">
+<Context path="" docBase="base" />
+<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix=" b_access" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+</Host>
+.. ..
+
+2）重启Tomcat服务器
+[root@web1 ~]# /usr/local/tomcat/bin/shutdown.sh
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+3）查看服务器日志文件
+[root@web1 ~]# ls /usr/local/tomcat/logs/
+
+步骤六：扩展实验(配置Tomcat集群)
+
+1) 在192.168.4.5主机上配置Nginx调度器（具体安装步骤参考前面的章节）
+[root@proxy ~]# vim  /usr/local/nginx/conf/nginx.conf
+http{
+    upstream toms {
+        server 192.168.2.100:8080;
+        server 192.168.2.200:8080;
+    }
+    server  {
+        listen 80;
+        server_name localhost;
+        location / {
+            proxy_pass  http://toms;
+        }
+    }
+}  
+
+2) 在192.168.2.100和192.168.2.200主机上配置Tomcat调度器
+以下以Web1为例：
+[root@web1 ~]# yum -y install  java-1.8.0-openjdk                //安装JDK
+[root@web1 ~]# yum -y install java-1.8.0-openjdk-headless        //安装JDK
+[root@web1 ~]# tar -xzf  apache-tomcat-8.0.30.tar.gz
+[root@web1 ~]# mv apache-tomcat-8.0.30  /usr/local/tomcat
+
+3）启动服务
+[root@web1 ~]# /usr/local/tomcat/bin/startup.sh
+
+4) 客户端验证
+为了防止有数据缓存，可以使用真实主机的google-chrome访问代理服务器，输入Ctrl+F5刷新页面。
+
+
+
+
+#############################
+nginx只是调度转发
+全国比较多的时候，慢。
+
+nginx-->保持新的数据,慢
+
+CDN--> 旧的数据，快，委托给别人做
+
+可能
+
+CDN content delivery network
+可以买CDN 1300个节点
+
+找最近的CDN，边缘CDN
+通过
+DNS  分离解析 负载均衡
+############################
+
+varnish
+content

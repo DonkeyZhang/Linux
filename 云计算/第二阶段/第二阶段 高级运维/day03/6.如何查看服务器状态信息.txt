@@ -1,0 +1,73 @@
+如何查看服务器状态信息（非常重要的功能）
+
+1）编译安装时使用--with-http_stub_status_module开启状态页面模块
+[root@proxy ~]# yum -y install gcc pcre-devel openssl-devel        //安装常见依赖包
+[root@proxy ~]# tar  -zxvf   nginx-1.12.2.tar.gz
+[root@proxy ~]# cd  nginx-1.12.2
+[root@proxy nginx-1.12.2]# ./configure   \
+> --with-http_ssl_module                        //开启SSL加密功能
+> --with-stream                                //开启TCP/UDP代理模块
+> --with-http_stub_status_module                //开启status状态页面
+[root@proxy nginx-1.12.2]# make && make install    //编译并安装
+
+2）启用Nginx服务并查看监听端口状态
+ss命令可以查看系统中启动的端口信息，该命令常用选项如下：
+-a显示所有端口的信息
+-n以数字格式显示端口号
+-t显示TCP连接的端口
+-u显示UDP连接的端口
+-l显示服务正在监听的端口信息，如httpd启动后，会一直监听80端口
+-p显示监听端口的服务名称是什么（也就是程序名称）
+注意：在RHEL7系统中可以使用ss命令替代netstat命令，功能一样，选项一样。
+[root@proxy ~]# /usr/local/nginx/sbin/nginx
+[root@proxy ~]# netstat  -anptu  |  grep nginx
+tcp        0        0 0.0.0.0:80        0.0.0.0:*        LISTEN        10441/nginx
+[root@proxy ~]# ss  -anptu  |  grep nginx
+
+
+3）修改Nginx配置文件，定义状态页面
+[root@proxy ~]# cat /usr/local/nginx/conf/nginx.conf
+… …
+
+location /status {
+                stub_status on;
+                 #allow IP地址;
+                 #deny IP地址;
+        }
+… …
+[root@proxy ~]# nginx
+##############
+http1.0 一次连接一次请求
+http1.1 一次连接多次请求
+3次握手 4次断开
+
+
+4）优化后，查看状态页面信息
+[root@proxy ~]# curl  http://192.168.4.5/status
+
+Active connections: 1 
+
+server accepts handled requests
+           10       10           3 
+Reading: 0 Writing: 1 Waiting: 0
+
+（时时数据）
+Active connections：当前活动的连接数量。
+
+（历史数据）
+Accepts：已经接受客户端的连接总数量。
+Handled：已经处理客户端的连接总数量。
+（一般与accepts一致，除非服务器限制了连接数量）。
+Requests：客户端发送的请求数量。
+
+（时时数据）
+Reading：当前服务器正在读取客户端请求头的数量。
+Writing：当前服务器正在写响应信息的数量。
+Waiting：当前多少客户端在等待服务器的响应。
+
+数据展示
+
+keep alive_timeout  30秒后断开连接
+
+
+

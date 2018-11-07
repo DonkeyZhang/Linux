@@ -1,0 +1,75 @@
+三、TRUNK 中继链接
+
+链路类型：
+
+接入链路(access):  可以承载1个 vlan
+
+中继链路(trunk)：可以承载多个 vlan
+
+1、原因
+如何实现交换机之间的VLAN通信?
+– 每个VLAN一条链路
+— 链路会太多接口不够用
+
+2、trunk原理 
+只使用一条链路,那么来自多个VLAN的数据如何标识?
+
+1.VLAN标识
+交换机给每个去往其他交换机的数据帧打上VLAN标识
+
+2.VLAN标识的种类
+• 以太网上实现中继可用两种封装类型
+      
+1）ISL(cisco私有的标记方法)      #基本上不使用，别的设备不兼容，加入30个字节
+
+2）IEEE 802.1q(公有的标记方法)   #规则都用这个，加入4个字节
+
+  |A|SA|Tag|Type|Data|CRC — —》   #带有IEEE802.1Q标记的以太网帧
+
+3、Trunk配置
+
+1.配置接口为Trunk模式
+Switch(config)# interface interface-id
+  
+Switch(config-if)#switchport mode ?
+
+access  Set trunking mode to ACCESS unconditionally
+dynamic Set trunking mode to dynamically negotiateaccess or trunk mode
+trunk   Set trunking mode to TRUNK unconditionally
+
+Switch(config-if)#switchport mode trunk
+
+2.恢复接口默认模式
+Switch(config)# interface interface-id
+
+Switch(config-if)#switchport mode dynamic auto
+或Switch(config-if)#no switchport mode trunk
+
+3.查看接口模式
+Switch#show interface interface-id switchport
+
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: static access
+Administrative Trunking Encapsulation: #dot1q
+Operational Trunking Encapsulation: native
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+
+4、配置VLAN Trunk实例
+第一步:在交换机上创建VLAN
+
+第二步:将接口添加到相应的VLAN中
+– SW1#config terminal
+– SW1(config)#interface range f0/4 - 10
+– SW1(config-if-range)#switchport access vlan 2
+– SW1(config)#interface range f0/11 - 23
+– SW1(config-if-range)#switchport access vlan 3
+
+第三步:配置交换机之间互联的接口为Trunk
+
+– SW1(config)#interface f0/24
+
+– SW1(config-if)#switchport mode trunk
+

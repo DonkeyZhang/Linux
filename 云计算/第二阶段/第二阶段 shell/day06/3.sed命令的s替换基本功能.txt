@@ -1,0 +1,53 @@
+sed命令的s替换基本功能（s/旧内容/新内容/选项）：
+
+[root@svr5 ~]# vim  test.txt                 //新建素材
+2017 2011 2018
+2017 2017 2024
+2017 2017 2017
+[root@svr5 ~]# sed 's/2017/xxxx/'           test.txt
+[root@svr5 ~]# sed 's/2017/xxxx/g'          test.txt
+[root@svr5 ~]# sed 's/2017/xxxx/2'          test.txt
+[root@svr5 ~]# sed 's/2017//2'              test.txt
+[root@svr5 ~]# sed -n 's/2017/xxxx/p'      test.txt
+
+4）下面看看sed工具的s指令案例集锦（自己提前生成一个a.txt文件）
+注意：替换操作的分隔“/”可改用其他字符，如#、&等，便于修改文件路径
+[root@svr5 ~]# sed 's/xml/XML/'  a.txt        //将每行中第一个xml替换为XML
+[root@svr5 ~]# sed 's/xml/XML/3' a.txt     //将每行中的第3个xml替换为XML
+[root@svr5 ~]# sed 's/xml/XML/g' a.txt     //将所有的xml都替换为XML
+[root@svr5 ~]# sed 's/xml//g'     a.txt     //将所有的xml都删除（替换为空串）
+[root@svr5 ~]# sed 's#/bin/bash#/sbin/sh#' a.txt  //将/bin/bash替换为/sbin/sh
+[root@svr5 ~]# sed '4,7s/^/#/'   a.txt         //将第4~7行注释掉（行首加#号）
+[root@svr5 ~]# sed 's/^#an/an/'  a.txt         //解除以#an开头的行的注释（去除行首的#号）
+
+
+步骤四：利用sed完成本例要求的任务
+
+参考数据文件内容如下：
+[root@svr5 ~]# cat nssw.txt
+Hello the world
+ni hao ma beijing
+本小节的操作使用nssw.txt作为测试文件。
+
+1）删除文件中每行的第二个、最后一个字符
+分两次替换操作，第一次替换掉第2个字符，第二次替换掉最后一个字符：
+[root@svr5 ~]# sed 's/.//2 ; s/.$//' nssw.txt 
+
+
+2）将文件中每行的第一个、倒数第1个字符互换
+每行文本拆分为“第1个字符”、“中间的所有字符”、“倒数第1个字符”三个部分，然后通过替换操作重排顺序为“3-2-1”：
+[root@svr5 ~]# sed -r 's/^(.)(.*)(.)$/\3\2\1/' nssw.txt
+
+
+3）删除文件中所有的数字
+因原文件内没有数字，行首也没有空格，这里稍作做一点处理，生成一个新测试文件：
+[root@svr5 ~]# sed 's/[0-9]//' nssw.txt
+
+以nssw2.txt文件为例，删除所有数字、行首空格的操作如下：
+[root@svr5 ~]# sed -r 's/[0-9]//g;s/^( )+//' nssw2.txt
+
+
+4）为文件中每个大写字母添加括号
+使用“（）”可实现保留功能，所以可参考下列操作解决：
+[root@svr5 ~]# sed -r 's/([A-Z])/[\1]/g' nssw.txt
+

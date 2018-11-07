@@ -1,0 +1,17 @@
+– DocumentRoot:网页文件的根目录(/var/www/html)
+
+虚拟机Server0：
+1.修改主配置文件/etc/httpd/conf/httpd.conf 
+
+  122行  DocumentRoot   "/var/www/myweb"
+
+2.常见网页文件路径，书写新的页面
+# mkdir  /var/www/myweb
+# echo  '<h1>NSD1808 Web' > /var/www/myweb/index.html
+
+3.重起httpd服务
+[root@server0 ~]# systemctl restart httpd
+
+虚拟机Desktop0：测试访问
+[root@desktop0 ~]# firefox server0.example.com
+

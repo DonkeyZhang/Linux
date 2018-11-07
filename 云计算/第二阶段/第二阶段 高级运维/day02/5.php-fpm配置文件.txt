@@ -1,0 +1,16 @@
+php-fpm配置文件
+
+1）查看php-fpm配置文件（实验中不需要修改该文件）
+[root@proxy etc]# vim /etc/php-fpm.d/www.conf
+[www]
+listen = 127.0.0.1:9000              //PHP端口号
+#用户访问nginx80端口#
+
+pm.max_children = 32                 //最大进程数量
+
+pm.start_servers = 15                //最小进程数量
+
+pm.min_spare_servers = 5             //最少需要几个空闲着的进程
+
+pm.max_spare_servers = 32            //最多允许几个进程处于空闲状态
+

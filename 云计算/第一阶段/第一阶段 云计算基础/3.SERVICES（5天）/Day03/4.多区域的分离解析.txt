@@ -1,0 +1,30 @@
+多区域的分离解析
+注意事项：每一个view中，zone的个数一致
+options {
+        directory       "/var/named";
+};
+acl  test { 192.168.4.207; 192.168.7.0/24; 192.168.10.1;  };
+
+view "nsd" {
+  match-clients {   test; };
+  zone "tedu.cn" IN {
+      type master;
+      file "tedu.cn.zone";
+   };
+  zone "qq.com" IN {
+      type master;
+      file "qq.com.zone";
+   };
+};
+view "other" {
+  match-clients { any; };
+  zone "tedu.cn" IN {
+      type master;
+      file "tedu.cn.other";
+   };
+  zone "qq.com" IN {
+      type master;
+      file "qq.com.other";
+   };
+};
+

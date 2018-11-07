@@ -1,0 +1,35 @@
+使用LDAP认证
+
+      主要实现网络用户认证，达到用户的集中管理
+
+       本地用户：由本地创建，用于本地登陆  本地/etc/passwd
+       网络用户 : 由LDAP服务器提供用户名、密码信息
+
+  服务端：LDAP服务器 虚拟机classroom
+      
+  客户端：虚拟机server
+    1.安装sssd软件包，与LDAP服务端沟通的软件
+   [root@server0 /]# yum -y install sssd
+
+    2.安装authconfig-gtk图形的工具，配置sssd软件包
+   [root@server0 /]# yum -y install authconfig-gtk
+
+    3.运行authconfig-gtk图形的工具
+   [root@room9pc01 ~]# ssh -X root@172.25.0.11
+   [root@server0 ~]# authconfig-gtk
+      选择LDAP
+      dc=example,dc=com             #指定服务端域名
+      classroom.example.com         #指定服务端主机名
+     勾选TLS加密
+     使用证书加密:
+    http://classroom.example.com/pub/example-ca.crt
+       选择LDAP密码
+   
+     最后选择“应用”   dc为域控制器
+   4.重起服务，验证
+  [root@server0 ~]# systemctl restart sssd
+  [root@server0 ~]# systemctl enable sssd
+  [root@server0 ~]# grep ldapuser0  /etc/passwd
+  [root@server0 ~]# id ldapuser0
+
+  

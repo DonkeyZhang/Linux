@@ -1,0 +1,14 @@
+主机映射记录文件/etc/hosts(起到DNS解析的功能)
+只为本机提供解析功能        
+
+[root@svr7 /]# vim  /etc/hosts
+192.168.4.110  www.sina.com
+
+[root@svr7 /]# ping www.sina.com
+PING www.sina.com (192.168.4.110)
+
+
+客户端解析DNS域名优先级：
+      1./etc/hosts
+      2./etc/resolv.conf----》DNS服务器
+

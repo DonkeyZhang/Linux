@@ -1,0 +1,62 @@
+附加权限(特殊权限)
+Set GID
+• 附加在属组的 x 位上
+– 属组的权限标识会变为 s
+– 适用于目录,Set GID可以使目录下新增的文档自动设
+置与父目录相同的属组
+
+– 让新增的子文档，自动继承父目录的所属组
+
+[root@server0 /]# mkdir /nsd09
+[root@server0 /]# chown :tarena /nsd09  #修改所属组权限
+[root@server0 /]# ls -ld /nsd09
+
+[root@server0 /]# mkdir /nsd09/test01
+[root@server0 /]# ls -ld /nsd09/test01
+
+[root@server0 /]# chmod g+s /nsd09   #添加Set GID权限
+[root@server0 /]# ls -ld /nsd09
+
+[root@server0 /]# mkdir /nsd09/test02
+[root@server0 /]# ls -ld /nsd09/test02
+
+[root@server0 /]# touch /nsd09/test02/2.txt
+[root@server0 /]# ls -l /nsd09/test02/2.txt
+############################################
+Set UID
+• 附加在属主的 x 位上
+– 属主的权限标识会变为 s
+– 适用于可执行文件,Set UID可以让使用者具有文件属主的身份及部分权限
+
+[root@server0 ~]# cp /usr/bin/touch /usr/bin/xixich
+
+[root@server0 ~]# chmod u+s /usr/bin/xixich
+[root@server0 ~]# ls -l /usr/bin/xixich
+[root@server0 ~]# ls -l /usr/bin/touch
+
+[root@server0 ~]# su - student
+
+[student@server0 ~]$ /usr/bin/touch  1.txt
+[student@server0 ~]$ /usr/bin/xixich  2.txt
+[student@server0 ~]$ ls -l 
+[student@server0 ~]$ exit
+
+#################################################
+Sticky Bit                     
+• 附加在其他人的 x 位上
+– 其他人的权限标识会变为 t
+– 适用于开放 w 权限的目录,可以阻止用户滥用 w 写入
+权限(禁止操作别人的文档)
+
+[root@server0 ~]# mkdir /home/public
+[root@server0 ~]# chmod ugo=rwx /home/public
+[root@server0 ~]# ls -ld /home/public
+
+[root@server0 ~]# chmod o+t /home/public
+[root@server0 ~]# ls -ld /home/public
+
+
+
+
+
+

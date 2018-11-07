@@ -1,0 +1,96 @@
+字符串的截取
+
+1）方法一，使用 ${}表达式
+格式：${变量名:起始位置:长度} ############
+
+使用${}方式截取字符串时，起始位置是从0开始的。
+定义一个变量phone，并确认其字符串长度：
+[root@svr5 ~]# phone="13788768897"
+[root@svr5 ~]# echo ${#phone}
+11                                         //包括11个字符
+使用${}截取时，起始位置可以省略，省略时从第一个字符开始截。比如，以下操作都可以从左侧开始截取前6个字符：
+[root@svr5 ~]# echo ${phone:0:6}
+137887
+或者
+[root@svr5 ~]# echo ${phone::6}
+137887
+因此，如果从起始位置1开始截取6个字符，那就变成这个样子了：
+[root@svr5 ~]# echo ${phone:1:6}
+378876
+
+
+
+2）方法二，使用 expr substr
+格式：expr substr "$变量名" 起始位置 长度3###
+
+
+
+还以前面的phone变量为例，确认原始值：
+[root@svr5 ~]# echo $phone
+13788768897
+使用expr substr截取字符串时，起始编号从1开始，这个要注意与${}相区分。
+从左侧截取phone变量的前6个字符：
+[root@svr5 ~]# expr substr "$phone" 1 6
+137887
+从左侧截取phone变量，从第9个字符开始，截取3个字符：
+[root@svr5 ~]# expr substr "$phone" 9 3
+897
+
+
+
+3）方式三，使用cut分割工具
+格式：echo $变量名 | cut -b 起始位置-结束位置
+选项 -b 表示按字节截取字符，其中起始位置、结束位置都可以省略。当省略起始位置时，视为从第1个字符开始（编号也是从1开始，与expr类似），当省略结束位置时，视为截取到最后。
+还以前面的Phone变量为例，确认原始值：
+[root@svr5 ~]# echo $phone
+13788768897
+从左侧截取前6个字符，可执行以下操作：
+[root@svr5 ~]# echo $phone | cut -b 1-6
+137887
+从第8个字符截取到末尾：
+[root@svr5 ~]# echo $phone | cut -b 8-
+8897
+只截取单个字符，比如第9个字符：
+[root@svr5 ~]# echo $phone | cut -b 9
+8
+截取不连续的字符，比如第3、5、8个字符：
+[root@svr5 ~]# echo $phone | cut -b 3,5,8
+788
+
+
+
+
+4）一个随机密码的案例
+版本1：
+[root@svr5 ~]# vim rand.sh
+#!/bin/bash
+x=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+//所有密码的可能性是26+26+10=62（0-61是62个数字）
+num=$[RANDOM%62]
+pass=${x:num:1}
+
+
+版本2：
+[root@svr5 ~]# vim rand.sh
+#!/bin/bash
+x=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+//所有密码的可能性是26+26+10=62（0-61是62个数字）
+pass=''
+for i in {1..8}
+do
+num=$[RANDOM%62]
+tmp=${x:num:1}
+pass=${pass}$tmp
+done
+echo $pass
+
+
+
+
+
+
+
+
+
+
+

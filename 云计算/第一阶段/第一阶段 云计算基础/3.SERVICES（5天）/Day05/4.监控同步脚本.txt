@@ -1,0 +1,23 @@
+书写Shell脚本
+
+      死循环  while
+
+     while  [条件]
+      do
+              循环执行的操作
+      done
+
+##################################################
+[root@svr7 /]# vim /root/rsync.sh
+#!/bin/bash
+while  inotifywait -rqq /opt
+do
+rsync -az --delete /opt/  root@192.168.4.207:/opt/
+done
+
+[root@svr7 /]# /root/rsync.sh    #运行脚本
+
+##################################################
+   -rqq  #两个q没有输出信息
+
+############################

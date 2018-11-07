@@ -1,0 +1,40 @@
+卷组划分空间的单位：PE   默认4M
+1.查看卷组PE大小
+ [root@server0 ~]# vgdisplay systemvg 
+
+ PE Size               4.00 MiB
+
+2.修改方式
+  卷组已经存在，修改PE的大小
+# vgchange -s PE大小   卷组名
+
+  创建卷组的时候设置PE大小
+# vgcreate  -s PE大小   卷组名   设备路径
+
+  创建逻辑卷使用PE的个数创建
+
+# lvcreate -l PE的个数  -n 逻辑卷   卷组名 
+
+2. 基于刚建立的 2000MiB 分区构建新的 LVM 存储
+– 新的逻辑卷命名为 database,大小为50个物理扩展单元
+(Physical Extent),属于 datastore 卷组
+– 在 datastore 卷组中的所有逻辑卷,其物理扩展单元
+(Physical Extent)的大小为16MiB
+– 使用  EXT3 文件系统对逻辑卷 database 格式化,此逻
+辑卷应该在开机时自动挂载到 /mnt/database 目录
+
+# vgchange -s 16M systemvg  
+# lvcreate -L 800M -n database systemvg
+# lvcreate -l 50 -n lvtest02 systemvg
+# lvs
+
+###############################################
+1.查看卷组PE大小
+ [root@server0 ~]# vgdisplay systemvg 
+ [root@server0 ~]# vgchange -s 1M  systemvg 
+ [root@server0 ~]# vgdisplay systemvg 
+
+2.利用PE的个数创建逻辑卷
+ [root@server0 ~]# lvcreate -l 80 -n lvtest systemvg
+ [root@server0 ~]# lvs
+

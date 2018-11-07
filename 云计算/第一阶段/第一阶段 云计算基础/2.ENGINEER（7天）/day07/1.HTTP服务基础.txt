@@ -1,0 +1,51 @@
+HTTP服务基础
+
+• 基于 B/S (Browser/Server)架构的网页服务
+– 服务端提供网页
+– 浏览器下载并显示网页
+
+• Hyper Text Markup Language(HTML),超文本标记语言
+• Hyper Text Transfer Protocol（HTTP）,超文本传输协议
+
+HTTP默认端口 ： 80
+
+#################################################
+环境的初步设置：修改防火墙默认区域为允许所有
+虚拟机Server
+ # firewall-cmd --set-default-zone=trusted
+
+虚拟机Desktop
+ # firewall-cmd --set-default-zone=trusted 
+
+#################################################
+搭建基于域名的虚拟Web主机
+
+实现两个网站 
+  server0.example.com 与 webapp0.example.com
+
+  server0.example.com---》页面内容  My Web01
+  webapp0.example.com---》页面内容  My Web02
+
+  页面均由虚拟机Server提供
+
+[root@server0 ~]# 安装httpd
+
+# mkdir /var/www/nsd01   /var/www/nsd02
+# echo '<h1>My Web1' > /var/www/nsd01/index.html
+# echo '<h1>My Web2' > /var/www/nsd02/index.html
+
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd.conf
+<VirtualHost  *:80>
+   Servername server0.example.com
+   DocumentRoot /var/www/nsd01
+</VirtualHost>
+<VirtualHost  *:80>
+   Servername webapp0.example.com
+   DocumentRoot /var/www/nsd02
+</VirtualHost>
+
+[root@server0 ~]# systemctl restart httpd
+
+
+
+

@@ -1,0 +1,49 @@
+• Linux命令
+– 用来实现某一类功能的指令或程序
+  Linux执行命令，都要找到对应的程序
+
+– 命令的执行依赖于解释器(默认解释器：/bin/bash)
+
+   用户------->解释器------->内核------->硬件
+
+  绿色：可以运行的程序
+
+
+• Linux命令的分类
+– 内部命令:属于解释器的一部分
+– 外部命令:解释器之外的其他程序
+
+
+命令行的一般格式
+• 基本用法
+– 命令字     [选项]..        [参数1]     [参数2]...
+
+[root@server0 ~]# ls -l /root/
+
+快速编辑技巧
+• Tab键自动补全
+– 可补齐命令字、选项、参数、文件路径、软件名、服务名
+
+# ls /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+# ls /et(tab)/sysco(tab)/netw(tab)-(tab)/ifcfg-eth0 
+
+# if 连续按两次tab
+# ifco(tab)
+# hostname
+# cat   /etc/redhat-release
+
+• 快捷键
+– Ctrl + c:结束正在运行的命令
+– Esc + . 或  ALT +  . :粘贴上一个命令的参数
+[root@localhost ~]# ls  /etc/redhat-release
+
+[root@localhost ~]# cat    ALT  +  .
+[root@localhost ~]# cat -n   ALT  +  .
+[root@localhost ~]# ls  -l     ALT  +  .
+
+– Ctrl + l:清空整个屏幕
+
+
+– Ctrl + u:清空至行首
+– Ctrl + w:往回删除一个单词(以空格界定)

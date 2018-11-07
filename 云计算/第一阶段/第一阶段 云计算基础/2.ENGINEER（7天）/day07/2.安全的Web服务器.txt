@@ -1,0 +1,58 @@
+安全的Web服务器
+
+• Public Key Infrastructure,公钥基础设施
+– 公钥:主要用来加密数据
+– 私钥:主要用来解密数据(与相应的公钥匹配)
+– 数字证书:证明拥有者的合法性/权威性(单位名称、
+有效期、公钥、颁发机构及签名、......)
+– Certificate Authority,数字证书授权中心:负责证书
+的申请/审核/颁发/鉴定/撤销等管理工作
+
+
+虚拟机Server：搭建安全的Web服务
+
+1.部署网站证书（营业执照）  
+# cd /etc/pki/tls/certs
+# wget http://classroom.example.com/pub/tls/certs/server0.crt
+# ls
+
+2.部署根证书（公安局信息）
+# cd /etc/pki/tls/certs
+# wget http://classroom.example.com/pub/example-ca.crt
+# ls
+
+3.部署私钥（用于解密）
+# cd /etc/pki/tls/private/
+# wget http://classroom.example.com/pub/tls/private/server0.key
+
+# ls
+
+4.安装支持安全https的软件
+[root@server0 /]# yum -y install mod_ssl
+
+5.修改配置文件
+[root@server0 /]# vim /etc/httpd/conf.d/ssl.conf
+  #补充，在vim末行模式 ，开启行号  ：set  nu
+
+ 59  DocumentRoot "/var/www/html"
+ 60  ServerName www0.example.com:443
+
+#指定网站证书
+100 SSLCertificateFile /etc/pki/tls/certs/server0.crt
+#指定解密的密钥
+107 SSLCertificateKeyFile /etc/pki/tls/private/server0.key
+#指定根证书
+122 SSLCACertificateFile /etc/pki/tls/certs/example-ca.crt
+
+6.书写一个网站用于测试 DocumentRoot "/var/www/html"
+
+# echo '<h1>Hello world' > /var/www/html/index.html
+
+7.重起httpd服务
+[root@server0 /]# systemctl restart httpd
+
+验证：
+  # firefox  https://www0.example.com
+
+     鼠标点击选择 我已了解可能的风险----->确认安全例外
+

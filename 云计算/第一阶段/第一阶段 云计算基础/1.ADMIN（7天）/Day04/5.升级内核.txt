@@ -1,0 +1,15 @@
+虚拟机Server：升级内核
+
+1.下载内核软件包
+# cd /opt
+# wget  http://classroom.example.com/content/rhel7.0/x86_64/errata/Packages/kernel-3.10.0-123.1.2.el7.x86_64.rpm
+
+# ls
+
+2.升级内核
+# uname  -r
+# rpm -ivh /opt/kernel-3.10.0-123.1.2.el7.x86_64.rpm 
+# reboot 
+# gos
+# uname -r
+ 3.10.0-123.1.2.el7.x86_64

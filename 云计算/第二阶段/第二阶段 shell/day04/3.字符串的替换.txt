@@ -1,0 +1,111 @@
+字符串的替换
+
+1）只替换第1个子串
+格式：${变量名/old/new}
+还以前面的phone变量为例，确认原始值：
+[root@svr5 ~]# echo $phone
+13788768897
+将字符串中的第1个8替换为X:
+[root@svr5 ~]# echo  ${phone/8/X}
+137X8768897
+
+
+2）替换全部子串
+格式：${变量名//old/new}
+将phone字符串中的所有8都替换为X:
+[root@svr5 ~]# echo  ${phone//8/X}
+137XX76XX97
+
+
+步骤三：字符串的匹配删除
+
+以处理系统默认的账户信息为例，定义变量A：
+[root@svr5 ~]# A=`head -1 /etc/passwd`
+[root@svr5 ~]# echo $A
+root:x:0:0:root:/root:/bin/bash
+
+1）从左向右，最短匹配删除
+格式：${变量名#*关键词}
+
+删除从左侧第1个字符到最近的关键词“：”的部分，* 作通配符理解：
+
+
+
+[root@svr5 ~]# echo ${A#*:}
+x:0:0:root:/root:/bin/bash
+
+
+2）从左向右，最长匹配删除
+
+格式：${变量名##*关键词}
+
+删除从左侧第1个字符到最远的关键词“:”的部分：
+
+
+[root@svr5 ~]# echo $A                      //确认变量A的值
+root:x:0:0:root:/root:/bin/bash
+[root@svr5 ~]# echo ${A##*:}
+/bin/bash
+
+
+3）从右向左，最短匹配删除
+
+格式：${变量名%关键词*}
+
+
+删除从右侧最后1个字符到往左最近的关键词“:”的部分，* 做通配符理解：
+
+[root@svr5 ~]# echo ${A%:*}
+root:x:0:0:root:/root
+
+
+4）从右向左，最长匹配删除
+
+格式：${变量名%%关键词*}
+
+删除从右侧最后1个字符到往左最远的关键词“:”的部分：
+
+[root@svr5 ~]# echo ${A%%:*}
+root
+
+
+
+步骤四：编写renfilex.sh脚本
+
+创建一个测试用的测试文件
+[root@svr5 ~]# mkdir rendir
+[root@svr5 ~]# cd rendir
+[root@svr5 rendir]# touch {a,b,c,d,e,f,g,h,i}.doc
+[root@svr5 rendir]# ls
+a.doc  b.doc  c.doc  d.doc  e.doc  f.doc  g.doc  h.doc  i.doc
+
+1）批量修改文件扩展名的脚本
+脚本用途为：批量修改当前目录下的文件扩展名，将.doc改为.txt。
+脚本内容参考如下：
+[root@svr5 rendir]# vim renfile.sh
+#!/bin/bash
+for i in `ls *.doc`             #注意这里有反引号
+do
+    mv $i  ${i%.*}.txt
+done
+[root@svr5 ~]# chmod +x renfile.sh
+测试脚本：
+[root@svr5 rendir]# ./renfile.sh
+[root@svr5 rendir]# ls
+a.txt  b.txt  c.txt  d.txt  e.txt  f.txt  g.txt  h.txt  i.txt
+
+2）改进版脚本(批量修改扩展名)
+通过位置变量 $1、$2提供更灵活的脚本，改进的脚本编写参考如下：
+[root@svr5 rendir]# vim ./renfile.sh
+#!/bin/bash
+#version:2
+for i in `ls *.$1`
+do
+    mv $i  ${i%.*}.$2
+done
+3）验证、测试改进后的脚本
+将 *.doc文件的扩展名改为.txt：
+[root@svr5 rendir]# ./renfile.sh txt doc
+将 *.doc文件的扩展名改为.mp4：
+[root@svr5 rendir]# ./renfile.sh doc mp4
+

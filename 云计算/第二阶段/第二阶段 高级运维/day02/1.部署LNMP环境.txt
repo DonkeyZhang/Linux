@@ -1,0 +1,42 @@
+部署LNMP环境
+
+静态网站,动态网站
+client---------web Sever[a.mp3]
+                        [a.sh,/a.sh]
+得运行一遍才行
+
+shell--python---php--java--c++--c
+
+C-ping
+
+C-ifconfig
+
+
+1.1 问题
+
+安装部署Nginx、MariaDB、PHP环境
+安装部署Nginx、MariaDB、PHP、PHP-FPM；
+启动Nginx、MariaDB、FPM服务；
+并测试LNMP是否工作正常。
+
+
+1.2 方案
+
+LNMP（Linux、Nginx、MySQL、PHP）
+在RHEL7系统中，源码安装Nginx，使用RPM包安装MariaDB、PHP、PHP-FPM软件。
+操作过程中需要安装的软件列表如下：
+nginx
+
+mariadb、mariadb-server、mariadb-devel
+#mariadb 登陆工具\备份工具\增删改查
+#mariadb-server 存数据的地方
+
+php、php-fpm、php-mysql
+#php        解释作用
+#php-fpm    自动实现
+#php-mysql  连接mysql数据库,需要什么就用什么
+
+
+备注：mariadb（数据库客户端软件）、mariadb-server（数据库服务器软件）、mariadb-devel（其他客户端软件的依赖包）、php（解释器）、php-fpm（进程管理器服务）、php-mysql（PHP的数据库扩展包）。
+
+

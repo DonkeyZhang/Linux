@@ -1,0 +1,29 @@
+家目录漫游
+什么是NFS共享
+• Network File System,网络文件系统
+– 由NFS服务器将指定的文件夹共享给客户机
+– 客户机将此共享目录 mount 到本地目录,访问此共享
+资源就像访问本地目录一样方便
+– 类似于 EXT4、XFS等类型,只不过资源在网上 
+
+
+NFS共享服务端：虚拟机classroom
+
+客户端：虚拟机Server 访问虚拟机classroom的共享
+
+1. 查看NFS资源
+[root@server0 ~]# showmount -e classroom.example.com
+Export list for classroom.example.com:
+/home/guests   172.25.0.0/255.255.0.0
+服务端的共享路径              共享给那些客户端
+
+2.访问虚拟机classroom的共享
+# umount /mnt
+# mkdir  /home/guests
+
+# mount classroom.example.com:/home/guests  /home/guests
+                    
+# ls /home/guests
+
+# mount    服务端:服务端共享路径       本地挂载点
+

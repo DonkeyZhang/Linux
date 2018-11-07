@@ -1,0 +1,15 @@
+rm 删除
+• rm — Remove
+  – 格式:rm [选项]... 文件或目录...
+
+• 常用命令选项
+ – -r、-f:递归删除(含目录)、强制删除
+
+[root@localhost /]# mkdir  /opt/abc  /mnt/test05
+[root@localhost /]# ls /opt/
+[root@localhost /]# ls /mnt/
+
+[root@localhost /]# rm -rf  /opt/abc/  /mnt/test05/
+[root@localhost /]# ls /opt/
+[root@localhost /]# ls /mnt/
+

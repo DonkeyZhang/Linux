@@ -1,0 +1,355 @@
+
+
+1.NTP network time protocl
+服务端 例如 classroom.example.com
+客户端
+1.chrony软件
+2.vim /etc/chrony.conf
+3.注意前面的可以注释掉
+4.restat chronyd
+
+
+
+2.cron计划任务
+1.cron -e（edit） -u #指定用户
+2./var/log/crond 排除故障
+3./var/spool/cron
+4./var/spool/cron/root #书写的文件放置路径
+ 
+
+
+3.LDAP 
+服务端
+例如calssroom.example.com
+客户端
+1.安装sssd软件
+2.书写配置两种方法
+（1）安装authconfig-gtk图形工具  #更加简单 有时版本不兼容
+（2）authtui 正常配置
+ 打开一个终端 cd /etc/openlap/cancerts 
+            wget#下载证书
+3.restart sssd
+
+
+4.NFS家目录漫游
+服务端已经创建好用户，已经配置好了
+
+客户端 LADP 的用户已经安装好sssd 能够访问了，但是只能访问内核，找不到自己的家目录，没有访问点
+两种方法
+第一种 # 这个挂载只是暂时挂载，重启之后失效
+1.shoumount 服务端的用户的家目录放在哪里
+2.mount #服务端的目录# /home/guests  #客户端的挂载点# /home/guests/ #必须和服务端一致，客户可以像访问本地在客户端访    
+  第二种  自动挂载
+1.安装autofs
+2.vim /etc/auto.master  #自动找到master服务器并挂载 
+/home/guests #指定监控点 /etc/guests.rule #配置挂载策略
+3.vim /guests/guests.rule
+* -rw   calssroom.example.com/home/guests/& 
+4.restart autofs 
+
+
+5.搭建基本web服务
+1.httpd
+2.restart
+3./var/www/html/index.html
+4.验证  firefox http://
+
+
+6.搭建基本ftp服务
+1.vsftp
+2.restart
+3./var/ftb/
+4.验证 firefox ftp:// 
+
+
+7.配置聚合连接  man teamd.conf
+1.创建虚拟网卡 指定工作方式
+2.将真实网卡加入虚拟网卡
+3.配置虚拟网卡的ip地址、网关、子网掩码
+4.激活网卡和加入的网卡
+
+
+8.samba共享服务（跨平台）‘
+
+服务端
+1.samba软件
+2.创建共享用户、添加共享用户
+3.创建共享目录
+4./etc/samba/smb.conf/ 共享名 路径 权限
+5.selinux getsepool -a | grep samba
+6.目录本身 setfacl -m 
+7.防火墙
+8.restart smb
+客户端
+1.cifs-utils
+2.创建挂载点
+3./etc/fstsb
+4.mount -a
+
+
+9.NFS共享 （linux平台）
+
+服务端
+1.nfs-utils软件
+2./etc/exports
+3.创建共享目录
+4.restart nfs-server
+客户端
+1./etc/fstab/
+，，，，： / 
+
+
+10.搭建iscis设备 给客户端提供虚拟磁盘服务
+
+服务端
+1.targetcli软件
+2.创造后端储存并命名
+3.创造磁盘组 
+4.将后端储存放入磁盘组
+5.acl控制 验证
+6.端口控制 增加端口
+7.restart
+
+客户端
+1. 有yum的情况，可以自动补全，安装isci-initiator-utils
+2.vim /etc/initiatorname 之地安客户端声称的名字
+3.刷新名字 iscsid
+4.找到虚拟磁盘 man isicsdasdm
+5.restart iscsi
+
+
+11.mariadb 数据服务
+
+1.安装 mariadb-server 
+2.启动
+3.进入 mysql -u    -p
+4.设置密码 mariadb
+数据库管理员root，用户信息存储mysql库中表user
+系统管理员root，用户信息存储/etc/passwd
+
+mysqladmin  -u  root  password  '123'    #设置密码
+mysqladmin -u root -p123   password '321'#修改密码
+5.show databases 、 use  库名  、 showtable #显示库中的表名 、desc 显示表结构 看数据的类型有哪些
+
+6.insert 、delete 、update 、select  表字段 from 表名 where 条件     
+ 
+7.授权 grant select on nsd.* to lisi@主机名   identified by ' 密码'
+
+
+
+12.完整的web服务器搭建
+httpd软件已安装
+两种
+1.单个web服务器 vim /etc/httpd/conf/httpd.conf #修改即可  
+servername 
+document /var/www/html ---》 写入网页 index.html
+2.多个为web服务器,也叫虚拟web主机，因为其实只有一台电脑提供数据
+ vim /etc/httpd/conf.d/*.conf，调用配置文件 ，在主文件里读取而来 ，所有网站都必须用虚拟Web主机完成   
+<Virtualhost *：80>
+ Servername  主机名
+ Document   /var/www/自己建的目录/index.html- -》 创建相同的目录并写入网站
+</Virtualhost>
+3.访问控制#可以控制访问来源 ，在/etc/httpd/conf.d/*.conf
+<directory   /var/www/..>
+ruquired ip ..
+</directory>
+4.自定义虚拟web #不建议使用
+ （1）服务本身，默认是可以访问/var/www ,现在需要特殊授权，书写调用配置文件
+ (2) selinux 是不允许的，
+ SELinux的安全上下文（标签起到标识作用）
+[root@server0 ~]# ls -Zd /var/www/
+[root@server0 ~]# ls -Zd /webroot
+方式1:参照标准目录,重设新目录的属性
+– chcon [-R] --reference=模板目录 新目录
+
+# chcon -R --reference=/var/www   /webroot
+#   将/webroot修改为/var/www一样的标签值
+# ls -Zd /webroot/
+5.部署动态网站 #网站可以是动态的，可以是下载的，也可以是自己下的
+下载网页文件-- -> 部署到/var/www.. --> 下载安装翻译软件 - ->书写配置文件
+例如 python网页 ,mod_wsgi软件
+<Virtualhost *：80>
+ Servername  主机名
+ Document   /var/www/自己建的目录/index.html- -》 创建相同的目录并写入网站
+ wsgiscriptalias / /var/www/..  跳转并翻译具体的网页
+</Virtualhost>
+6.改端口 在调用配置文件了加入 Listen 但需要修改selinux
+让他报错再改
+# semanage port  -l  |  grep  http
+# semanage port -a  -t http_port_t   -p tcp 8909
+ 
+
+13.https 服务器
+1.网站证书，权威证书，私钥
+
+
+
+
+
+
+
+14.自定义的yum仓库
+
+1.（1）众多的数据包  （2）仓库的数据清单   （3）数据来源
+
+2.传输数据 scp+ssh 
+
+3.解压数据包到指定目录
+
+4.createrepo 创建数据包的清单
+
+5.在repo上的文件里继续添加新的数据源，重新起名
+
+6.yum repolist
+
+
+
+15.源码包的安装 # 源码包都是比较新的软件，没有经过红帽公司的打包，它的优势是可以指定安装位置
+
+1.传输源码包 解压
+
+2.安装gcc 和 make  #gcc是种翻译工具 、make是安装工具
+ 
+3.  ./configure -- prefix  /myrpm  #  配置,指定安装目录/功能模块等选项、指定装备安装的位置 并检测有没有安装gcc
+ 
+4.cd 到解压的目录下
+
+5.make 编译
+
+6.make install 安装编译好的文件，并复制到指定目录下
+
+
+
+
+16.DNS服务器
+1、bind
+
+
+
+
+
+
+
+
+17.PXE服务器
+  
+1.批量装机
+过程：
+裸机PXE-client调入内存，在网络中请求DHCP服务->
+DHCP服务器分配ip地址、网关、DNS，告诉next-server、pxelinux.0的位置->
+Tftp服务器提供pxelinux.0文件，共享需要的文件菜单文件、图型模块、背景图片、内核启动程序、驱动程序->
+需要配置pxelinux.cfg/default文件，指定ks应答文件，无人值守安装->
+http服务器提供安装树资源->安装
+
+2.DHCP服务器 
+1、安装dhcpd 软件
+2、/etc/dhcp/dhcpd.conf
+:r  写入文件
+......
+
+next-sever
+filename 
+3、restart dhcpd
+
+
+2.http服务器
+
+1、httpd
+2、创建放置安装资源（镜像数据）的目录 copy数据或者挂载
+
+3.TFTP服务器
+1、tftp-server
+2、创建pxelinux.cfg菜单文件夹
+3、从http的镜像数据中isolinux复制pxelinux.0、图像模块、背景图片、内核启动程序、驱动程序,
+4、将镜像数据中isolinux.cfg复制并改名default
+
+3、systm-config-kickstart
+生成应答文件
+
+
+
+
+
+
+
+
+
+18.cobbler服务器
+
+
+
+
+
+19.LAMP论坛服务
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

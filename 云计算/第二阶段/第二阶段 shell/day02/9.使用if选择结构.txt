@@ -1,0 +1,130 @@
+使用if选择结构
+本案例要求编写3个Shell脚本，分别实现以下目标：
+检测/media/cdrom目录，若不存在则创建
+检测并判断指定的主机是否可ping通
+从键盘读取一个论坛积分，判断论坛用户等级，等级分类如下:
+大于等于90	神功绝世
+大于等于80，小于90	登峰造极
+大于等于70，小于80	炉火纯青
+大于等于60，小于70	略有小成
+小于60	初学乍练
+
+3.2 方案
+
+1）if单分支的语法组成：
+if  条件测试
+then  
+命令序列
+fi
+
+2）if双分支的语法组成：
+if  条件测试
+then
+命令序列1
+else  
+命令序列2
+fi
+fi
+
+3）if多分支的语法组成：
+if    条件测试1 ;then   # 一行两个命令；分号区分
+命令序列1
+elif  条件测试2 ;then  
+命令序列2
+else
+命令序列n
+fi
+
+C 字符设备 流水线->abc 鼠标、键盘：按顺序来 
+D 块设备 硬盘、U盘停场一样，储存随机
+
+2、检测/media/cdrom目录，若不存在则创建
+
+1）编写脚本如下：
+[root@svr5 ~]# vim mountdir.sh 
+#!/bin/bash
+dir="/media/cdrom/"
+if [ ! -d $dir ]
+then
+    mkdir -p $dir
+fi 
+[root@svr5 ~]# chmod +x mountdir.sh                  //添加可执行权限
+
+2）测试、验证脚本功能
+[root@svr5 ~]# ls -ld /media/cdrom                  //本来没有/media/cdrom目录
+ls: /media/cdrom: 没有那个文件或目录
+[root@svr5 ~]# ./mountdir.sh                          //执行脚本
+[root@svr5 ~]# ls -ld /media/cdrom                  //再检查已经有了
+drwxr-xr-x 2 root root 4096 12-11 15:16 /media/cdrom
+有了/media/cdrom文件夹以后，再次执行上述脚本，实际上不做任何有效操作：
+[root@svr5 ~]# ./mountdir.sh
+检测并判断指定的主机是否可ping通
+
+
+
+1）分析任务需求
+使用ping命令检测目标主机时，人工可直接判断反馈结果，而脚本却不方便。但是当ping测试成功时，执行状态$?的值为0；而ping测试失败时，$?的值不为0。因此在Shell脚本中可以利用这一点来判断ping目标主机的成败。
+为了节省ping测试时间，可以只发送3个测试包（-c 3）、缩短发送测试包的间隔秒数（-i 0.2）、等待反馈的超时秒数（-W 1）。比如，检查可ping通的主机：
+[root@svr5 ~]# ping -c 3 -i 0.2 -W 1 192.168.4.5
+PING 192.168.4.5 (192.168.4.5) 56(84) bytes of data.
+64 bytes from 192.168.4.5: icmp_seq=1 ttl=64 time=0.131 ms
+64 bytes from 192.168.4.5: icmp_seq=2 ttl=64 time=0.076 ms
+64 bytes from 192.168.4.5: icmp_seq=3 ttl=64 time=0.073 ms
+--- 192.168.4.5 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 402ms
+rtt min/avg/max/mdev = 0.073/0.093/0.131/0.027 ms
+[root@svr5 ~]# echo $?                                  //执行状态表示成功
+0
+
+2）脚本编写参考如下：
+[root@svr5 ~]# vim pinghost.sh 
+#!/bin/bash
+ping -c 3 -i 0.2 -W 1 $1 &> /dev/null
+if [ $? -eq 0 ] ; then
+    echo "Host $1 is up."
+else
+    echo "Host $1 is down."
+fi
+[root@svr5 ~]# chmod +x pinghost.sh 
+
+3）测试、验证脚本功能
+[root@svr5 ~]# ./pinghost.sh 192.168.4.5
+Host 192.168.4.5 is up.
+[root@svr5 ~]# ./pinghost.sh 192.168.4.50
+Host 192.168.4.50 is down.
+#ping $ip              #程序不终止
+ ping -c次数               #限制次数，发送测试包
+ ping -i次数               #发送测试包的间隔秒
+ ping -c次数 -i次数 -W次数#返回时间   #
+
+
+
+3、从键盘读取一个论坛积分，判断论坛用户等级
+
+1）脚本编写参考如下：
+大于等于90	神功绝世
+大于等于80，小于90	登峰造极
+大于等于70，小于80	炉火纯青
+大于等于60，小于70	略有小成
+小于60	初学乍练
+[root@svr5 ~]# vim grade.sh 
+#!/bin/bash
+read -p "请输入积分（0-100）：" JF
+if [ $JF -ge 90 ] ; then
+    echo "$JF 分，神功绝世"
+elif [ $JF -ge 80 ] ; then
+    echo "$JF 分，登峰造极"
+elif [ $JF -ge 70 ] ; then
+    echo "$JF 分，炉火纯青"
+elif [ $JF -ge 60 ] ; then
+    echo "$JF 分，略有小成"
+else
+    echo "$JF 分，初学乍练"
+fi
+
+
+cpu
+free
+web
+登陆用户
+

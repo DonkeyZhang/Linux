@@ -1,0 +1,13 @@
+对页面进行压缩处理
+
+1）修改Nginx配置文件
+[root@proxy ~]# cat /usr/local/nginx/conf/nginx.conf
+http {
+.. ..
+gzip on;                            //开启压缩
+gzip_min_length 1000;                //小文件不压缩
+gzip_comp_level 4;                //压缩比率
+gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+                                    //对特定文件压缩，类型参考mime.types
+.. ..
+}

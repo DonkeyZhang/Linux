@@ -1,0 +1,169 @@
+echo "
+[yum]
+name=yum
+baseurl=ftp://192.168.2.254:/rhel7
+enbled=1
+gpgcheck=0" >/etc/yum.repos.d/yum.repo
+
+1、搭键nginx服务器
+1)
+tar -xf /mnt/lnmp_soft.tar.gz  -C /mnt/
+cd /mnt/nginx
+tar -xf nginx-1.10.3  nginx-1.12.2 -C /mnt/nginx
+
+2)
+cd /mnt/nginx/nginx-1.10.3
+yum -y install gcc pre-devel openssl-devel
+useradd -s /sbin/nologin  nginx
+
+3)
+./configure \
+--prefix=/usr/local/nginx \
+--user=nginx \
+--group=nginx \
+--with-http_ssl_module
+
+make && make install          
+
+4)
+ln -s /usr/logcal/nginx/sbin/nginx /sbin
+
+5)有脚本可以实现检测
+nginx 
+nginx -s stop
+nginx -s reload
+nginx -V 
+ps aux | grep nginx  
+netstat -a n p l t u |grep nignx
+#########################################################
+
+
+2、升级nginx网站
+
+1）
+cd /mnt/nginx/nginx-1.12.2
+./configure \
+--prefix=/usr/local/nginx \
+--user=nginx  \
+--group=nginx \
+--with-http_ssl_module
+
+make
+
+2）
+mv /usr/local/nginx/sbin/nginx /usr/local/nginx/sbin/nginx.bak
+#mv /usr/local/nginx/sbin/nginx{,.bak}，同一种方法
+cp /mnt/nginx/nginx-1.12.2/objs/nginx  /usr/local/nginx/sbin/
+
+3）
+killall nginx
+nginx
+
+curl 192.168.4.5
+#####################################################################
+
+
+3、部署nginx网站
+vim /usr/local/nginx/conf/nginx.conf
+1）单个nginx web主机
+可以修改的
+#user  nobody;                          #修改用户
+worker_processes  1;                    #开启的进程数
+
+#error_log  logs/error.log;             #日志
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;             #进程的PID
+
+
+events {
+    worker_connections  1024;            #最大的访问并发量 
+}
+
+########################实现用户，认限制访问的人数#########################
+http {
+  
+       server {
+        listen       80;                        #端口
+        server_name  www.a.com;                 #你的网页域名
+        auth_basic "hehe:";                     #这个可以自己定义,再网页显示
+        auth_basic_user_file "/usr/local/nginx/pass";#创建访问的用户和密码放置的地方
+
+         location / {
+         root   html;
+         index  index.html index.htm;        #输入域名,默认访问的页面
+        }
+
+}
+
+ 
+yum -y install httpd-tools
+
+htpasswd -c /usr/local/nginx/pass jerry
+1234
+1234
+htpasswd /usr/local/nginx/pass tom
+1234
+1234
+
+#############################################################################
+2）多个web主机
+#添加sever就可以了
+1）
+server {
+        listen       80;                        #端口
+        server_name  www.b.com;                 #你的网页域名
+         location / {
+         root   www;
+         index  index.html index.htm;        #输入域名,默认访问的页面
+        }
+
+}
+
+:84-95s/#//
+
+2）
+mkdir /usr/local/nginx/www
+echo "www">/usr/local/nginx/www/index.html
+echo "192.168.4.5 www.a.com www.b.com">>/etc/hosts
+
+3)
+firefox www.a.com www.b.com
+
+#################################################################################
+4、加密网站
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+

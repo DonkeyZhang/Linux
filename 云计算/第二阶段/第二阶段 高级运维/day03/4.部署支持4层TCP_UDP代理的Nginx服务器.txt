@@ -1,0 +1,42 @@
+部署支持4层TCP/UDP代理的Nginx服务器
+
+1）部署nginx服务器
+编译安装必须要使用--with-stream参数开启4层代理模块。
+[root@proxy ~]# yum –y install gcc pcre-devel openssl-devel        //安装依赖包
+[root@proxy ~]# tar  -xf   nginx-1.12.2.tar.gz
+[root@proxy ~]# cd  nginx-1.12.2
+[root@proxy nginx-1.12.2]# ./configure   \
+> --with-http_ssl_module                                //开启SSL加密功能
+> --with-stream                                       //开启4层反向代理功能
+[root@proxy nginx-1.12.2]# make && make install           //编译并安装
+
+
+步骤二：配置Nginx服务器，添加服务器池，实现TCP/UDP反向代理功能
+
+1）修改/usr/local/nginx/conf/nginx.conf配置文件
+
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+ stream {
+               upstream backend {
+               server 192.168.2.100:22;            //后端SSH服务器的IP和端口
+               server 192.168.2.200:22; 
+                                         }       
+               server {
+               listen 12345;                    //Nginx监听的端口
+               proxy_connect_timeout 1s;
+               proxy_timeout 3s;
+               proxy_pass backend;
+                            }
+}
+
+              http {
+.. ..
+}
+
+2）重启nginx服务
+[root@proxy ~]# /usr/local/nginx/sbin/nginx -s reload
+#请先确保nginx是启动状态，否则运行该命令会报错,报错信息如下：
+#[error] open() "/usr/local/nginx/logs/nginx.pid" failed (2: No such file or directory)
+3）客户端使用访问代理服务器测试轮询效果
+[root@client ~]# ssh 192.168.4.5 -p 12345            //使用该命令多次访问查看效果
+

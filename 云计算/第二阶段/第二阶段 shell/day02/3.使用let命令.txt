@@ -1,0 +1,24 @@
+使用let命令
+expr或$[]、$(())方式只进行运算，并不会改变变量的值；而let命令可以直接对变量值做运算再保存新的值。因此变量X=1234，在执行let运算后的值会变更；另外，let运算操作并不显示结果，但是可以结合echo命令来查看：
+[root@svr5 ~]# X=1234  
+[root@svr5 ~]# let y=X+22
+[root@svr5 ~]# echo $y
+1256
+[root@svr5 ~]# let X++;  echo $X       # X++(X=X+1)
+[root@svr5 ~]# let X--;  echo $X       # X--(X=X-1)
+[root@svr5 ~]# let X+=78 ; echo $X     # X+=78(X=X+78)
+[root@svr5 ~]# let X-=78 ; echo $X     # X-=78(X=X-78)
+[root@svr5 ~]# let X*=78 ; echo $X     # X*=78(X=X*78)
+[root@svr5 ~]# let X/=78 ; echo $X     # X/=78(X=X/78)
+[root@svr5 ~]# let X%=78 ; echo $X     # X%=78(X=X%78)
+
+x=1 
+echo $[x++] #先显示x，再赋值1.可以写成[++x]
+1
+echo $x
+2
+let x++ 
+echo  $x #直接显示
+2
+echo $x
+

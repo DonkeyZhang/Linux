@@ -1,0 +1,10 @@
+• 提供的默认配置
+
+– Listen:监听地址:端口(80)
+
+– ServerName:本站点注册的DNS名称(空缺)
+
+– DocumentRoot:网页根目录(/var/www/html)
+
+– DirectoryIndex:起始页/首页文件名(index.html)
+

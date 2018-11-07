@@ -1,0 +1,48 @@
+DNS子域授权
+
+    父域：www.qq.com
+    
+    子域：www.bj.qq.com
+
+    父域DNS为虚拟机A，负责解析qq.com
+
+    子域DNS为虚拟机B，负责解析bj.qq.com
+
+虚拟机B：
+1.安装软件包bind  bind-chroot    
+1.修改主配置文件/etc/named.conf   
+ options {
+	directory 	"/var/named";
+ };
+ zone "bj.qq.com" IN {
+	type master;
+	file "bj.qq.com.zone";
+ };
+3.建立地址库文件
+# cp -p   named.localhost  bj.qq.com.zone #保持属性不变
+# vim     bj.qq.com.zone
+  bj.qq.com.  	NS	pc207
+  pc207           A  192.168.4.207
+  www             A  20.30.40.50
+4.重起named服务 
+
+
+##############################################
+子域授权配置
+虚拟机A：
+[root@svr7 /]# vim /var/named/qq.com.zone 
+  qq.com.    NS   svr7
+  bj.qq.com. NS   pc207
+  svr7       A    192.168.4.7
+  pc207      A    192.168.4.207
+  www        A    2.2.2.2
+[root@svr7 /]# systemctl restart named
+
+[root@pc207 /]# nslookup  www.bj.qq.com  192.168.4.7
+Server:		192.168.4.7
+Address:	192.168.4.7#53
+
+Non-authoritative answer:   #非权威解答
+Name:	www.bj.qq.com
+Address: 20.30.40.50
+

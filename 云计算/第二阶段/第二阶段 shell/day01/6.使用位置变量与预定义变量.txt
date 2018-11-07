@@ -1,0 +1,44 @@
+使用位置变量与预定义变量
+
+1）创建一个测试脚本，用来展示。
+[root@svr5 ~]# vim location.sh
+#!/bin/bash
+echo $0                                        //脚本的名称
+echo $1                                        //第一个参数
+echo $2                                        //第二个参数
+echo $*                                        //所有参数
+echo $#                                        //所有的综合de 
+echo $$                                        //当前进程的进程号
+echo $?                                        //上一个程序的返回状态码
+echo $!                                        // 上一个命令程序的PID
+[root@svr5 ~]# chmod +x location.sh              //添加可执行权限
+
+2）执行脚本location.sh，细心观察结果（高明的武功需要用心参悟）。
+[root@svr5 ~]# ./location.sh one 1 2 abc qq 8 7
+
+
+
+4、创建账户与修改密码的脚本
+
+1）编写脚本。
+[root@svr5 ~]# vim /root/user.sh
+#!/bin/bash
+useradd $1
+echo "$2" |passwd --stdin $1 
+执行脚本测试：
+[root@svr5 ~]# ./user.sh jerry  123456
+更改用户 jerry 的密码 。
+
+4、
+#!/bin/bash
+descrption: 描述
+version:1.0
+
+#！/bin/bash
+/etc/yum.repos.d/yum.repo
+[yum]
+name=yum
+baseurl
+不能数字开头，特殊符号
+env(environment)
+set(所有的变量）

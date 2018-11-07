@@ -1,0 +1,28 @@
+[root@server0 ~]# ls /dev/vdb1 /dev/vdb2
+
+什么是交换空间
+• 相当于虚拟内存,
+– 当物理内存不够用时,使用磁盘空间来模拟内存
+– 在一定程度上缓解内存不足的问题
+– 交换分区:以空闲分区充当的交换空间
+
+[root@server0 ~]# mkswap /dev/vdb1 #格式化交换文件系统
+[root@server0 ~]# mkswap /dev/vdb2 #格式化交换文件系统
+
+[root@server0 ~]# swapon /dev/vdb2 #启用的命令
+[root@server0 ~]# swapon  -s       #查看交换空间的成员
+[root@server0 ~]# swapoff /dev/vdb1 #停用交换分区
+[root@server0 ~]# swapon  -s
+[root@server0 ~]# swapoff /dev/vdb2
+[root@server0 ~]# swapon  -s
+
+#################################################
+交换分区的开机自动启用
+
+[root@server0 ~]# vim /etc/fstab 
+/dev/vdb1   swap   swap  defaults 0 0
+/dev/vdb2   swap   swap  defaults 0 0
+
+[root@server0 ~]# swapon -a   #检测书写是否正确
+[root@server0 ~]# swapon -s
+

@@ -1,0 +1,41 @@
+awk综合脚本应用
+3.1 问题
+
+本案例要求编写脚本，实现以下需求：
+找到使用bash作登录Shell的本地用户
+列出这些用户的shadow密码记录，如图-2所示
+
+图－2
+3.2 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：任务需求及思路分析
+
+编写脚本的任务要求如下：
+分析出使用bash作登录Shell的本地用户
+列出这些用户的shadow密码记录
+按每行“用户名 -- 密码记录”保存结果
+
+步骤二：根据实现思路编写脚本
+
+[root@svr5 ~]# cat getupwd-awk.sh
+#/bin/bash
+A=$(awk -F:  '/bash$/{print $1}' /etc/passwd)        ## 提取符合条件的账号记录
+for i in $A
+do
+        grep $i /etc/shadow | awk -F: '{print $1,"-->",$2}'                
+done
+
+步骤三：验证、测试脚本
+
+[root@svr5 ~]# ./getupwd-awk.sh      
+root --> $6$IWgMYmRACwdbfwBo$dr8Yn983nswiJVw0dTMjzbDvSLeCd1GMYjbvsDiFEkL8jnXOLcocBQypOCr4C6BRxNowIxjh6U2qeFU0u1LST/
+zengye --> $6$Qb37LOdzRl5995PI$L0zTOgnhGz8ihWkW81J.5XhPp/l7x2./Me2ag0S8tRndCBL9nIjHIKkUKulHxJ6TXyHYmffbVgUT6pbSwf8O71
+clamav --> !!
+mysql --> !!
+.. ..
+
+
+
+
+

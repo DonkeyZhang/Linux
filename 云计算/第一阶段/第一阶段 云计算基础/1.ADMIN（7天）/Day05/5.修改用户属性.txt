@@ -1,0 +1,15 @@
+修改用户属性
+• 使用 usermod 命令
+– usermod [选项]... 用户名
+
+• 常用命令选项
+– -u 用户id、-d 家目录路径、-s 登录解释器、-G 附加组
+
+[root@A ~]# useradd nsd10
+[root@A ~]# grep nsd10 /etc/passwd
+
+# usermod -u 1700 -s /sbin/nologin   -d /opt/abc   
+  -G tarena  nsd10
+
+[root@A ~]# grep nsd10 /etc/passwd
+[root@A ~]# id nsd10

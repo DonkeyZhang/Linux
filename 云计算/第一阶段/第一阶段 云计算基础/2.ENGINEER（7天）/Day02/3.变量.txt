@@ -1,0 +1,128 @@
+案例:
+   书写创建用户zhangsan，并设置密码为123脚本
+
+[root@server0 ~]# vim /root/user.sh 
+	#!/bin/bash
+	abc=nsd12
+	useradd  $abc &> /dev/null
+	echo  $abc创建成功
+	echo  123  |  passwd  --stdin  $abc &> /dev/null
+	echo  $abc密码设置成功
+
+[root@server0 ~]# /root/user.sh
+
+黑洞设备：/dev/null  专用于收集无用的信息
+为了增加脚本的灵活度，适用多变的环境------>变量 
+变量：类似于容器，以不变的名称，存储可以变化的值
+变量名=储存的值     #为变量赋值
+#################################################
+read:
+      1.产生交互  
+      2.记录用户在键盘上的输入
+      3.将记录的信息赋值给变量
+ 
+    -p：屏幕的提示信息
+
+[root@server0 ~]# vim /root/user.sh 
+	#!/bin/bash
+	read  -p  '请输入您要创建的用户:'     abc
+	useradd $abc  &>  /dev/null
+	echo $abc创建成功
+	echo 123  | passwd  --stdin  $abc  &> /dev/null
+	echo $abc密码设置成功
+
+################################################
+• 以不变的名称存放的可能会变化的值
+– 变量名=变量值
+– 方便以固定名称重复使用某个值
+– 提高对任务需求、运行环境变化的适应能力
+
+• 设置变量时的注意事项
+– 若指定的变量名已存在,相当于为此变量重新赋值
+– 等号两边不要有空格
+– 变量名只能由字母/数字/下划线组成,区分大小写
+– 变量名不能以数字开头,不要使用关键字和特殊字符
+
+
+• 基本格式
+– 引用变量值:$变量名
+– 查看变量值:echo $变量名、 echo ${变量名}
+
+[root@server0 ~]# a=rhel
+[root@server0 ~]# echo $a
+rhel
+[root@server0 ~]# echo $a7
+
+[root@server0 ~]# echo ${a}7
+
+#################################################
+变量的种类
+一、环境变量：变量名一般都大写，由系统定义完成，用户直接使用
+
+USER=永远储存当前系统登陆的用户名
+
+[root@server0 ~]# echo $USER
+[root@server0 ~]# su - dc 
+[dc@server0 ~]$ echo $USER
+[dc@server0 ~]$ exit
+logout
+[root@server0 ~]# su - student
+[student@server0 ~]$ echo $USER
+[student@server0 ~]$ exit
+logout
+[root@server0 ~]# 
+
+
+位置变量:由系统定义完成，用户直接使用,非交互式
+• 在执行脚本时,提供的命令行参数
+ – 表示为 $n,n为序号
+ – $1、$2、$3 、$4.. .. ${10}、${11}、.. ..
+
+案例：利用位置变量实现
+[root@server0 ~]# vim /root/user.sh
+  #!/bin/bash
+  useradd  $1  &> /dev/null
+  echo  $1创建成功
+  echo  123  |  passwd --stdin  $1  &> /dev/null
+  echo  $1密码设置成功
+
+[root@server0 ~]# /root/user.sh  nsd20
+
+
+[root@server0 ~]# vim /root/1.sh 
+ #!/bin/bash
+ cat -n $1 | head -$2
+
+[root@server0 ~]# /root/1.sh  /etc/passwd   3
+
+##############################################
+ 预定义变量:由系统定义完成，用户直接使用
+• 用来保存脚本程序的执行信息
+– 直接使用这些变量
+– 不能直接为这些变量赋值
+
+      $#   已加载的位置变量的个数(计算用户输入位置变量的个数)
+      $*   所有位置变量的值
+      $?   程序退出后的状态值,0表示正常,其他值异常
+
+[root@server0 ~]# vim /root/2.sh 
+  #!/bin/bash
+  echo $1
+  echo $2
+  echo $3
+  echo $#        #输出一共有多少个参数（求和）
+  echo $*        #输出所有位置变量的值
+[root@server0 ~]# /root/2.sh haha xixi hehe lele
+
+[root@server0 ~]# vim /root/1.sh 
+ #!/bin/bash
+ cat -n $1 | head -$2
+
+[root@server0 ~]# /root/1.sh  /etc/passwd   3
+
+################################################
+自定义变量:用户自主设置、修改及使用
+
+###############################################
+ 单引号 '  '  : 取消所有特殊字符的含义
+

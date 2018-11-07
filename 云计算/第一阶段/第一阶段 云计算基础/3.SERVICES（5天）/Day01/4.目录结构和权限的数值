@@ -1,0 +1,39 @@
+目录结构和权限的数值
+• 认识Linux的目录层次:
+– man hier
+
+常见一级目录的用途
+主要用途
+  /boot       存放系统引导必需的文件,包括内核、启动配置
+  /bin、/sbin 存放各种命令程序
+  /dev 存放硬盘、键盘、鼠标、光驱等各种设备文件
+  /etc 存放Linux系统及各种程序的配置文件
+  /root、/home/用户名 分别是管理员root、普通用户的默认家目录
+  /var   存放日志文件、邮箱目录等经常变化的文件
+  /proc  存放内存中的映射数据,不占用磁盘
+  /tmp   存放系统运行过程中使用的一些临时文件
+
+
+权限的数值表示
+• 权限的数值化
+– 基本权限:r = 4,w = 2,x = 1
+– 附加权限:SUID = 4,SGID = 2,Sticky Bit = 1
+• 采用数值形式设置权限
+– chmod [-R] nnn 文档...
+– chmod [-R] xnnn 文档...
+
+[root@svr7 /]# mkdir /nsd01
+[root@svr7 /]# ls -ld /nsd01     
+
+[root@svr7 /]# chmod 700 /nsd01
+[root@svr7 /]# ls -ld /nsd01
+
+[root@svr7 /]# chmod 007 /nsd01
+[root@svr7 /]# ls -ld /nsd01
+
+[root@svr7 /]# chmod 750 /nsd01
+[root@svr7 /]# ls -ld /nsd01
+
+[root@svr7 /]# chmod 755 /nsd01
+[root@svr7 /]# ls -ld /nsd01
+

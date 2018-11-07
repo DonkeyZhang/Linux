@@ -1,0 +1,244 @@
+nginx 
+
+敲命令，每天开机启动
+/etc/rc.local        快捷方式
+/etc/rc.d/rc.local   需要chmod +x 
+############
+127.0.0.1
+loopback             回环ip
+#################################
+rewrirte /a\.html /b.html
+rewrirte /a\.html /test/b.html
+#############################
+firefox
+curl
+elinks
+google
+###########################
+手机窄屏
+电脑宽屏
+###########################
+rpm -qi 包名
+pcre-devel 支持正则表达式的包perl
+
+############################################
+1.web代理
+http {
+  
+   upstream myweb {
+     
+      server 192.168.2.100;
+      server 192.168.2.200;
+     }
+   server {
+       listen 80;
+       server_name wwwa.com;
+    
+       location / {
+       proxy_pass http://myweb;
+   }   
+2.对web集群池属性
+有自动checking的功能
+http {
+  upstream myweb {
+     server 192.168.2.100 weight=2 max_fails=3 fail_timeout=30; 
+     server 192.168.2.200 wegiht=2 max_fails=3 fail_timeout=30;
+     server 192.168.2.101 down;
+     server 192.168.2.102 bakup;  
+    }
+
+
+
+   up stream myweb2{
+ 
+
+ 
+
+ 
+   }
+
+
+  server {
+          listen 80;
+          server_name www.a.com;
+           
+          location / {
+                proxy _pass http://myweb;
+                      }
+}
+
+
+
+   server {
+            listen 80;
+            server_name www.b.com;
+        
+            location / {
+            proxy_pass http://myweb2;
+              }
+ }
+                
+3.对web的调度算法
+  ip_hash
+  对ip的前3个8位
+  md5sum%2
+
+
+4.
+nginx的功能总结
+1.nginx，http服务
+
+2.web代理服务
+
+3.1.9版本，其他stream的代理
+ssh
+DNS
+mail
+
+5.软件包
+--with-http_ssl_module
+
+--with-stream
+
+6.ssh代理
+stream {
+     
+     upstream myssh {
+               server 192.168.1.100;
+               server  192.168.2.200;
+             }
+          server {
+              listen 123456;
+               proxy_pass myssh;
+             }
+   }
+    
+
+ssh -p 123456 root
+
+7.自定义报错页面            
+error
+404  /404.html
+
+8.查看服务器的状态
+--with-http_stub_status_module
+
+location /status {
+        stub_status on;
+        all
+        deny
+}
+http://www.a.com/status
+
+9.并发量
+改process 2
+
+connections 50000
+
+10.内核参数 
+ulimit -a
+ulimit -Hn
+ulimit -Sn
+
+vim /etc/security/limits.conf/
+*  soft  nofile  100000
+*   hard  nofile  100000
+
+
+
+
+
+
+               
+                 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+ 
+    
+
+
+1、upstream webserver {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

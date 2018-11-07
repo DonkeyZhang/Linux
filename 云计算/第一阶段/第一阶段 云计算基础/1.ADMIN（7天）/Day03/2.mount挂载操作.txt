@@ -1,0 +1,49 @@
+mount挂载操作
+
+从光盘文件中获得众多的软件包
+
+ Windows：
+   光盘文件-------->光驱设备-------->CD驱动器（图标）访问点
+
+ Linux：
+   光盘文件-------->光驱设备-------->目录（访问点）
+
+         洞口（访问点）-------> 煤矿
+
+  在命令行访问设备，必须通过访问点进行访问
+
+1.通过图形将光盘镜像文件，放入虚拟光驱设备
+
+2.查看光驱设备
+   青色：快捷方式
+[root@localhost ~]# ls  /dev/cdrom
+
+[root@localhost ~]# ls -l  /dev/cdrom
+[root@localhost ~]# ls  /dev/sr0
+
+3.进行挂载：让目录成为设备的访问点
+• 使用mount命令
+– 格式:mount  设备路径     挂载点目录
+
+[root@localhost ~]# mkdir  /dvd    #创建目录dvd
+[root@localhost ~]# ls  /dvd
+
+[root@localhost ~]# mount  /dev/cdrom  /dvd
+ mount: /dev/sr0 写保护，将以只读方式挂载
+  让/dvd成为/dev/cdrom 的访问点
+
+[root@localhost ~]# ls  /dvd/
+[root@localhost ~]# ls  /dvd/Packages
+
+4.卸载
+[root@localhost ~]# umount /dvd/
+[root@localhost ~]# ls /dvd/
+
+##################################################
+注意事项：
+    1.卸载时，当前不要在访问点内
+  [root@localhost dvd]# umount /dvd/
+  umount: /dvd：目标忙。
+
+    2.挂载设备时，访问点最好时自己创建的目录
+

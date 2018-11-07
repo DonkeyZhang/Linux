@@ -1,0 +1,35 @@
+NTP时间同步
+
+NTP网络时间协议
+• Network Time Protocol
+– NTP服务器为客户机提供标准时间
+– NTP客户机需要与NTP服务器保持沟通
+
+  服务端：虚拟机classroom
+
+  客户端：虚拟机Server
+  1.安装chrony软件包（客户端软件：专用于访问服务的软件）
+ [root@A ~]# yum -y install chrony
+ [root@A ~]# rpm -q chrony
+
+  2.修改程序主配置文件，指定服务端位置
+    在Linux大多数配置文件中，以#开头的行为注释行 
+ [root@A ~]# vim /etc/chrony.conf 
+  #server 0.rhel.pool.ntp.org iburst
+  #server 1.rhel.pool.ntp.org iburst
+  #server 2.rhel.pool.ntp.org iburst
+  server classroom.example.com iburst
+
+  3.重起程序
+ [root@A ~]# systemctl restart chronyd #重起chronyd
+ [root@A ~]# systemctl enable chronyd  #设置为开机自起
+   daemon:超级守护进程
+
+  4.验证：
+ [root@A ~]# date -s  "2008-10-1  12:00"
+  2008年 10月 01日 星期三 12:00:00 CST
+ [root@A ~]# date
+ [root@A ~]# systemctl restart chronyd
+ [root@A ~]# date
+ [root@A ~]# date
+

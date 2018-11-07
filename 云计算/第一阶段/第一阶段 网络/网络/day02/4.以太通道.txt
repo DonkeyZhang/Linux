@@ -1,0 +1,28 @@
+四、以太通道
+1、概述
+
+1.也称为以太接口捆绑、接口聚集或以太链路聚集，英文名EtherChannel
+
+2.以太通道为交换机提供了接口捆绑的技术,允许两个交换机之间通过两个或多个接口并行连接,同时传输
+数据,以提供更高的带宽和可靠性
+
+3.EtherChannel-以太通道
+– 多条线路负载均衡,带宽提高
+– 容错,当一条线路失效时,其他线路通信,不会丢包
+
+2、配置以太通道
+1.
+Switch(config)# interface range fastEthernet 0/1 – 2  #要捆绑在一起的接口
+
+Switch(config-if-range)#channel-group 1 mode on      
+Creating a port-channel interface Port-channel 1      #以太通道的组号
+
+Switch# show etherchannel summary                     #查看以太通道的配置#
+
+2.以太通道配置指导原则
+1）参与捆绑的接口必须属于同一个vlan,如果是在中继
+模式下,要求所有参加捆绑的接口都是在中继模式下
+
+2）如果接口配置的是中继模式,那么应该在链路的两端
+将通道中的所有接口配置成中继模式
+

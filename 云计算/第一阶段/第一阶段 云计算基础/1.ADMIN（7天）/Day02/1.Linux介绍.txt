@@ -1,0 +1,27 @@
+Linux是一种操作系统!!
+
+    操作系统:一堆软件的集合，可以让计算机硬件正常工作
+
+Unix/Linux发展史
+   • UNIX诞生，1970-1-1（Linux系统时间的起点）
+
+
+• Linux之父,Linus Torwalds
+
+Linux系统内核
+
+   内核作用：  操控所有计算机硬件
+
+   用户----->  内核 ----->计算机硬件
+
+– 版本号:主版本.次版本.修订号
+
+• 是一套公开发布的完整Linux系统
+– Linux内核 + 各种应用软件
+
+• 发行版的名称/版本由发行方决定
+– Red Hat Enterprise Linux 5/6/7
+– Suse Linux Enterprise 12
+– Debian Linux 7.8
+– Ubuntu Linux 14.10/15.04
+

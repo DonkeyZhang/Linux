@@ -1,0 +1,22 @@
+安装软件
+
+1）使用yum安装基础依赖包
+[root@proxy ~]# yum -y install gcc openssl-devel pcre-devel zlib-devel
+
+2）源码安装Nginx（如果前面课程中已经安装Nginx，则忽略这一步）
+[root@proxy ~]# useradd -s /sbin/nologin  nginx
+[root@proxy ~]# tar -xvf nginx-1.12.2.tar.gz
+[root@proxy ~]# cd nginx-1.12.2
+[root@proxy nginx-1.12.2]# ./configure   \
+> --user=nginx   --group=nginx \
+> --with-http_ssl_module
+[root@proxy ~]# make && make install
+.. ..
+
+3）安装MariaDB
+Mariadb在新版RHEL7光盘中包含有该软件，配置yum源后可以直接使用yum安装：
+[root@proxy ~]# yum -y install   mariadb   mariadb-server   mariadb-devel
+
+4）php和php-fpm(该软件包在lnmp_soft中提供)
+[root@proxy ~]# yum -y  install  php   php-mysql
+[root@proxy ~]# yum -y  install php-fpm-5.4.16-42.el7.x86_64.r

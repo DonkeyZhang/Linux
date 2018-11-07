@@ -1,0 +1,65 @@
+ 一、STP
+1、STP生成树算法
+1.广播风暴的产生
+1）交换机工作原理
+– 根据MAC地址表转发数据帧,如果地址未知,则广播
+– 如果交换机接收到广播帧也会向所有接口发送
+
+2）—当网络中存在物理环路,会产生广播风暴
+
+广播风暴最终会导致网络资源耗尽,交换机死机!
+
+2.STP概述
+1）STP简介
+– STP - Spanning Tree Protocol(生成树协议)
+逻辑上断开环路,防止广播风暴的产生当线路故障,阻塞接口被激活,恢复通信,起备份线
+路的作用
+
+2）选择根网桥
+• 网桥ID(BID)
+– 网桥ID是唯一的,交换机之间选择BID值最小的交换机
+作为网络中的根网桥
+网桥优先级 网桥的MAC地址
+ 2字节       6字节
+取值范围:0 ~ 65535
+缺省值:32768
+
+
+2、STP配置
+1.PVST+的配置命令
+
+1）启用生成树命令
+Switch(config)#spanning-tree vlan vlan-list
+
+2）指定根网桥
+Switch(config)#spanning-tree vlan vlan-list priority Bridge-priority
+或
+Switch(config)#spanning-tree vlan vlan-list root { primary| secondary }
+
+3）查看生成树的配置
+Switch#show spanning-tree
+
+4）查看某个VLAN的生成树详细信息
+Switch#show spanning-tree vlan vlan-id
+
+案例1:STP的基本配置
+• 配置Switch1为vlan1的主根, Switch2为vlan1的次根
+
+案例2:配置阻塞接口
+• 配置生成树协议,按需求阻塞接口
+
+FWB 转发状态
+BLK 阻塞状态
+
+2.PVST+配置的意义
+• PVST+配置的意义
+– 配置网络中比较稳定的交换机为根网桥
+– 利用PVST+实现网络的负载分担
+
+案例3:配置STP实现负载均衡
+• 通过配置PVST+实现MS1负责转发VLAN1的数据,MS2负责转发VLAN2的数据
+
+
+
+
+

@@ -1,0 +1,13 @@
+查看时间date
+
+[root@localhost /]# date
+2018年 09月 03日 星期一 17:21:41 CST
+[root@localhost /]# date -s "年-月-日    时：分：秒"
+[root@localhost /]# date -s "2000-9-3 10:20"
+[root@localhost /]# date
+
+[root@localhost /]# date -s "2018-9-3 17:23"
+
+交互式计算器： bc
+  运算法则：  加 +      减 -    乘 *     除 /     取余数 %
+##############################################

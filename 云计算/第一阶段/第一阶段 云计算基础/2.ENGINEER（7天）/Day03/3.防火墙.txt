@@ -1,0 +1,121 @@
+ 防火墙： 隔离作用
+
+  硬件防火墙
+  软件防火墙
+
+ firewalld服务
+
+• 系统服务:firewalld
+• 管理工具:firewall-cmd、firewall-config
+[root@server0 ~]# systemctl restart firewalld
+[root@server0 ~]# firewall-config &
+
+##############################################
+• 根据所在的网络场所区分,预设保护规则集
+  – public:仅允许访问本机的ssh、ping、dhcp服务
+  – trusted:允许任何访问
+  – block:阻塞任何来访请求，明确拒绝
+  – drop:丢弃任何来访的数据包，直接丢弃
+
+ 数据包：  数据   源ip地址   目标IP地址
+
+防火墙进入区域的规则：匹配及停止
+    1.查看数据包种源ip地址，再查看所有的区域中，是否有该源IP地址的规则，那个区域有，则进入该区域
+
+    2.进入默认区域为public
+
+###############################################
+默认区域的修改
+虚拟机Server：
+  # firewall-cmd --get-default-zone   #查看默认区域
+虚拟机Desktop：
+  # ping 172.25.0.11   #可以通信
+
+虚拟机Server：
+  # firewall-cmd --set-default-zone=block #修改默认区域
+  # firewall-cmd --get-default-zone 
+虚拟机Desktop：
+  # ping 172.25.0.11   #不可以通信，有回应
+
+虚拟机Server：
+  # firewall-cmd --set-default-zone=drop #修改默认区域
+  # firewall-cmd --get-default-zone 
+虚拟机Desktop：
+  # ping 172.25.0.11   #不可以通信，没有回应
+#################################################
+添加服务
+
+虚拟机Server：
+# firewall-cmd --set-default-zone=public 
+# firewall-cmd --get-default-zone
+# firewall-cmd --zone=public --list-all
+    列出 public区域中规则
+# firewall-cmd --zone=public --add-service=http
+    为 public区域,添加允许的协议http
+# firewall-cmd --zone=public --list-all 
+
+虚拟机Desktop：
+  # firefox  172.25.0.11          #访问成功
+  # firefox  ftp://172.25.0.11    #访问失败
+
+
+################################################
+– 永久(permanent)
+虚拟机Server
+ # firewall-cmd --reload      #重新加载防火墙配置
+ # firewall-cmd --zone=public --list-all 
+
+ # firewall-cmd --permanent --zone=public 
+   --add-service=http
+
+ # firewall-cmd --zone=public --list-all
+ # firewall-cmd --reload 
+
+虚拟机Desktop
+  # firefox  172.25.0.11
+
+#############################################
+添加源IP规则设置
+虚拟机Server：单独拒绝172.25.0.10访问
+
+# firewall-cmd --zone=block --add-source=172.25.0.10
+
+
+##############################################
+  数据包：  数据   源ip地址   目标IP地址   目标端口号 80
+
+   端口号：  编号  标识程序及应用、服务
+
+   互联网常见协议：
+       http：超文本传输协议     默认端口号:80
+       https：安全的超文本传输协议    默认端口号:443
+       FTP：文件传输协议    默认端口号:21
+       DNS：域名解析协议    默认端口号:53
+       SMTP：用户发邮件协议    默认端口号:25
+       pop3：用户收邮件协议    默认端口号:110
+       telnet：运程管理协议     默认端口号:23
+       TFTP：简单的文件传输协议    默认端口号:69
+       SNMP：网络管理协议           默认端口号:161
+
+      协议的端口可以由root改变，也可以具备多个端口
+################################################
+
+
+实现本机的端口映射
+• 本地应用的端口重定向(端口1 --> 端口2)
+– 从客户机访问 端口1 的请求,自动映射到本机 端口2
+– 比如,访问以下两个地址可以看到相同的页面:
+
+  客户端访问172.25.0.11:5423 ----> 172.25.0.11:80
+
+虚拟机Server
+ # firewall-cmd --permanent --zone=public 
+   --add-forward-port=port=5423:proto=tcp:toport=80
+
+ # firewall-cmd --reload
+ # firewall-cmd --zone=public --list-all 
+
+虚拟机Desktop
+  # firefox  172.25.0.11:5423
+
+

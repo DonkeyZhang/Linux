@@ -1,0 +1,26 @@
+其他类型的虚拟主机(httpd 一样可以扩展)
+
+1.基于端口的虚拟主机（参考模板）
+server {
+        listen       8080;                        //端口
+        server_name  web1.example.com;          //域名
+        ......
+}
+    server {
+        listen       8000;                         //端口
+        server_name  web1.example.com;           //域名
+      .......
+}
+
+2.基于IP的虚拟主机（参考模板）
+server {
+        listen       192.168.0.1:80;              //IP地址与端口
+        server_name  web1.example.com;          //域名
+  ... ...
+}
+    server {
+        listen       192.168.0.2:80;             //IP地址与端口
+        server_name  web1.example.com;
+... ...
+}
+

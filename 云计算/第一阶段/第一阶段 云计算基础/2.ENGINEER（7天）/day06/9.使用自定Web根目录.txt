@@ -1,0 +1,40 @@
+案例4:使用自定Web根目录
+调整 Web 站点 http://server0.example.com 的网页目录
+要求如下:
+ #客户端访问服务端资源：
+  1.防火墙
+  2.服务本身的权限
+  3.本地目录的权限
+ 4.SELinux安全的策略
+
+虚拟机Server0：
+1)新建目录 /webroot,作为此站点新的网页文件目录
+ # mkdir  /webroot
+ # echo '<h1>wo shi webroot' >  /webroot/index.html
+ # cat /webroot/index.html
+
+2)修改配置文件vim /etc/httpd/conf.d/nsd.conf
+ <VirtualHost  *:80>
+   ServerName server0.example.com
+   DocumentRoot /webroot
+ </VirtualHost>
+
+3)修改配置文件，添加服务的访问控制
+[root@server0 ~]# vim  /etc/httpd/conf.d/test.conf
+  <Directory  /webroot>
+    Require all granted    #允许所有人访问
+  </Directory>
+
+4)重起httpd服务
+[root@server0 ~]# systemctl restart httpd
+
+5)SELinux的安全上下文（标签起到标识作用）
+[root@server0 ~]# ls -Zd /var/www/
+[root@server0 ~]# ls -Zd /webroot
+• 方式1:参照标准目录,重设新目录的属性
+– chcon [-R] --reference=模板目录 新目录
+
+# chcon -R --reference=/var/www   /webroot
+#   将/webroot修改为/var/www一样的标签值
+# ls -Zd /webroot/
+

@@ -1,0 +1,44 @@
+日志管理
+
+• 系统和程序的“日记本”
+– 记录系统、程序运行中发生的各种事件
+– 通过查看日志,了解及排除故障
+– 信息安全控制的依据
+
+• 由系统服务rsyslog统一记录/管理
+
+• 常见的日志文件
+
+  /var/log/messages 记录内核消息、各种服务的公共消息
+  /var/log/dmesg    记录系统启动过程的各种消息
+  /var/log/cron     记录与cron计划任务相关的消息
+  /var/log/maillog  记录邮件收发相关的消息
+  /var/log/secure   记录与访问限制相关的安全消息
+
+
+日志分析
+• 通用分析工具
+– tail、tailf、less、grep等文本浏览/检索命令
+– awk、sed等格式化过滤工具
+
+   tailf:实时跟踪信息
+[root@svr7 /]# echo 123  > /opt/1.txt
+[root@svr7 /]# tailf /opt/1.txt 
+123
+haha
+
+
+用户登录分析
+• users、who、w 命令
+– 查看已登录的用户信息,详细度不同
+
+• last、lastb 命令
+– 查看最近登录成功/失败的用户信息
+
+[root@svr7 /]# users
+[root@svr7 /]# who
+[root@svr7 /]# w
+
+[root@svr7 /]# last -2
+[root@svr7 /]# lastb -2
+

@@ -1,0 +1,236 @@
+###########################################################
+r导入  
+w导出 另存为
+
+sed '1r /etc/hosts'  a.txt  将a.txt内容 读写到第行
+sed '/word/etc/hosts' a.txt
+
+sed 'w /b.txt' a.txt  #全文导出到b.txt,b的内容被重写，没有b就新建
+
+sed '2w /b.txt' a.txt #  
+#############################################################
+小写覆盖，大写追加
+黑框 从上往下复制
+红框 从下往上粘贴 （里面有个回车,没有其他东西，一直是空的）
+
+小写覆盖
+sed  '2h;5g' a.txt #逐行读取 2h读到第2行复制并覆盖到红框，把回车覆盖掉，然后读到第5行的黑框 粘贴红框里内容并覆盖黑框
+
+大写追加
+sed  '2H;5G' a.txt  #逐行读取2H读到第2行复制并追加到到红框，没有覆盖回车，然后读到第5行的黑框 粘贴红框里内容并追加到黑框，回车一并复制
+
+结合使用，去掉空格
+sed  '2h;5G' a.txt #逐行读取2h读到第2行复制并覆盖到红框，把回车覆盖掉，然后读到第5行的黑框 粘贴红框里内容并追加到黑框，就没有空格了
+#############################################################
+/etc/shadow 放密码
+sed [选项] '[条件指令]' 文件
+awk [选项] '[条件]{指令}' 文件
+awk '{print $1,$3}' a.txt  
+print必须打的单词
+$1 $2  表示列
+
+sed 编辑文本（p/   #d/s/aic#）
+
+grep 行过滤
+awk  行和列过滤
+
+awk -F: '{print $1 ,$2}' /etc/passwd   #
+awk -F[:/]  '{print $1 $2}' /etc/passwd#
+#-F 指定参考物
+
+awk '{print $NF}'  /etc/passwd         #NF列号，输出每一行的最后一个
+awk '{print NR,NF}'/etc/passwd         #输出行号，列数
+
+awk -F: '{print $1"的解释器是:"$7}' /etc/passwd #
+
+
+ifconfig eth0|grep "RX p" #
+
+ifconfig eth0|awk '/RX p/{print $5}' #
+
+ifconfig eth0|awk '/TX p/{print $5}' #
+
+df -h |awk '//\/{print $4}' #
+
+tail 静态查看最后10行  |
+
+tailf 动态查看事实更新，一直再查看
+
+awk '/Accepeted/{print $1,$2,$3,$11}' /var/log/secure #
+
+awk '/Failed/{print $1,$2,$3,$11}' /var/log/secure #
+#写成脚本
+# 导出到文件for循环将ip加入防火墙可以禁止访问
+#也可以事实查看谁成功或失败登陆了
+
+awk 'BEGIN{a=2;prinrt a*4}' #执行前操作，在读取命令的时候
+初始化
+awk 'BEGIN{x=0}/bash$/{x++}END{pinrt x}' /etc/passwd
+
+awk  'BEGIN{print "USER","UID","HOME"}{print $1，$3,$6}END{print "Total",NR,"lines"} |column -t  #自动对齐
+ 
+awk  BEGIN{print "USER\tUID\tHOME"} {print $1"\t" $3 "\t" $6}
+END{print "Total",NR,"lines"} #\t 等于tab键
+#
+
+grep "root" /etc/passwd
+awk '/root/' /etc/passd  #默认输出行
+#默认支持扩展正则
+
+awk -F: '/^(root|adm)/{print $1,$3}' /etc/passwd  #
+
+awk -F: '$1～/root/' /etc/passwd #awk命令的时候，已经产生了列，可以模糊列匹配 ，模糊匹配每1行第1列中含有root的行
+ 
+awk -F：'$7!~/nologin/' /etc/passwd #不包括nologin的行的第7列的匹配
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################
+找出电脑中以bash的用户，并列出密码
+#!/bin/bash
+u=`awk -F '/bash$/{print $1}' /etc/passwd`
+
+for i in $u
+do
+ pass1=`grep $i /etc/shadow` 
+ pass2=${pass1#*:}
+ pass3=${pass2%%：*}
+ echo "$i--$pass3"
+done
+
+
+###################################################################
+shell单分支
+if [ ];then
+
+fi
+
+####awk单分支####
+awk 选项  'BGEIN{}
+{
+if(){}
+}
+END{}'  
+######################### 
+shell双分支语句
+if [];then
+
+esle
+ 
+fi
+
+####awk双分支#####
+awk 选项  '
+BEGIN{}
+{
+if(){}
+else {}
+}
+END{}'
+#########################
+shell多分支语句
+if [];then
+ 
+elif [];then
+
+esle
+
+fi
+#####awk多分支######
+awk 选项 '
+BEGIN{}
+{
+if(){}
+esle if(){} 
+esle{}
+}
+END{}'
+#####################
+
+双分支例子
+
+普通用户多少，系统用户多少
+awk -F: '{if($3>=1000){x++}else{y++}}END{print x,y}' /etc/passwd
+
+
+###############################
+
+
+数组
+awk 'BEGIN{a[0]=0;a[1]=1;print a[0],a[1]}'#
+
+awk 'BEGIN{a0++;print a0 }' #
+  
+awk 'BREGIN{a[0]++;print a[0]}'  #
+
+awk 'BEGIN{a[0]=1;a[1]=2;a[2]=3;for(i in a){print a[i]}}'
+
+#shell的for循环
+for[]
+do
+done
+
+#awk的for循环
+for(){}
+
+awk 'BEGIN{a['a']=1;a['b']=2;print a['a'],a['b'] }'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+

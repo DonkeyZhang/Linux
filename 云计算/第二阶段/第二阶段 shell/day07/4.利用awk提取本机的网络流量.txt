@@ -1,0 +1,22 @@
+利用awk提取本机的网络流量、根分区剩余容量、获取远程失败的IP地址
+
+1）提取IP地址
+分步实现的思路及操作参考如下——
+通过ifconfig eth0查看网卡信息，其中包括网卡流量：
+[root@svr5 ~]# ifconfig eth0
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.4.21  netmask 255.255.255.0  broadcast 192.168.4.255
+        inet6 fe80::fa64:c143:ad6a:5159  prefixlen 64  scopeid 0x20<link>
+        ether 52:54:00:b3:11:11  txqueuelen 1000  (Ethernet)
+        RX packets 313982  bytes 319665556 (304.8 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 51809  bytes 40788621 (38.8 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+RX为接收的数据量，TX为发送的数据量。packets以数据包的数量为单位，bytes以字节为单位：
+[root@svr5 ~]# ifconfig eth0 | awk '/RX p/{print $5}'    //过滤接收数据的流量                            Receive
+319663094
+
+[root@svr5 ~]# ifconfig eth0 | awk '/TX p/{print $5}'     //过滤发送数据的流量
+40791683

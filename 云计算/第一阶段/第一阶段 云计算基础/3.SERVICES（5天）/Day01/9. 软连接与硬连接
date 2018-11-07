@@ -1,0 +1,43 @@
+ 软连接与硬连接
+
+ 快捷方式(软连接)：ln -s  /路径/源文档   /路径/快捷方式的名
+ 快捷方式(硬连接)：ln   /路径/源文档   /路径/快捷方式的名
+
+[root@svr7 /]# cat /etc/redhat-release 
+
+[root@svr7 /]# ln -s /etc/redhat-release  /abc
+                                
+[root@svr7 /]# ls /
+[root@svr7 /]# ls -l /abc
+[root@svr7 /]# cat /abc 
+
+
+############################################
+[root@svr7 /]# rm -rf /opt/*
+[root@svr7 /]# cd /opt/
+[root@svr7 opt]# echo 123456 > /opt/A.txt
+[root@svr7 opt]# ln -s /opt/A.txt /opt/B.txt
+[root@svr7 opt]# ls
+A.txt  B.txt
+[root@svr7 opt]# ln  /opt/A.txt /opt/C.txt
+[root@svr7 opt]# ls
+[root@svr7 opt]# ls -i
+
+##############################################
+ i节点编号：标识硬盘上一块存储空间的编号
+
+   读取数据1.txt：1.txt----》i节点-----》数据对应区域 取数据
+
+  软连接（常用）：快捷方式可以跨分区，源文件可以是目录
+  硬连接：快捷方式不可以跨分区，源文件不可以是目录
+
+  软连接独占一个i节点编号，硬连接与源文件i节点编号一致
+
+##############################################
+
+
+
+     lisi----》38             lisi  38房间
+ 
+     tom----》39              39房间  纸条 其实我是lisi 
+

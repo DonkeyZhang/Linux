@@ -1,0 +1,49 @@
+classroom --> 开机
+server    --> 密码：redhat  ip：172.25.0.11
+desktop   --> 密码：redhat  ip：172.25.0.10
+
+rht-vmctl reset classroom  
+//还原classroom虚拟机
+
+rht-vmctl reset server   
+//还原虚拟机 server
+
+rht-vmctl reset desktop  
+//还原虚拟机 desktop
+
+定义永久别名
+vim /root/.bashrc
+重新插入一行
+alias C='rht-vmctl reset classroom'
+:wq
+
+管道 | 将前面命令的输出结果交给后面命令处理
+echo 输出
+passwd  修改密码
+
+ifconfig |head -2
+//提取前两行内容
+
+
+破解linux密码
+开解按‘e’键
+找到linux16的行
+添加rd.break console=tty0
+按Ctrl+x 进入救援模式
+
+switch_root:/#mount -o remount,rw /sysroot
+    //以读写的方式挂在根目录
+
+switch_root:/#chroot /sysroot
+    //切换至根目录
+
+sh-4.2#echo 123 |passwd --stdin root
+
+将selinux改成关闭状态
+sh-4.2#vim /etc/selinux/config
+SELINUX=disabled
+:wq
+
+sh-4.2#exit
+
+switch_root:/#reboot

@@ -1,0 +1,245 @@
+一、数据链路层解析
+1、数据链路层
+
+MAC地址：用来识别一个以太网上的某个单独的设备或一组设备 
+
+MAC地址长度48位(6个字节)，前24位代表厂商，后24位代表网卡编号（唯一，可以修改，不建议修改），
+
+MAC地址的第8位为0时表示该MAC地址为单播地址，为1时表示组播地址，48位都为1表示广播地址。
+
+fe:54:00:f8:86:c1（16进制）    #一个16进制位等于4个2进制位
+
+Ipconfig  /all  查看MAC地址
+
+注：一块物理网卡的地址一定是一个单播地址，也就是第8位一定为0
+
+数据链路层的帧格式
+
+目标地址：源地址 ：类型/长度：数据帧          ：帧校验序列
+6个字节 ：6个字节： 2个字节 ： mtu 46—1500 ：4字节
+
+2、交换机
+1.交换机是用来连接局域网的主要设备
+– 交换机能够根据以太网帧中目标地址智能的转发数据,因此交换机工作在数据链路层    #以太网是网络的一种
+
+2.交换机的工作原理
+
+1、学习
+–   MAC地址表   是交换机通过学习接收的数据帧的源MAC地址来形成的
+
+2、广播
+– 如果目标地址在MAC地址表中没有,交换机就向除接收到该数据帧的接口外的其他所有接口广播该数据帧
+
+3、转发
+– 交换机根据MAC地址表单播转发数据帧
+
+4、更新
+– 交换机MAC地址表的老化时间是300秒
+– 交换机如果发现一个帧的入接口和MAC地址表中源MAC地址的所在
+接口不同,交换机将MAC 地址重新学习到新的接口
+
+3.广播域指接收同样广播消息的节点的集合
+
+如:在该集合中的任何一个节点传输一个广播帧,则所有其他能收到这个帧的节点都被认为是该广播帧的一部分
+
+#交换机的所有接口默认属于同一个广播域
+
+二、VLAN 虚拟局域网
+
+1.VLAN概述
+
+1、什么是VLAN
+– Virtual LAN(虚拟局域网)是物理设备上连接的不受物理位置限制的用户的一个逻辑组。
+
+2、为什么引入VLAN
+– 交换机的所有接口默认属于同一个广播域
+– 随着接入设备的增多,网络中广播增多,降低了网络的效率
+—为了分割广播域,引入了VLAN
+ 
+3、VLAN的作用
+– 广播控制
+– 增加安全性
+– 提高带宽利用
+– 降低延迟
+#基本上是基于接口划分的静态VLAN
+#也有动态的是基于mac地址的
+
+4、静态VLAN的配置
+1.配置VLAN的步骤
+– 创建VLAN
+– 将接口加入到相应的VLAN中
+– 验证
+
+1、创建VLAN
+Switch(config)#vlan vlan-id    #在全局配置模式下创建VLAN
+
+Switch(config)#no vlan vlan-id #删除已创建的VLAN
+
+2、将接口加入VLAN
+
+单个接口加入：
+Switch(config)# interface f0/1                      #在哪个接口 接口模式
+
+Switch(config-if)# switchport access vlan vlan-id   #将接口加入创建好的vlan里
+
+Switch(config-if)# no switchport access vlan vlan-id#将接口从vlan里移除，也可以移到vlan1
+
+也可以同时将多个接口添加到某个VLAN中:
+
+Switch(config)# interface range f0/1 – 10
+
+3、验证VLAN的配置
+
+Switch# show vlan brief
+
+
+案例1:划分VLAN
+
+在交换机上创建以下VLAN,按拓扑将接口加入到指定的VLAN并配置服务器IP地址,实现同vlan主机的
+通信。
+
+思路：配置ip —》连接网线 —》配置路由—》创建vlan—》接口加入vlan—》验证
+ 
+案例2:多交换机VLAN的划分
+
+通过配置多交换机实现同VLAN主机互通
+
+原因:一个交换机的接口不够用了，但需要在一个广播域内通信，需配置新的交换机
+ 
+思路：配置同网段的ip的—》配置新的交换机—》在新的交换机创建一个和上一个交换机相同vlan—》
+      将新的接口加入新交换机的vlan—》连接交换机—》将连接交换机的接口加入两边的vlan
+      #新加入的pc的接口可以不一样  #连接交换机的接口最好相同，方便管理
+
+
+
+三、TRUNK 中继链接
+
+链路类型：
+
+接入链路(access):  可以承载1个 vlan
+
+中继链路(trunk)：可以承载多个 vlan
+
+1、原因
+如何实现交换机之间的VLAN通信?
+– 每个VLAN一条链路
+— 链路会太多接口不够用
+
+2、trunk原理 
+只使用一条链路,那么来自多个VLAN的数据如何标识?
+
+1.VLAN标识
+交换机给每个去往其他交换机的数据帧打上VLAN标识
+
+2.VLAN标识的种类
+• 以太网上实现中继可用两种封装类型
+      
+1）ISL(cisco私有的标记方法)      #基本上不使用，别的设备不兼容，加入30个字节
+
+2）IEEE 802.1q(公有的标记方法)   #规则都用这个，加入4个字节
+
+  |A|SA|Tag|Type|Data|CRC — —》   #带有IEEE802.1Q标记的以太网帧
+
+3、Trunk配置
+
+1.配置接口为Trunk模式
+Switch(config)# interface interface-id
+  
+Switch(config-if)#switchport mode ?
+
+access  Set trunking mode to ACCESS unconditionally
+dynamic Set trunking mode to dynamically negotiateaccess or trunk mode
+trunk   Set trunking mode to TRUNK unconditionally
+
+Switch(config-if)#switchport mode trunk
+
+2.恢复接口默认模式
+Switch(config)# interface interface-id
+
+Switch(config-if)#switchport mode dynamic auto
+或Switch(config-if)#no switchport mode trunk
+
+3.查看接口模式
+Switch#show interface interface-id switchport
+
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: static access
+Administrative Trunking Encapsulation: #dot1q
+Operational Trunking Encapsulation: native
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+
+4、配置VLAN Trunk实例
+第一步:在交换机上创建VLAN
+
+第二步:将接口添加到相应的VLAN中
+– SW1#config terminal
+– SW1(config)#interface range f0/4 - 10
+– SW1(config-if-range)#switchport access vlan 2
+– SW1(config)#interface range f0/11 - 23
+– SW1(config-if-range)#switchport access vlan 3
+
+第三步:配置交换机之间互联的接口为Trunk
+
+– SW1(config)#interface f0/24
+
+– SW1(config-if)#switchport mode trunk
+
+
+四、以太通道
+1、概述
+
+1.也称为以太接口捆绑、接口聚集或以太链路聚集，英文名EtherChannel
+
+2.以太通道为交换机提供了接口捆绑的技术,允许两个交换机之间通过两个或多个接口并行连接,同时传输
+数据,以提供更高的带宽和可靠性
+
+3.EtherChannel-以太通道
+– 多条线路负载均衡,带宽提高
+– 容错,当一条线路失效时,其他线路通信,不会丢包
+
+2、配置以太通道
+1.
+Switch(config)# interface range fastEthernet 0/1 – 2  #要捆绑在一起的接口
+
+Switch(config-if-range)#channel-group 1 mode on      
+Creating a port-channel interface Port-channel 1      #以太通道的组号
+
+Switch# show etherchannel summary                     #查看以太通道的配置#
+
+2.以太通道配置指导原则
+1）参与捆绑的接口必须属于同一个vlan,如果是在中继
+模式下,要求所有参加捆绑的接口都是在中继模式下
+
+2）如果接口配置的是中继模式,那么应该在链路的两端
+将通道中的所有接口配置成中继模式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

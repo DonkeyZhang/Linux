@@ -1,0 +1,71 @@
+使用环境变量
+
+1）查看环境变量相关文件
+全局文件为/etc/profile，对所有用户有效；
+用户文件为~/.bash_profile，仅对指定的用户有效。
+
+
+查看/etc/profile文件内容：
+[root@svr5 ~]# cat /etc/profile
+.. ..
+HOSTNAME=`/bin/hostname`
+HISTSIZE=1000
+.. ..
+export PATH USER LOGNAME MAIL HOSTNAME HISTSIZE INPUTRC
+.. ..
+
+
+
+2）使用环境变量
+当前用户的环境变量
+USER记录了用户名、
+HOME记录了宿主目录、
+SHELL记录了登录Shell、
+HOSTNAME记录主机名、
+UID是用户的id号：
+
+[root@svr5 ~]# echo $USER $HOME $SHELL $UID
+root /root /bin/bash 0
+[root@svr5 ~]# echo $HOSTNAME
+svr5
+
+
+环境变量PS1表示Shell环境的一级提示符，即命令行提示符（\u 用户名、\h 主机名、\W 工作目录、\$ 权限标识）：
+[root@svr5 src]# echo $PS1                  //查看默认的一级提示
+[\u@\h \W]\$
+[root@svr5 src]#PS1='hehe#'                  //修改一级提示
+hehe#                                      //更改结果
+hehe# PS1='[\u@\h \W]\$ '                  //恢复原有设置
+[root@svr5 src]# 
+
+
+环境变量PS2表示二级提示符，出现在强制换行、at任务编辑等场合：
+[root@svr5 ~]# echo $PS2                      //查看默认的二级提示
+>
+[root@svr5 src]# cd \                     //强制换行，观察提示符效果
+> /root/
+[root@svr5 ~]# PS2='=> '                      //手动修改二级提示
+[root@svr5 ~]# cd \                          //再8.4.255
+次验证提示符效果
+=> ~
+[root@svr5 ~]# PS2='> '                     //恢复原有设置
+
+3）查看系统变量
+使用env可查看所有环境变量：
+[root@svr5 src]# env
+HOSTNAME=svr5.tarena.com
+SHELL=/bin/bash
+HISTSIZE=1000
+SSH_CLIENT=192.168.4.110 59026 22
+OLDPWD=/root
+SSH_TTY=/dev/pts/0
+USER=root
+.. ..
+使用set可查看所有变量（包括env能看到的环境变量）：
+[root@svr5 src]# set
+BASH=/bin/bash
+BASH_ARGC=()
+BASH_ARGV=()
+BASH_LINENO=()
+.. ..
+

@@ -1,0 +1,60 @@
+配置upstream服务器集群池属性
+
+1）设置失败次数，超时时间，权重
+
+ 
+weight可以设置后台服务器的权重，
+
+max_fails可以设置后台服务器的失败次数，
+
+fail_timeout可以设置后台服务器的失败超时时间。
+
+[root@proxy ~]# vim /usr/local/nginx/conf/nginx.conf
+.. ..
+http {
+.. ..
+upstream webserver {
+                server 192.168.2.100 weight=1 max_fails=1 fail_timeout=30;
+                server 192.168.2.200 weight=2 max_fails=2 fail_timeout=30;
+                server 192.168.2.101 down;
+        }
+
+#weight设置服务器权重值，默认值为1  #公司买的设备，有好有坏，cpu大小不一定
+
+#max_fails设置最大失败次数         #nginx健康检查的功能 ，检查多次以防止意外
+
+#fail_timeout设置失败超时时间，单位为秒 # 失败之后在多少时间内不检查
+
+#down标记服务器已关机，不参与集群调度 # 修不好的机器down掉，节省资源，不再检查
+.. ..
+
+server {
+        listen        80;
+        server_name  localhost;
+
+            location / {
+            proxy_pass http://webserver;
+        }
+}
+
+2）重启nginx服务
+[root@proxy ~]# /usr/local/nginx/sbin/nginx -s reload
+#请先确保nginx是启动状态，否则运行该命令会报错,报错信息如下：
+#[error] open() "/usr/local/nginx/logs/nginx.pid" failed (2: No such file or directory)
+
+3）关闭一台后端服务器（如web1）
+[root@web1 ~]# systemctl stop httpd
+
+4）客户端使用浏览器访问代理服务器测试轮询效果
+[root@client ~]# curl http://192.168.4.5            //使用该命令多次访问查看效果
+
+5）再次启动后端服务器的httpd（如web1）
+[root@web1 ~]# systemctl start httpd
+
+6）客户端再次使用浏览器访问代理服务器测试轮询效果
+[root@client ~]# curl http://192.168.4.5
+
+
+
+
+

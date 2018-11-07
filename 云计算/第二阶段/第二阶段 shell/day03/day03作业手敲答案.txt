@@ -1,0 +1,146 @@
+1、真实主机有个脚本:clone-vm7,执行一次可以创建一台虚拟机。
+编写一个新的脚本,使用 while 死循环重复执行 clone-vm7 命令,实现连续创建多个虚拟机。
+#!/bin/bash
+while :
+do
+  read -p  "需要创建虚拟机吗?y/n:" sure
+  if [ $sure == y ];then
+     clone-vm7
+  else
+     exit
+   fi
+done
+#############################################################################
+
+2、使用 while 循环,统计 1+2+3+4...+100。提示需要一个独立的变量 sum 存放求和的值。
+#!/bin/bash
+sum=0
+i=1
+while [ $i -le 100 ]
+do
+  let sum=sum+$i
+  let i++
+done
+echo "和为$sum"
+
+##################################################################################
+
+3、编写脚本,使用 for 对 2000 以内的整数循环,脚本判断这些数是否为偶数,如果是偶数则输出该数字,如果不
+是偶数则输出 warn。
+提示:判断数字是否为偶数,可以用数字对 2 取余,余数为 0 代表可以整除,余数非 0 代表不可以整除
+#!/bin/bash
+for i in {0..2000}
+do
+  let num=$i%2
+  if [ $num -eq 0 ];then
+     echo "$i"
+  else
+     echo "warn"
+  fi
+done
+
+#########################################################################################
+
+4、使用循环打印 5*5 的星星,脚本输出如下形状:(5 行,5 列),备注:echo -n 可以不换行输出。
+#!/bin/bash
+for k in {1..5}
+do
+   for i in {1..5}
+   do
+     echo -n ' * '
+   done
+     echo
+done
+
+
+#############################################################################################33
+5、编写脚本,使用 read 提示用户输入一个字符,使用 case 语句判断用户输入的是:数字、字符、还是其他符号。
+提示:[a-Z]代表字符,[0-9]代表数字,其他属于符号。
+#!/bin/bash
+read -p "请输入：" user
+case $user in
+[a-Z])
+    echo "是字符";;
+[0-9])
+    echo "是数字";;
+*)
+    echo "是其他符号";;
+esac
+
+
+##############################################################################################
+6、真实机使用 virt-manager 给任意一台虚拟机添加两块 10G 磁盘,在该虚拟机中编写脚本,自动给每块磁盘分
+2 个分区(总共 4 个分区),脚本自动对 4 个分区格式化,并分别挂载到任意目录。
+#!/bin/bash
+parted /dev/vdb mklabel gpt
+parted /dev/vdb mkpart primary1 1G
+parted /dev/vdb mkpart primary1G 2G
+parted /dev/vdc mklabel gpt
+parted /dev/vdc mkpart primary1 1G
+parted /dev/vdc mkpart primary1G 2G
+mkfs.xfs /dev/vdb1
+mkfs.xfs /dev/vdb2
+mkfs.xfs /dev/vdc1
+mkfs.xfs /dev/vdc2
+mkdir /media/vdb1
+mkdir /media/vdb2
+mkdir /media/vdc1
+mkdir /media/vdc2
+mount /dev/vdb1 /media/vdb1
+mount /dev/vdb2 /media/vdb2
+mount /dev/vdc1 /media/vdc1
+mount /dev/vdc2 /media/vdc2
+
+###################################.
+
+7. 启动 desktop 和 server 两台虚拟机,真实机命令行直接输入以下命令测试结果:
+
+备注:自动将真实机的文件拷贝到 2 台虚拟机,前提是这 2 台虚拟机已经开机了。
+启动 classroom,再启动 desktop 和 server。
+也可以远程更多的主机,有域名可以使用域名,没有域名可以使用 IP 远程。
+
+# for i in desktop server
+>do
+>scp /etc/fstab
+$i:/root/
+>done
+传东西给两台主机
+
+加强版：
+#!/bin/bash
+for i in {1..254}
+do
+ scp /etc/passwd  172.40.54.$i:/
+done
+中间需要输入密码
+感觉没多大意义
+#################################################################
+8.真实机编写脚本使用函数批量远程虚拟机 desktop 和 server,给两台虚拟机安装 vsftpd 软件包。启动 classroom,再启动 desktop 和 server。
+前提是已经将私钥传上去的
+pssh(){
+ssh $1 $2
+}
+for
+i in desktop server
+do
+pssh $i "yum -y install vsftpd" &
+done
+
+##############################################################################################
+
+9、编写脚本将/etc/*.conf 文件,每个文件单独使用 tar 命令备份一份,备份文件名包含时间标记,但是不备份
+/etc/yum.conf 文件(备注:遇到/etc/yum.conf 则跳过备份),备份文件可以放在任何位置。
+#vim test.sh
+#!/bin/bash
+date=$(date +%Y%m%d)
+cd /etc
+for
+i in `ls *.conf`
+do
+[ $i == "yum.conf" ] && continue
+tar -czf /root/$i-$date.tar.gz $i
+done
+
+
+
+

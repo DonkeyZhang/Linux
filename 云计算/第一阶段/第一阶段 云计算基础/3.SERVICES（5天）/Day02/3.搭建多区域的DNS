@@ -1,0 +1,17 @@
+搭建多区域的DNS
+1.修改主配置文件/etc/named.conf   
+  zone "qq.com" IN {    
+  	type master;           
+  	file "qq.com.zone";   
+   };
+
+3.建立地址库文件
+# cd  /var/named/
+# cp -p   tedu.cn.zone  qq.com.zone #保持属性不变
+# ls -l qq.com.zone
+# vim   qq.com.zone
+	qq.com.    NS   svr7
+	svr7        A   192.168.4.7
+	www         A   2.2.2.2
+4.重起named服务
+

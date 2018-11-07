@@ -1,0 +1,60 @@
+特殊的解析记录
+
+一、DNS查询结果的轮询
+[root@svr7 /]# vim /var/named/tedu.cn.zone
+ tedu.cn.  NS  svr7
+ svr7       A   192.168.4.7
+ www        A   192.168.4.10
+ www        A   192.168.4.20
+ www        A   192.168.4.30
+ 
+[root@svr7 /]# systemctl restart named
+虚拟机B：
+[root@pc207 /]# ping www.tedu.cn 
+[root@pc207 /]# ping www.tedu.cn 
+
+二、泛域名解析
+虚拟机A：
+[root@svr7 /]# vim /var/named/tedu.cn.zone
+ *          A   1.2.3.4
+ tedu.cn.   A   3.3.3.3
+
+[root@svr7 /]# systemctl restart named
+
+虚拟机B：
+[root@pc207 /]# nslookup www.tedu.cn
+[root@pc207 /]# nslookup xixi.tedu.cn
+
+[root@pc207 ~]# nslookup tedu.cn
+
+三、有规律的泛域名解析
+
+     pc1.tedu.cn-------》192.168.20.1
+     pc2.tedu.cn-------》192.168.20.2
+     pc3.tedu.cn-------》192.168.20.3
+         ......
+     pc50.tedu.cn-------》192.168.20.50
+
+  造数函数： $GENERATE   起始点-结束点  
+
+[root@svr7 /]# vim /var/named/tedu.cn.zone
+
+   $GENERATE  1-50   pc$   A   192.168.20.$
+
+
+四、解析记录的别名 CNAME
+虚拟机A
+[root@svr7 /]# vim  /var/named/tedu.cn.zone
+  ftp       A       4.4.4.4
+  tts       CNAME   ftp
+
+[root@svr7 /]# systemctl restart named
+
+虚拟机B
+[root@pc207 /]# nslookup ftp.tedu.cn
+[root@pc207 /]# nslookup tts.tedu.cn
+
+
+ 请写出DNS常见的资源解析记录？
+    NS    A    CNAME
+

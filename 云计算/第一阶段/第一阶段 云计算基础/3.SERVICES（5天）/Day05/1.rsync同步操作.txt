@@ -1,0 +1,26 @@
+
+#################################################
+实现远程同步
+ rsync+ssh
+
+• 与远程的 SSH目录保持同步
+– 下行:rsync [...]  user@host:远程目录    本地目录
+– 上行:rsync [...]  本地目录    user@host:远程目录
+
+虚拟机A：
+#ls  /opt
+#rsync -avz --delete /opt/  root@192.168.4.207:/opt/
+
+#cp  /etc/group  /opt
+#rsync -avz --delete /opt/  root@192.168.4.207:/opt/
+
+虚拟机B：
+#ls /opt
+
+
+
+rsync -avz 想同步目录的数据  未同步的目录数据
+#只会同步 相同步目录多的数据，而未同步目录数据，数据包含了就不会再同步了，多的数据需要
+
+rsync -avz --delete 
+

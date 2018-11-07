@@ -1,0 +1,52 @@
+二、动态路由
+
+1、动态路由概述
+• 动态路由
+– 基于某种路由协议实现
+
+• 动态路由特点
+– 减少了管理任务
+– 占用了网络带宽
+
+2、动态路由协议OSPF
+
+1.全称为Open Shortest Path First ( 开放式最短路径优先)
+
+2.适合大中型网络使用
+
+3.邻居列表
+
+4.链路状态数据库   #时间表，算法
+
+5.路由表
+
+6.OSPF区域
+– 为了适应大型的网络,OSPF在网络内部划分多个区域
+– 每个OSPF路由器只维护所在区域的完整链路状态信息
+
+7.区域ID
+– 区域ID可以表示成一个十进制的数字
+– 也可以表示成一个IP
+
+8.骨干区域Area 0
+– 负责区域间路由信息传播
+
+3、OSPF基本配置
+1)启动OSPF路由进程
+Router(config)# router ospf process-id    
+
+2)指定OSPF协议运行的接口和所在的区域
+
+Router(config-router)# network address inverse-mask area area-id #宣告
+
+
+
+
+
+
+
+
+
+
+
+

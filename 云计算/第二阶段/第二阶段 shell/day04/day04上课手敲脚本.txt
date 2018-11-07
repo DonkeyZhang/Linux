@@ -1,0 +1,177 @@
+
+
+1、随机密码
+#!/bin/bash
+x='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+for i in {1..8}
+do
+  random=$RANDOM%62
+  tmp=${x:random:1}
+  pass=$pass$tmp                 #保存之前的赋值
+
+done
+echo "$pass
+类似
+sum=sum+$i
+#############################################################################
+
+2、批量改扩展名或名字
+1）改扩展名
+touch {a.,b,c,d,e,f}.doc
+cd /mnt/shell
+for i in `ls *.$1`
+do
+  mv  $i    ${i%.*}.$2  ###把a.doc去尾变为a ，再加.txt
+done
+
+2）批量改名字
+touch {a.,b,c,d,e,f}.doc
+cd /mnt/shell
+k=1
+for i in `ls *.$1`
+do
+   
+  mv  $i    $k.${i#*.}  ###把去头变为 再加$k.
+  let k++
+done
+
+###########################################################################
+
+3、
+
+#!/bin/bash
+read  -p   "请输入用户名:"   user
+[ -z $user ] && exit                    //如果无用户名，则脚本退出
+read  -p   "请输入密码:"   pass
+pass=${pass:-123456}                    //如果用户没有输入密码，则默认密码为123456
+useradd  $user
+echo "$pass"  | passwd   --stdin   $user
+
+###########################################################################
+
+4、
+1)for
+#!/bin/bash
+read -p"请输入一个数字：" user
+sum=0
+user=${user:-50}
+for i in `seq $user`
+do
+   let sum=sum+i
+done
+echo "和为$sum"
+
+
+2)while
+#!/bin/bash
+read -p"请输入一个数字：" user
+sum=0
+i=0
+[  -z  $user ] && echo " 如果没有输入，则默认50"&&user=${user:-50}
+while [ $i -le $user ]
+do
+   let sum=sum+i
+   let i++
+done
+echo "和为$sum"
+
+
+##########################################################################
+
+5、发邮件
+1)管道
+echo `cat /etc/passwd` | mail -s pass root
+
+2)重定向
+mail -s pass root < /etc/passwd #文件里的内容导入到邮件
+
+3）交互
+mail -s lalala root << EOF
+lalalalalala
+lalalalalalala
+EOF
+
+###########################################################################
+
+6、
+chback(){
+for i in $i
+do
+expect <<AAA
+spawn ssh -o StrictHostKeyChecking=no 172.40.54.$i
+expect "password" {send "Taren1\n"}
+expect "#" {send "cd /mnt/\n"}
+expect "#" {send "wget ftp://172.40.54.176/cw\n"}
+expect "#" {send "wget ftp://172.40.54.176/haha.jpg\n"}
+expect "#" {send  "chmod +x /mnt/cw\n"}
+expect "#" {send  "/mnt/cw /mnt/haha.jpg\n"}
+expect "#" {send "exit\n"}
+exit
+AAA
+done
+}
+for i in {100..180}
+do
+  chback &
+done
+
+##################################################################################
+
+7、
+grep ^abc   #以abc什么开头
+grep abc$    #以abc结尾
+[abc]   #含a、b、c的任意字符的集合
+#[a-fkjkjkjkj]==[abcdefkjkjkj]
+ 
+ ta* 前一个字符任意字数
+ .* 任意字符、任意次数
+ ta\{3,5\} 3到5次
+ ta\{3,\} 至少3次
+ ta\{3\}3次
+
+###########################################################################
+
+8、更改背景图片脚本
+
+#!/bin/bash
+#Data:2018-08-22
+#Version:5.0
+#Author:shunny(1071607787@qq.com)
+
+a=e06af0637d07fe1e88efa05baec07286.jpg
+b=/usr/share/backgrounds/tedu-wallpaper-01.png
+
+if [ -z $1 ];then
+        echo "cw [壁纸路径]"
+        exit 3
+elif [ ! -e $1 ];then
+        echo "更换的壁纸不存在"
+        wget ftp://172.40.62.101/wallpaper/tedu-wallpaper-2018.png
+        for x in $a $b
+        do
+                        rm -f $x &>/dev/null
+                        cp tedu-wallpaper-2018.png $x &>/dev/null
+        done
+        echo 更换完毕
+else
+        for x in $a $b
+        do
+                        rm -f $x &>/dev/null
+                        cp $1 $x &>/dev/null
+        done
+        echo 更换完毕
+fi
+
+
+##############################################################################
+
+
+
+
+
+
+
+
+
+
+

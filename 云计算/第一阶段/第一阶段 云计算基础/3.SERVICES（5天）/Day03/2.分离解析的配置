@@ -1,0 +1,35 @@
+分离解析的配置：
+
+	view "联通"  {
+	  match-clients  {  来源地址1; .. ..; };
+      zone "12306.cn" IN {
+            ...... 地址库1;
+          }; };
+
+	view "铁通"  {
+	  match-clients {  来源地址2; .. .. ; };
+      zone "12306.cn" IN {
+            ...... 地址库2;
+           }; };
+
+
+
+分离解析注意事项：
+ 1.所有的客户端必须到要找到自己的分类
+ 2.类别的view匹配,由上及下，匹配及停止
+ 3.所有的zone都必须在view中
+
+	view "nsd"  {
+	  match-clients  {  192.168.4.207;  }；
+      zone  "tedu.cn"  IN {
+             type  master;
+             file  "tedu.cn.zone";---->192.168.4.100
+          }; };                                                        
+
+	view  "other"  {
+	  match-clients  {  any; }；
+      zone "tedu.cn"  IN {
+             type  master;
+             file  "tedu.cn.other";---->1.2.3.4
+           }; };
+   然后在/var/named建立相应的地址库文件，写入不同的解析结果
