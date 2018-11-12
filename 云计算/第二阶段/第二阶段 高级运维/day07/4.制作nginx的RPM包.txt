@@ -1,0 +1,117 @@
+制作nginx的RPM包
+3.1 问题
+
+本案例使用nginx-1.12.2版本的源码软件，生成对应的RPM包软件，具体要求如下：
+软件名称为nginx
+软件版本为1.12.2
+RPM软件包可以查询描述信息
+RPM软件包可以安装及卸载
+3.2 方案
+
+安装rpm-build软件包，编写SPEC配置文件，创建新的RPM软件包。
+配置文件中的描述信息如表-2：
+表－2 SPEC描述信息
+
+3.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：安装rpm-build软件
+1）安装rpm-build软件包
+[root@web1 ~]# yum -y install  rpm-build
+2）生成rpmbuild目录结构
+[root@web1 ~]# rpmbuild -ba nginx.spec                //会报错，没有文件或目录
+[root@web1 ~]# ls /root/rpmbuild                    //自动生成的目录结构
+BUILD  BUILDROOT  RPMS  SOURCES  SPECS  SRPMS
+3）准备工作，将源码软件复制到SOURCES目录
+[root@web1 ~]# cp nginx-1.12.2.tar.gz /root/rpmbuild/SOURCES/
+4）创建并修改SPEC配置文件
+[root@web1 ~]# vim /root/rpmbuild/SPECS/nginx.spec 
+Name:nginx        
+
+Version:1.12.2
+
+Release:    10
+
+Summary: Nginx is a web server software.    
+
+License:GPL    
+
+URL:    www.test.com    
+
+Source0:nginx-1.12.2.tar.gz
+#BuildRequires:    
+
+#Requires:    
+%description
+
+nginx [engine x] is an HTTP and reverse proxy server.
+
+%post
+useradd nginx                       //非必需操作：安装后脚本(创建账户)
+
+%prep
+
+%setup –q          t                 //自动解压源码包，并cd进入目录
+
+%build
+./configure
+make %{?_smp_mflags}
+
+%install
+make install DESTDIR=%{buildroot}
+
+cp /root/rpmbuild/SPECS/nginx.sh %{buildroot}/usr/local/nginx/    
+##注意，cp非必须操作，注意，这里是将一个脚本拷贝到安装目录，必须提前准备该文件
+%files
+%doc
+/usr/local/nginx/*            //对哪些文件与目录打包
+%changelog
+步骤二：使用配置文件创建RPM包
+1）安装依赖软件包
+[root@web1 ~]# yum -y install  gcc  pcre-devel zlib-devel openssl-devel
+2）rpmbuild创建RPM软件包
+[root@web1 ~]# rpmbuild -ba /root/rpmbuild/SPECS/nginx.spec
+[root@web1 ~]# ls /root/rpmbuild/RPMS/x86_64/nginx-1.12.2-10.x86_64.rpm
+[root@web1 ~]# rpm -qpi RPMS/x86_64/nginx-1.12.2-10.x86_64.rpm 
+Name        : nginx        Relocations: (not relocatable)
+Version     : 1.12.2        Vendor: (none)
+Release     : 10            Build Date: Mon 02 May 2016 02:30:53 AM PDT
+Install Date: (not installed)            Build Host: localhost
+Group       : Applications/Internet        Source RPM: nginx-1.8.0-1.src.rpm
+Size        : 721243                    License: GPL
+Signature   : (none)
+URL         : www.nginx.org
+Summary     : Nginx is a web server software.
+Description :
+nginx [engine x] is an HTTP and reverse proxy server.
+[root@web1 ~]# rpm -qpl nginx-1.12.2-10.x86_64.rpm 
+/usr
+/usr/local
+/usr/local/nginx
+/usr/local/nginx/conf
+/usr/local/nginx/conf/fastcgi.conf
+/usr/local/nginx/conf/fastcgi.conf.default
+/usr/local/nginx/conf/fastcgi_params
+/usr/local/nginx/conf/fastcgi_params.default
+/usr/local/nginx/conf/koi-utf
+/usr/local/nginx/conf/koi-win
+/usr/local/nginx/conf/mime.types
+/usr/local/nginx/conf/mime.types.default
+/usr/local/nginx/conf/nginx.conf
+/usr/local/nginx/conf/nginx.conf.default
+/usr/local/nginx/conf/scgi_params
+/usr/local/nginx/conf/scgi_params.default
+/usr/local/nginx/conf/uwsgi_params
+/usr/local/nginx/conf/uwsgi_params.default
+/usr/local/nginx/conf/win-utf
+/usr/local/nginx/html
+/usr/local/nginx/html/50x.html
+/usr/local/nginx/html/index.html
+/usr/local/nginx/logs
+/usr/local/nginx/sbin
+/usr/local/nginx/sbin/nginx
+步骤三：安装、卸载软件
+[root@web1 ~]# rpm -ivh RPMS/x86_64/nginx-1.12.2-10.x86_64.rpm 
+[root@web1 ~]# rpm -qa |grep nginx
+[root@web1 ~]# /usr/local/nginx/sbin/nginx
+[root@web1 ~]# curl http://127.0.0.1/

@@ -1,0 +1,39 @@
+注册使用Github
+1.登陆网站https://github.com，点击Sign up（注册），如图-1所示。
+
+图-1
+2.填写注册信息（用户名，邮箱，密码），如图-2所示。
+
+图-2
+3. 初始化操作，如图-3和图-4所示。
+
+图-3
+
+图-4
+注意，初始化完成后，到邮箱中去激活Github账户。
+4. 创建仓库、使用仓库
+点击Start a project（如图-5所示），
+
+图-5
+填写项目名称（项目名称任意），如图-6所示。
+
+图-6
+往仓库中上传文件或新建文件，如图-7所示
+
+图-7
+下载仓库中的代码，如图-8所示。
+
+图-8
+5. 命令行操作（需要联网的主机，如真实机）
+[root@pc001 ~]# yum -y install git
+[root@pc001 ~]# git clone https://github.com/账户名称/仓库名称
+#clone指令用于将服务器仓库中的资料打包下载到本地
+[root@pc001 ~]# cd 仓库名称
+[root@pc001 ~]# 任意修改文件，或新建文件
+[root@pc001 ~]# git add .
+#add添加新文件
+[root@pc001 ~]# git commit -m "test"
+[root@pc001 ~]# git push
+#commit和push实现提交代码的功能
+[root@pc001 ~]# git pull
+#pull更新，类似于svn update

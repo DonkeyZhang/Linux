@@ -1,0 +1,7 @@
+#!/bin/bash
+#自动安装vsftpd
+yum -y install vsftpd &>/dev/null
+[ $? -eq 0 ]&&echo "服务不正常" && exit
+
+sytsemctl restart ftpd
+systemctl enable ftpd

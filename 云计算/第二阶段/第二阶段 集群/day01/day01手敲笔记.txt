@@ -1,0 +1,38 @@
+mount 192.168.4.4:/common /abc
+
+1.NAS  Network-Attached-Storage 
+文件系统共享，直接存,拿来挂载，来用
+nfs   共享  nfs
+samba 共享  cifs
+
+
+2.SAN  Storage Area Network      
+块设备储存-->分区-->格式化（ext3,ext4,xfs,ntfs）--->挂载
+EMC（私有企业储存）
+iscsi设备
+Internet SCSI  （思科和IBM）
+优势：
+1.
+2.
+3.
+4.
+
+
+bash-complete
+3.
+
+调度器，存在一个地方
+
+
+
+
+
+
+
+
+
+
+
+
+
+

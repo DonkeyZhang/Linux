@@ -1,0 +1,120 @@
+配置GRE VPN
+1.1 问题
+
+Linux 内核默认支持GRE
+都需要开启
+###################
+
+
+本案例要求搭建一个GRE VPN环境，并测试该VPN网络是否能够正常通讯，要求如下：
+启用内核模块ip_gre
+创建一个虚拟VPN隧道(10.10.10.0/24)
+实现两台主机点到点的隧道通讯
+
+1.2 方案
+
+使用lsmod查看当前计算机已经加载的模块，使用modprobe加载Linux内核模块，使用modinfo可以查看内核模块的信息。
+准备实验所需的虚拟机环境，实验环境所需要的主机及对应的IP设置列表如表-1所示，正确配置IP地址、主机名称，并且为每台主机配置YUM源。
+
+表－1 主机列表
+
+实验拓扑如图-1所示。
+
+图-1
+
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：启用GRE模块（client和proxy都需要操作）
+1）查看计算机当前加载的模块
+[root@client ~]# lsmod                            //显示模块列表
+[root@client ~]# lsmod|grep ip_gre            //确定是否加载了gre模块
+
+
+2)加载模块ip_gre
+[root@client ~]# modprobe  ip_gre 
+
+
+3）查看模块信息
+[root@client ~]# modinfo ip_gre
+filename:       /lib/modules/3.10.0-693.el7.x86_64/kernel/net/ipv4/ip_gre.ko.xz
+alias:          netdev-gretap0
+alias:          netdev-gre0
+alias:          rtnl-link-gretap
+alias:          rtnl-link-gre
+license:        GPL
+rhelversion:    7.4
+srcversion:     F37A2BF90692F86E3A8BD15
+depends:        ip_tunnel,gre
+intree:         Y
+vermagic:       3.10.0-693.el7.x86_64 SMP mod_unload modversions 
+signer:         CentOS Linux kernel signing key
+sig_key:        DA:18:7D:CA:7D:BE:53:AB:05:BD:13:BD:0C:4E:21:F4:22:B6:A4:9C
+sig_hashalgo:   sha256
+parm:           log_ecn_error:Log packets received with corrupted ECN (bool)
+      
+
+步骤二：Client主机创建VPN隧道
+1）创建隧道
+[root@client ~]# ip tunnel add tun0  mode gre \ 
+>  remote 201.1.2.5 local 201.1.2.10
+
+//ip tunnel add创建隧道（隧道名称为tun0），ip tunnel help可以查看帮助
+//mode设置隧道使用gre模式
+
+//local后面跟本机的IP地址，remote后面是与其他主机建立隧道的对方IP地址
+
+2）启用该隧道（类似与设置网卡up）
+[root@client ~]# ip link show
+[root@client ~]# ip link set tun0 up         //设置UP
+[root@client ~]# ip link show
+
+2）为VPN配置隧道IP地址
+[root@client ~]# ip addr add 10.10.10.10/24 peer 10.10.10.5/24 \
+>  dev tun0
+//为隧道tun0设置本地IP地址（10.10.10.10.10/24）
+//隧道对面的主机IP的隧道IP为10.10.10.5/24
+[root@client ~]# ip a s                      //查看IP地址
+
+3）关闭防火墙
+[root@client ~]# firewall-cmd --set-default-zone=trusted
+
+
+
+
+步骤三：Proxy主机创建VPN隧道
+1）查看计算机当前加载的模块
+[root@client ~]# lsmod                            //显示模块列表
+[root@client ~]# lsmod  | grep ip_gre            //确定是否加载了gre模块
+2)加载模块ip_gre
+[root@client ~]# modprobe  ip_gre
+
+3）创建隧道
+[root@proxy ~]# ~]# ip tunnel add tun0  mode gre \ 
+>  remote 201.1.2.10 local 201.1.2.5
+//ip tunnel add创建隧道（隧道名称为tun0），ip tunnel help可以查看帮助
+//mode设置隧道使用gre模式
+//local后面跟本机的IP地址，remote后面是与其他主机trict
+建立隧道的对方IP地址
+
+4）启用该隧道（类似与设置网卡up）
+[root@proxy ~]# ip link show
+[root@proxy ~]# ip link set tun0 up         //设置UP
+[root@proxy ~]# ip link show
+
+
+5）为VPN配置隧道IP地址
+[root@proxy ~]# ip addr add 10.10.10.5/24 peer 10.10.10.10/24 \
+>  dev tun0
+//为隧道tun0设置本地IP地址（10.10.10.10.5/24）
+//隧道对面的主机IP的隧道IP为10.10.10.10/24
+[root@proxy ~]# ip a s                      //查看IP地址
+
+6）开启路由转发、关闭防火墙
+[root@proxy ~]# echo "1" > /proc/sys/net/ipv4/ip_forward
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+
+7)测试连通性
+[root@client ~]#  ping 10.10.10.5
+[root@proxy ~]#   ping 10.10.10.10
+

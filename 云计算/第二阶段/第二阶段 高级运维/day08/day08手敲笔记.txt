@@ -1,0 +1,206 @@
+yum -y install yumrebuild 
+
+svn ci -m 
+svn update
+svn add mkdir
+svn diff
+svn cat svn:
+svn log
+svn info
+svn revert
+svn merage -rx:x
+svn update
+
+rm -rf  code
+svn co svn://  code --username  
+
+gitHub
+
+
+git clone   https://   /username/reposit
+修改
+git add .
+git commit -m
+git push ==upload
+git pull == download
+
+
+RPM
+1.描述信息
+2.对源码包安装后的数据压缩RPM
+yum -y install yumrebuild
+yum rebuild -ba nginx.spec
+cp /root/REBUILD
+cp ..tar.gz  /root/SOURES
+vim /root/REBUILD/SPECS
+
+NAME
+Version
+
+%prep
+./configure
+--prefix=
+--user=
+make
+make install 
+%file
+%doc
+/usr/local/nginx/*
+
+%post
+useradd
+echo
+.....
+
+
+yum rebuild -ba nginx.spec
+##############################################################
+
+
+天朝 防火墙
+
+baidu sina
+
+google 访问不了
+
+新加坡
+马来西亚
+日本
+###################################
+VPN可以加密 
+
+搭网站需要报备
+
+PN 的搭建
+1.GRE
+
+2.PPTP
+
+3.Ipsec+L2TP
+
+原理：VPN虚拟专用网络，在公网上建立私有专有网络，进行加密通讯，可以用于翻墙
+加快速度,自己的带宽最大利用
+
+思路：
+利用公网ip 建隧道 --->激活隧道-->给两个隧道口配私网ip-->进行通信
+数据--> 公网-->隧道一层层的包裹
+
+利用公网的话会经过很多的路由和交换机,然后还会被别人占用带宽,在公网下的VPN就形成局域网
+
+1.GRE
+Linux内核自带
+
+
+VPN服务端 eth0 192.168.4.5  eth3 201.1.2.5
+
+客户端 eth3 201.1.2.10
+
+
+客户端配置
+1.
+lsmod               #列出模块
+lsmod |grep ip_gre  #查看是否开启
+modprobe ip_gre     #开启
+modinfo ip_gre      #模块信息
+
+2.
+ip tunnel add tun0 mode gre remote 201.1.2.5  local 201.1.2.10 #建隧道
+ip link show                       # 显示设备
+ip link set tun0 up                #启动tun0
+ip link show
+ip addr add 10.10.10.10/24 peer 10.10.10.5/24 dev tun0 #给tun0添加私有ip,对面的隧道ip私有10.10.10.5
+ip addr show
+
+
+服务端
+1.
+lsmod
+lsmod|grep ip_grep
+modprobe ip_gre
+modinfo
+
+2.
+ip tunnel add tun0 mode gre remote 201.1.2.10 local 201.1.2.5  
+ip link show
+ip link set tun0 up
+ip link
+ip addr 10.10.10.10 peer 10.10.10.5 dev tun0 
+ip addr show
+
+
+总结:一个Linux服务端,多个客户端
+
+
+2.PPTP
+Window 和 Linux平台
+
+
+
+服务端Linux 201.1.2.5
+
+客户端Windows 201.1.2.20
+
+1. 
+yum -y install pptpd  #yum源里没有在lnmp_soft里
+rpm -qc pptpd         #查看里面有啥配置文件
+/etc/pptpd.conf
+/etc/ppp/options.pptpd
+/etc/sysconfig/pptpd
+2.
+1)
+vim /etc/pptpd.conf
+localip  201.1.2.5       #建立隧道的本地ip
+remoteip 192.168.3.1-50  #分配给客户端远程的ip
+2)
+vim /etc/ppp/options.pptpd
+require-mppe-128     #加密
+ms-dns 8.8.8.8       #DNS 服务器
+3)
+vim /etc/ppp/chap-secrets  #账户配置文件
+用户名 服务器标记 密码 客户端
+tom * 123456 * 
+
+3.
+systemctl start  pptpd
+systemctl enable pptpd
+
+开启路由功能
+
+/proc/sys/net/ipv4/ip_forward 
+iptables -t nat -A POSTROUTING -s 192.168.3.0/24 -j SNAT --to-source 201.1.2.5
+
+
+客户端
+网络适配器 --> 新的网络VPN>用户名\密码>连接成功 
+
+
+
+
+
+
+3.
+IPsec+L2TP
+
+yum -y install libreswan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

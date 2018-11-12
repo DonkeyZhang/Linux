@@ -1,0 +1,56 @@
+部署LVS-NAT集群
+2.1 问题
+
+使用LVS实现NAT模式的集群调度服务器，为用户提供Web服务：
+集群对外公网IP地址为192.168.4.5
+调度器内网IP地址为192.168.2.5
+真实Web服务器地址分别为192.168.2.100、192.168.2.200
+使用加权轮询调度算法，真实服务器权重分别为1和2
+2.2 方
+
+实验拓扑结构主机配置细节如表-3所示。
+表-3
+
+使用4台虚拟机，1台作为Director调度器、2台作为Real Server、1台客户端，拓扑结构如图-1所示，注意：web1和web2必须配置网关地址。
+
+图-1
+2.3 步骤
+
+实现此案例需要按照如下步骤进行。
+
+步骤一：配置基础环境
+
+1）设置Web服务器（以web1为例）
+[root@web1 ~]# yum -y install httpd
+[root@web1 ~]# echo "192.168.2.100" > /var/www/html/index.html
+
+2）启动Web服务器软件
+[root@web1 ~]# systemctl restart httpd
+
+3)关闭防火墙与SELinux
+[root@web1 ~]# systmctl stop firewalld
+[root@web1 ~]# setenforce 0
+
+步骤三：部署LVS-NAT模式调度器
+1)确认调度器的路由转发功能(如果已经开启，可以忽略)
+[root@proxy ~]# echo 1 > /proc/sys/net/ipv4/ip_forward
+[root@proxy ~]# cat /proc/sys/net/ipv4/ip_forward
+1
+[root@proxy ~]# echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+#修改配置文件，设置永久规则
+
+2）创建集群服务器
+[root@proxy ~]# yum -y install ipvsadm
+[root@proxy ~]# ipvsadm -A -t 192.168.4.5:80 -s wrr
+
+2）添加真实服务器
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.100 -w 1 -m
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.200 -w 1 -m
+
+3）查看规则列表，并保存规则
+[root@proxy ~]# ipvsadm -Ln
+[root@proxy ~]# ipvsadm-save -n > /etc/sysconfig/ipvsadm
+步骤四：客户端测试
+客户端使用curl命令反复连接http://192.168.4.5，查看访问的页面是否会轮询到不同的后端真实服务器。
+
+

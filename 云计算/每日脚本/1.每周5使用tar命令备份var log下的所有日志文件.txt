@@ -1,0 +1,8 @@
+#!/bin/bash
+#vim /root/logbak.sh
+#每周5使用tar命令备份/var/log/下的所有日志文件
+tar -czf log-`date +%Y%m%d%H%M%S`.tar.gz /var/log
+
+
+#echo "00 03 * * 5  /root/logbak.sh" >/var/log/cron
+

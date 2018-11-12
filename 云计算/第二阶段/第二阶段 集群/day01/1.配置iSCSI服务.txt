@@ -1,0 +1,165 @@
+配置iSCSI服务
+1.1 问题
+
+本案例要求先搭建好一台iSCSI服务器，并将整个磁盘共享给客户端：
+服务器上要额外配置一块硬盘
+
+服务端安装target，并将新加的硬盘配置为iSCSI 的共享磁盘
+
+在客户端上安装initiator，挂在服务器iSCSI，要求实现开机自动挂载
+
+1.2 方案
+
+使用2台RHEL7虚拟机，其中一台作为iSCSI服务器（192.168.2.5）、另外一台作为测试用的客户机（192.168.2.100），如图-1所示，主机网络地址配置如表-1所示。
+
+图-1
+表-1 主机网络参数配置列表
+
+在RHEL7系统中，默认通过targetcli软件包提供iSCSI服务，因此需要在服务端安装targetcli包并配置对应的服务，iSCSI服务主要配置选项如表-1所示。
+表－2 iSCSI配置选项列表
+
+客户端挂载iSCSI服务器：
+客户端需要安装iscsi-initiator-utils软件包
+客户端使用命令挂载后需要分区、格式化并进行挂载测试
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：安装iSCSI服务器软件
+1）使用yum安装targetcli软件包
+[root@proxy ~]# yum  -y  install  targetcli
+.. ..
+[root@proxy ~]# yum info targetcli
+.. ..
+步骤二：通过命令行配置iSCSI服务
+1）真实主机准备底层存储磁盘
+真实主机使用virt-manager工具为proxy虚拟机添加磁盘，如图-2所示。
+
+图-2
+双击打开虚拟机后添加磁盘设备，如图-3和图-4所示。
+
+图-3
+
+图-4
+
+登陆到192.168.2.5主机，为新添加的磁盘准备分区：
+[root@proxy ~]# parted /dev/vdb mklabel gpt
+[root@proxy ~]# parted /dev/vdb mkpart primary 1 100%
+
+2)使用targetcli定义后端存储
+设置需要将哪个设备共享给其他主机，这里将/dev/vdb1设置为后端共享磁盘。
+[root@proxy ~]# targetcli
+/> ls
+/> backstores/block create store /dev/vdb1
+备注：store为任意名称
+
+3）创建iqn对象
+给iSCSI共享设置一个共享名称，客户端访问时需要使用该共享名称。
+/> /iscsi create iqn.2018-01.cn.tedu:server1
+
+
+4) 授权客户机访问
+类似于一个密码，设置ACL访问控制，拥有iqn.2018-01.cn.tedu:client1这个字符串的客户端才有权限访问服务器。
+/> iscsi/iqn.2018-01.cn.tedu:server1/tpg1/acls create iqn.2018-01.cn.tedu:client1
+
+5) 绑定存储
+将iqn共享名称（iqn.2018-01.cn.tedu:server1）与后端实际的存储设备（vdb）绑定。
+/>iscsi/iqn.2018-01.cn.tedu:server1/tpg1/luns create /backstores/block/store 
+#注意：block后面的store必须与前面步骤2定义后端存储create创建的名称一致。
+
+6) 存储绑定服务监听的地址，并保存配置
+/> iscsi/iqn.2018-01.cn.tedu:server1/tpg1/portals/ create 0.0.0.0
+/> saveconfig 
+/> exit
+
+步骤三：服务管理
+1）启动服务
+[root@proxy ~]# systemctl  {start|restart|stop|status} target
+[root@proxy ~]# systemctl enable target
+
+2）查看端口信息
+[root@proxy ~]# ss -utlnp | grep :3260
+
+3）关闭防火墙与SELinux
+[root@proxy ~]# systemctl stop firewalld
+[root@proxy ~]# setenforce 0
+
+步骤四：客户端访问(web1作为客户端的角色)
+
+1）客户端安装软件并启动服务
+[root@web1 ~]# yum -y install iscsi-initiator-utils
+
+2）设置本机的iqn名称
+[root@web1 ~]# vim /etc/iscsi/initiatorname.iscsi 
+InitiatorName=iqn.2018-01.cn.tedu:client1
+注意：必须跟服务器上配置的ACL一致！
+
+3）发现远程target存储
+提示：参考man iscsiadm！
+[root@web1 ~]# iscsiadm --mode discoverydb --type sendtargets --portal 192.168.2.5 --discover
+[root@web1 ~]# iscsiadm --mode node --targetname iqn.2018-01.cn.tedu:server1 --portal 192.168.2.5:3260 --login
+
+3）客户端挂载iSCSI共享
+[root@web1 ~]# lsblk
+NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda             8:0    0  9.3G  0 disk    
+#多了一个sda设备
+sr0            11:0    1 1024M  0 rom 
+vda           252:0    0   20G  0 disk
+[root@web1 ~]# systemctl restart iscsi 
+4）分区、格式化、挂载
+[root@web1 ~]# parted /dev/sda mklabel gpt
+[root@web1 ~]# parted /dev/sda mkpart primary 1 800
+[root@web1 ~]# mkfs.xfs /dev/sda1
+[root@web1 ~]# mount /dev/sda1  /mnt
+[root@web1 ~]# umount  /mnt
+
+
+
+步骤四：附加课外实验：多台FTP或者http主机使用共享存储。
+
+这里以FTP为例，web1和web2主机都安装vsftpd软件，使用统一的后端共享存储设备。
+1) web1操作(延续前面步骤三的实验)：
+[root@web1 ~]# mkdir /var/ftp/
+[root@web1 ~]# mount /dev/sda1  /var/ftp/
+[root@web1 ~]# yum -y install vsftpd
+[root@web1 ~]# sed -i 's/^#anon/anon/' /etc/vsftpd/vsftpd.conf
+备注：修改vsftpd配置文件，开启匿名上传功能。将下面2行默认的注释行打开。
+#anon_upload_enable=YES
+#anon_mkdir_write_enable=YES
+[root@web1 ~]# chmod 777  /var/ftp/pub
+[root@web1 ~]# systemctl start vsftpd
+[root@web1 ~]# systemctl enable vsftpd
+
+2) 真实主机访问web1的FTP共享，并任意上传一个文件到FTP服务器。
+打开真实主机浏览网络，如图-5所示。
+
+图-5
+输入需要连接的服务器协议与IP地址，如图-6所示。
+
+图-6
+连接到服务器后，进入pub共享目录，将真实主机的任意文件拖拽到FTP的共享目录下（pub目录）。注意：仅pub目录有读写权限。
+
+图-7
+
+3）当web1宕机后，web2主机可以继续使用iscsi提供FTP共享服务。
+Web1关闭vsftpd服务，卸载iscsi挂载。
+[root@web1 ~]# systemctl stop vsftpd
+[root@web1 ~]# umount /var/ftp
+添加iSCSI共享（web2操作）。
+[root@web2 ~]# vim /etc/iscsi/initiatorname.iscsi
+InitiatorName=iqn.2018-01.nmcn.tedu:client1
+注意：必须跟服务器上配置的ACL一致！
+[root@web2 ~]# iscsiadm --mode discoverydb --type sendtargets --portal 192.168.2.5 --discover
+[root@web2 ~]# iscsiadm --mode node --targetname iqn.2018-01.cn.tedu:server1 --portal 192.168.2.5:3260 --login
+安装部署vsftpd软件(web2操作)。
+[root@web2 ~]# yum -y install vsftpd
+[root@web2 ~]# sed -i 's/^#anon/anon/' /etc/vsftpd/vsftpd.conf
+[root@web2 ~]# chmod 777 /var/ftp/pub/
+[root@web2 ~]# systemctl start vsftpd
+[root@web2 ~]# systemctl enable vsftpd
+
+4) 真实主机访问web2的FTP共享，查看共享里现有的数据，并任意上传一个新文件到FTP服务器。操作步骤参考图-5至图-7所示，注意修改对应的IP地址。
+思考？
+
+写一个检测ftp的脚本，如果发现web1宕机后，web2自动mount挂载iscsi共享，自动启动vsftpd服务。
+

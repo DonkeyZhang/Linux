@@ -1,0 +1,75 @@
+NTP时间同步
+4.1 问题
+
+本案例要求搭建一个NTP服务器，为整个网络环境中的所有主机提供时间校准服务，具体要求如下：
+
+部署一台NTP时间服务器
+
+设置时间服务器上层与0.centos.pool.ntp.org同步
+
+设置本地服务器层级数量为10
+
+允许192.168.4.0/24网络的主机同步时间
+
+客户端验证时间是否同步
+
+
+4.2 方案
+
+准备实验所需的虚拟机环境，实验环境所需要的主机及对应的IP设置列表如表-4所示，正确配置IP地址、主机名称，并且为每台主机配置YUM源。
+表－4 主机列表
+
+实验拓扑如图-8所示。
+
+图-8
+Network Time Protocol（网络时间协议）采用的是分层设计，如图-9所示，Stratum层的总数限制在15以内（包括15）。
+
+图-9
+4.3 步骤
+
+实现此案例需要按照如下步骤进行。{?_smp_mflags}
+
+步骤一：部署NTP服务
+
+
+1）安装软件包
+[root@proxy ~]# yum -y install chrony
+[root@proxy ~]# rpm -qc chrony                //查看配置文件列表
+/etc/chrony.conf
+/etc/chrony.keys
+.. ..
+2)修改配置文件
+[root@proxy ~]# cat /etc/chrony.conf
+.. ..
+server 0.centos.pool.ntp.org iburst         //server用户客户端指向上层NTP服务器
+allow 192.168.4.0/24                        //允许那个IP或网络访问NTP
+#deny  192.168.4.1                          //拒绝那个IP或网络访问NTP
+local stratum 10                            //设置NTP服务器的层数量
+.. ..
+4)启动NTP服务
+[root@proxy ~]# systemctl  restart  chronyd
+[root@proxy ~]# systemctl  enable  chronyd
+5)设置防火墙
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+步骤二：配置客户端
+1）安装软件包
+[root@client ~]# yum -y install chrony
+2) 修改配置文件
+[root@client ~]# vim /etc/chrony.conf
+server 192.168.4.5 iburst                 //设置与哪台服务器同步数据
+                                          //iburst参数设置重启服务后尽快同步时间
+3) 将客户端时间修改为错误的时间
+[root@client ~]#  date  -s  "hour:minute"         //调整时间（小时：分钟）
+[root@client ~]#  date                            //查看修改后的时间
+4) 重启chrony与服务器同步时间
+[root@client ~]# systemctl  restart  chronyd
+5) 确认时间是否已经同步
+[root@client ~]# date                            //多执行几次查看结果
+
+
+##################
+
+闰秒 关掉机器
+
+###############
+

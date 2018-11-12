@@ -1,0 +1,140 @@
+pssh远程套件工具
+5.1 问题
+
+本案例要求使用pssh套件工具并发远程其他主机，具体要求如下：
+使用密码批量、多并发远程其他主机
+使用密钥批量、多并发远程其他主机
+批量、多并发拷贝数据到其他主机
+批量、多并发从其他主机下载数据到本机
+批量、多并发杀死其他主机的进程
+5.2 方案
+
+准备实验所需的虚拟机环境，实验环境所需要的主机及对应的IP设置列表如表-5所示，正确配置IP地址、主机名称，并且为每台主机配置YUM源。
+表－5 主机列表
+
+安装pssh后会提供如下命令：
+/usr/bin/pnuke
+/usr/bin/prsync
+/usr/bin/pscp.pssh
+/usr/bin/pslurp
+/usr/bin/pssh
+5.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：准备工作
+1）安装软件包
+[root@proxy ~]# rpm -ivh  pssh-2.3.1-5.el7.noarch.rpm
+2)修改/etc/hosts本地解析文件
+[root@proxy ~]# cat /etc/hosts
+… …
+192.168.2.100  host1
+192.168.2.200  host2
+192.168.4.10   host3
+… …
+3)创建主机列表文件
+[root@proxy ~]# cat /root/host.txt            //每行一个用户名、IP或域名
+… …
+root@host1
+host2
+host3
+… …
+
+
+
+
+步骤二：使用密码批量、多并发远程其他主机
+1）语法格式
+
+[root@proxy ~]# man pssh                    //通过man帮助查看工具选项的作用
+
+pssh提供并发远程连接功能
+
+-A                使用密码远程其他主机（默认使用密钥）
+-i                将输出显示在屏幕
+-H                设置需要连接的主机
+-h                设置主机列表文件
+-p                设置并发数量
+-t                设置超时时间
+-o dir            设置标准输出信息保存的目录
+-e dir            设置错误输出信息保存的目录
+paf-x                传递参数给ssh
+
+
+## ssh用的选项 pssh 都能用
+
+
+2)使用密码远程多台主机执行命令，屏幕显示标准和错误输出信息
+[root@proxy ~]# pssh -i  -A -H  'host1 host2 host3'   \
+>  -x '-o StrictHostKeyChecking=no'   echo hello
+
+
+3)使用密码远程多台主机执行命令，不显示标准和错误输出信息，通过读取host.txt读取主机信息
+[root@proxy ~]# pssh -A -h host.txt   echo hello
+
+
+
+步骤三：使用密钥批量、多并发远程其他主机
+
+
+1）生成密钥并发送密钥到其他主机
+[root@proxy ~]# ssh-keygen -N  ''   -f /root/.ssh/id_rsa     //非交互生成密钥文件
+[root@proxy ~]# ssh-copy-id  host1
+[root@proxy ~]# ssh-copy-id  host2
+[root@proxy ~]# ssh-copy-id  host3
+
+
+2)使用密钥远程其他主机
+[root@proxy ~]# pssh -h host.txt  echo hello
+
+
+3)使用密钥远程其他主机，将标准输出信息写入到/tmp目录
+[root@proxy ~]# pssh -h host.txt -o /tmp/  echo hello
+
+
+
+步骤四：批量、多并发拷贝数据到其他主机
+1）语法格式-
+[root@proxy ~]# man pscp.pssh                    //通过man帮助查看工具选项的作用
+pscp.pssh提供并发拷贝文件功能
+-r    递归拷贝目录
+其他选项基本与pssh一致
+2)将本地的/etc/hosts拷贝到远程主机的/tmp目录下
+[root@proxy ~]# pscp.pssh -h host.txt  /etc/hosts  /tmp
+3)递归将本地的/etc目录拷贝到远程主机的/tmp目录下
+[root@proxy ~]# pscp.pssh -r -h host.txt   /etc   /tmp 
+
+
+
+
+步骤五：批量、多并发从其他主机下载数据到本机
+
+
+1）语法格式
+[root@proxy ~]# man pslurp                    //通过man帮助查看工具选项的作用
+pslurp提供远程下载功能
+选项与pscp.pssh基本一致
+
+2)将远程主机的/etc/passwd，拷贝到当前目录下，存放在对应IP下的pass文件中
+[root@proxy ~]# pslurp  -h host.txt  /etc/passwd  /pass
+注意：最后的pass是文件名
+
+3)将远程主机的/etc/passwd目录，拷贝到media下，存放在对应IP下的pass文件
+[root@proxy ~]# pslurp -h host.txt -L  /media   /etc/passwd   /pass
+
+
+步骤六：批量、多并发杀死其他主机的进程
+
+1）语法格式
+[root@proxy ~]# man pnuke                    //通过man帮助查看工具选项的作用
+pnuke提供远程杀死进程的功能
+选项与pssh基本一致
+
+2)将远程主机上的sleep进程杀死
+[root@proxy ~]# pnuke  -h host.txt  sleep
+
+3)将远程主机上的test相关脚本都杀死（如：test1,testtt,test2等等）
+[root@proxy ~]# pnuke  -h host.txt  test
+
+:4)将远程主机上的test.sh脚本杀死
+[root@proxy ~]# pnuke  -h host.txt  test.sh
+

@@ -1,0 +1,109 @@
+配置并访问NFS共享
+4.1 问题
+
+服务器利用NFS机制发布2个共享目录，要求如下：
+将目录/root共享给192.168.2.100，客户机的root用户有权限写入
+将/usr/src目录共享给192.168.2.0/24网段，只开放读取权限
+从客户机访问NFS共享：
+分别查询/挂载上述NFS共享目录
+查看挂载点目录，并测试是否有写入权限
+
+4.2 方案
+
+使用2台RHEL7虚拟机，其中一台作为NFS共享服务器（192.168.2.5）、另外一台作为测试用的Linux客户机（192.168.2.100），如图-10所示。
+
+图-10
+
+NFS共享的配置文件：/etc/exports 。
+配置记录格式：文件夹路径 客户地址1(控制参数.. ..) 客户地址2(.. ..) 。
+
+4.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：配置NFS服务器，发布指定的共享
+
+1）确认服务端程序、准备共享目录
+软件包nfs-utils用来提供NFS共享服务及相关工具，而软件包rpcbind用来提供RPC协议的支持，这两个包在RHEL7系统中一般都是默认安装的：
+[root@proxy ~]# rpm  -q  nfs-utils  rpcbind
+nfs-utils-1.3.0-0.48.el7.x86_64
+rpcbind-0.2.0-42.el7.x86_64
+
+根据本例的要求，需要作为NFS共享发布的有/root、/usr/src这两个目录：
+[root@proxy ~]# ls  -ld  /root  /usr/src/
+dr-xr-x---. 35 root root 4096 1月  15 18:52 /root
+drwxrwxr-x+  4 root root 4096 1月  15 17:35 /usr/src/
+
+2）修改/etc/exports文件，添加共享目录设置
+默认情况下，来自NFS客户端的root用户会被自动降权为普通用户，若要保留其root权限，注意应添加no_root_squash控制参数(没有该参数，默认root会被自动降级为普通账户)；另外，限制只读的参数为ro、可读可写为rw，相关配置操作如下所示：
+[root@proxy ~]# vim  /etc/exports
+/root           192.168.2.100(rw,no_root_squash)
+#进不来
+
+/usr/src        192.168.2.0/24(ro)
+
+
+man exports
+
+
+
+3）启动NFS共享相关服务，确认共享列表
+依次启动rpcbiind、nfs服务：
+[root@proxy ~]# systemctl restart rpcbind  ;  systemctl enable rpcbind
+[root@proxy ~]# systemctl restart nfs ;  systemctl enable nfs
+使用showmount命令查看本机发布的NFS共享列表：
+[root@proxy ~]# showmount  -e  localhost
+Export list for localhost:
+/usr/src 192.168.2.0/24
+/root    192.168.2.100
+
+步骤二：从客户机访问NFS共享
+
+1）启用NFS共享支持服务
+客户机访问NFS共享也需要rpcbind服务的支持，需确保此服务已开启：
+[root@web1 ~]# systemctl restart rpcbind  ;  systemctl enable rpcbind
+
+2）查看服务器提供的NFS共享列表
+[root@web1 ~]# showmount  -e  192.168.2.5
+Export list for 192.168.2.5:
+/usr/src 192.168.2.0/24
+/root    192.168.2.100
+
+3）从客户机192.168.2.100访问两个NFS共享，并验证权限
+将远程的NFS共享/root挂载到本地的/root5文件夹，并验证可读可写：
+[root@web1 ~]# mkdir  /root5                              //建立挂载点
+[root@web1 ~]# mount  192.168.2.5:/root  /root5          //挂载NFS共享目录
+[root@web1 ~]# df  -hT  /root5                          //确认挂载结果
+Filesystem        Type  Size  Used Avail Use% Mounted on
+192.168.2.5:/root nfs    50G   15G   33G  31% /root5
+
+[root@web1 ~]# cd  /root5                              //切换到挂载点
+[root@web1 root5]# echo "NFS Write Test" >  test.txt     //测试写入文件
+[root@web1 root5]# cat test.txt                          //测试查看文件
+NFS Write Test
+
+将远程的NFS共享/usr/src挂载到本地的/mnt/nfsdir，并验证只读：
+[root@web1 ~]# mkdir  /mnt/nfsdir                      //建立挂载点
+[root@web1 ~]# mount  192.168.2.5:/usr/src  /mnt/nfsdir/      //挂载NFS
+共享目录
+
+[root@web1 ~]# df  -hT  /mnt/nfsdir/                          //确认挂载结果
+Filesystem           Type  Size  Used Avail Use% Mounted on
+192.168.2.5:/usr/src nfs    50G   15G   33G  31% /mnt/nfsdir
+
+[root@web1 ~]# cd  /mnt/nfsdir/                          //切换到挂载点
+[root@web1 nfsdir]# ls                                  //读取目录列表
+debug  install.log  kernels  test.txt
+[root@web1 nfsdir]# echo  "Write Test."  >  pc.txt  //尝试写入文件失败
+-bash: pc.txt: 只读文件系统
+
+！！！！ 如果从未授权的客户机访问NFS共享，将会被拒绝。比如从NFS服务器本机尝试访问自己发布的/root共享（只允许192.168.2.100访问），结果如下所示：
+[root@proxy ~]# mkdir  /root5
+[root@proxy ~]# mount  192.168.2.5:/root  /root5    
+mount.nfs: access denied by server while mounting 192.168.2.5:/root
+
+4）设置永久挂载
+[root@web1 ~]# vim  /etc/fstab
+.. ..
+192.168.2.5:/usr/src  nfsdir         nfs  default,ro   0 0
+192.168.2.5:/root     root5         nfs  default      0 0
+

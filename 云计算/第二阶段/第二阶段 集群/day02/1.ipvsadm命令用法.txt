@@ -1,0 +1,92 @@
+ipvsadm命令用法
+1.1 问题
+
+准备一台Linux服务器，安装ip案例 PPT 作业 视频
+vsadm软件包，练习使用ipvsadm命令，实现如下功能：
+使用命令添加基于TCP一些的集群服务
+在集群中添加若干台后端真实服务器
+实现同一客户端访问，调度器分配固定服务器
+会使用ipvsadm实现规则的增、删、改
+保存ipvsadm规则
+
+
+1.2 方案
+
+安装ipvsadm软件包，关于ipvsadm的用法可以参考man ipvsadm资料。
+常用ipvsadm命令语法格式如表-1及表-2所示。
+
+###管理内核，传递信息########
+
+表－1 ipvsadm命令选项
+ipvsadm -A 添加一台虚拟服务器
+ipvsadm -E 修改
+        -D 删除
+        -C 删除所有
+        -a 添加真实服务器
+        -e 修改
+        -d 删除
+        -L 查看LVS规则表
+        -s [rr|wrr|lc|wlc] 指定集群算法
+表－2 ipvsadm语法案例
+ipvsadm -A -t|u 192.168.4.5:80 -s [算法]
+ipvsadm -E -t|u 192.168.4.5:80 -s 
+ipvsadm -D -t|u 192.168.4.5:80 -s
+ipvsadm -C 
+ipvsadm -a -t|u 192.168.4.5:80 -r 192.168.2.100 -m -w
+ipvsadm -e -t|u 192.168.4.5:80 -r 192.168.2.200 -m -w
+ipvsadm -d -t|u 192.168.4.5:80 -r 192.168.2.105 -m -w 
+
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：使用命令增、删、改LVS集群规则
+1）创建LVS虚拟集群服务器（算法为加权轮询：wrr）
+[root@proxy ~]# yum -y install ipvsadm
+[root@proxy ~]# ipvsadm -A -t 192.168.4.5:80 -s wrr
+[root@proxy ~]# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.4.5:80 wrr
+
+2）为集群添加若干real server
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.100 -m -w 1
+[root@proxy ~]# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.4.5:80 wrr
+  -> 192.168.2.100:80             Masq    1      0          0
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.200 -m -w 2
+[root@proxy ~]# ipvsadm –a -t 192.168.4.5:80 -r 192.168.2.201 -m -w 3
+[root@proxy ~]# ipvsadm –a -t 192.168.4.5:80 -r 192.168.2.202 -m -w 4
+
+3）修改集群服务器设置(修改调度器算法，将加权轮询修改为轮询)
+[root@proxy ~]# ipvsadm -E -t 192.168.4.5:80 -s rr
+[root@proxy ~]# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.4.5:80 rr
+  -> 192.168.2.100:80             Masq    1      0          0         
+  -> 192.168.2.200:80             Masq    2      0          0         
+  -> 192.168.2.201:80             Masq    2      0          0         
+  -> 192.168.2.202:80             Masq    1      0          0
+
+4）修改read server（使用-g选项，将模式改为DR模式）
+[root@proxy ~]# ipvsadm -e -t 192.168.4.5:80 -r 192.168.2.202 -g
+
+5）查看LVS状态
+[root@proxy ~]# ipvsadm -Ln
+
+6）创建另一个集群（算法为最少连接算法；使用-m选项，设置工作模式为NAT模式）
+[root@proxy ~]# ipvsadm -A -t 192.168.4.5:3306 -s lc
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:3306 -r 192.168.2.100 -m
+[root@proxy ~]# ipvsadm -a -t 192.168.4.5:3306 -r 192.168.2.200 -m
+
+6）永久保存所有规则
+[root@proxy ~]# ipvsadm-save -n > /etc/sysconfig/ipvsadm
+
+7）清空所有规则
+[root@proxy ~]# ipvsadm -C
+

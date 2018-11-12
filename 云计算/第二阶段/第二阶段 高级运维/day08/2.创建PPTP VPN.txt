@@ -1,0 +1,63 @@
+创建PPTP VPN
+2.1 问题
+
+本案例要求搭建一个PPTP VPN环境，并测试该VPN网络是否能够正常通讯，要求如下:
+使用PPTP协议创建一个支持身份验证的隧道连接
+使用MPPE对数据进行加密
+为客户端分配192.168.3.0/24的地址池
+客户端连接的用户名为jacob，密码为123456
+2.2 方案
+
+准备实验所需的虚拟机环境，实验环境所需要的主机及对应的IP设置列表如表-2所示，正确配置IP地址、主机名称，并且为每台主机配置YUM源。
+表－2 主机列表
+
+实验拓扑如图-2所示。
+
+图-2
+2.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：部署VPN服务器
+1）安装软件包（软件包参考lnmp_soft）
+[root@proxy ~]# yum localinstall pptpd-1.4.0-2.el7.x86_64.rpm
+[root@proxy ~]# rpm -qc pptpd
+/etc/ppp/options.pptpd
+/etc/pptpd.conf
+/etc/sysconfig/pptpd
+
+
+2)修改配置文件
+[root@proxy ~]# vim /etc/pptpd.conf
+.. ..
+localip 201.1.2.5                                    //服务器本地IP
+remoteip 192.168.3.1-50                            //分配给客户端的IP池
+[root@proxy ~]# vim /etc/ppp/options.pptpd
+require-mppe-128                                    //使用MPPE加密数据
+ms-dns 8.8.8.8                                    //DNS服务器
+[root@proxy ~]# vim /etc/ppp/chap-secrets            //修改账户配置文件
+jacob           *               123456      *
+//用户名    服务器标记    密码    客户端
+
+
+[root@proxy ~]# echo "1" > /proc/sys/net/ipv4/ip_forward    //开启路由转发
+
+
+
+3）启动服务
+[root@proxy ~]# systemctl start pptpd
+[root@proxy ~]# systemctl enable pptpd
+[root@proxy ~]# firewall-cmd --set-default-zone=trusted
+4）翻墙设置（非必需操作）
+[root@proxy ~]# iptables -t nat -A POSTROUTING -s 192.168.3.0/24 \
+>  -j SNAT --to-source 201.1.2.5
+步骤二：客户端设置
+启动一台Windows虚拟机，将虚拟机网卡桥接到public2，配置IP地址为201.1.2.20。
+新建网络连接（具体操作如图-3所示），输入VPN服务器账户与密码（具体操作如图-4所示），连接VPN并测试网络连通性（如图-5所示）。
+
+图-3
+
+图-4
+
+图-5
+
+

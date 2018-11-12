@@ -1,0 +1,93 @@
+使用Subversion协同工作
+2.1 问题
+
+沿用练习一，通过svn工具，对subversion版本库进行多人协同工作测试，要求如下：
+该版本库支持多个账户同时协作编辑文件
+测试演示多人协作编辑的具体操作
+手动解决版本冲突问题
+备份版本库数据
+注册使用Github
+
+
+2.2 方案
+
+使用svn客户端工具连接subversion服务器并测试多人协同工作以及如何手动解决冲突问题，账户名称分别为harry和tom，最后使用svnadmin dump指令对版本库进行备份工作。
+
+2.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：多人协同工作
+1）远程连接两个终端，每个人下载代码本地副本，注意web1(192.168.2.100)和web2（192.168.2.200）代表了两个不同的主机，看清楚操作是在哪一台计算机上执行！
+[root@web1 ~]# cd /tmp
+[root@web1 ~]# svn --username tom --password 123456 \
+> co svn://192.168.2.100/ code
+[root@web2 ~]# cd /tmp
+[root@web2 ~]# svn --username harry --password 123456 \
+> co svn://192.168.2.100/ code
+[root@web1 ~]# cd code
+[root@web2 ~]# cd code
+2) harry和tom修改不同的文件
+[root@web1 mycode]# sed -i "3a ###tom modify#####"  tmp.mount
+[root@web1 mycode]# svn ci -m  "has modified"
+[root@web2 mycode]# sed -i "3a ###harry modify#####"  umount.target
+[root@web2 mycode]# svn ci -m "has modified"
+[root@web2 mycode]# svn update
+[root@web1 mycode]# svn update
+3）harry和tom修改相同文件的不同行
+[root@srv5 ~]# cd harry
+[root@web1 mycode]# sed -i "3a ###tom modify#####" user.slice
+[root@web1 mycode]# svn ci -m  "modified"
+[root@web2 mycode]# sed -i "6a ###harry  modify#####"  user.slice
+[root@web2 mycode]# svn ci -m "modified"        //提交失败
+Sending        svnserve
+Transmitting file data .svn: Commit failed (details follow):
+svn: File '/user.slice' is out of date（过期）
+[root@web2 mycode]# svn update                    //提示失败后，先更新再提交即可
+[root@web2 mycode]# svn ci -m "modified"        //提交成功
+Sending        user.slice
+Transmitting file data .
+
+
+
+
+4) harry和tom修改相同文件的相同行
+[root@web1 mycode]# sed  -i  '1c [UNIT]' tuned.service
+[root@web1 mycode]# svn ci -m "modified"
+[root@web2 mycode]# sed  -i  '1c [unit]' tuned.service
+
+
+
+[root@web2 mycode]# svn ci -m "modified"
+Sending        tuned.service
+Transmitting file data .svn: Commit failed (details follow):
+svn: File '/tuned.service' is out of date(过期)
+[root@web2 mycode]# svn update                    //出现冲突，需要解决
+Conflict(冲突) discovered in 'tuned.service'.
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options:p                    //选择先标记p，随后解决
+[root@web2 mycode]# ls
+tuned.service   tuned.service.mine        tuned.service.r10    tuned.service.r9
+[root@web2 mycode]# mv tuned.service.mine tuned.service
+[root@web2 mycode]# rm  -rf  tuned.service.r10 tuned.service.r9
+[root@web2 mycode]# svn ci -m "modified"    //解决冲突
+
+
+
+步骤二：使用dump指令备份版本库数据
+[root@web1 ~]# svnadmin dump /var/svn/project > project.bak  //备份
+* Dumped revision 0.
+* Dumped revision 1.
+* Dumped revision 2.
+* Dumped revision 3.
+* Dumped revision 4.
+* Dumped revision 5.
+* Dumped revision 6.
+* Dumped revision 7.
+* Dumped revision 8.
+* Dumped revision 9.
+* Dumped revision 10.
+* Dumped revision 11.
+[root@web1 ~]# svnadmin create /var/svn/project2               //新建空仓库
+[root@web1 ~]# svnadmin load /var/svn/project2 < project.bak      //还原
+

@@ -1,0 +1,197 @@
+部署Multipath多路径环境
+2.1 问题
+
+通过Multipath，实现以下目标：
+在共享存储服务器上配置iSCSI，为应用服务器共享存储空间
+应用服务器上配置iSCSI，发现远程共享存储
+应用服务器上配置Multipath，将相同的共享存储映射为同一个名称
+
+2.2 方案
+
+配置2台虚拟机，每台虚拟机均为两块网卡：
+eth1和eth3都可用于iSCSI存储通讯
+具体配置如表-3所示
+表-3 各节点IP地址配置
+
+多路径示意图，如图-8所示。
+
+图-8
+2.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：存储服务器上添加额外的磁盘（如果虚拟机已经有磁盘，此步骤可以忽略）
+使用KVM软件新建（或修改）虚拟机，为虚拟机额外添加一块硬盘。
+
+
+步骤二：存储服务器上安装并配置共享存储（如果有iscsi共享，此步骤可用忽略）
+1) 定义后端存储
+[root@proxy ~]# targetcli
+/> ls
+/> backstores/block create /dev/vdb1
+2）创建iqn对象
+/> /iscsi create iqn.2018-01.cn.tedu:server1
+3) 授权客户机访问
+/> iscsi/iqn.2018-01.cn.tedu:server1/tpg1/acls create iqn.2018-01.cn.tedu:client1
+4) 绑定存储
+/>iscsi/iqn.2018-01.cn.tedu:server1/tpg1/luns create /backstores/block/iscsi_store 
+5) 绑定存储绑定监听地址，并保存配置
+/> iscsi/iqn.2018-01.cn.tedu:server1/tpg1/portals/ create 0.0.0.0
+/> saveconfig 
+/> exit
+
+
+步骤三：在clientiscsiadm --mode discoverydb --type sendtargets --portal 192.168.1.10 --discover服务器上安装并配置iSCSI客户端
+（前面的案例1已经完成的情况下，可以忽略此步骤）
+1）安装客户端软件
+[root@web1 ~]# yum list | grep iscsi
+iscsi-initiator-utils.x86_64           6.2.0.873-14.el6
+[root@web1 ~]#  yum install -y iscsi-initiator-utils
+2）发现存储服务器的共享磁盘
+因为有两条链路都可以连接到共享存储，所以需要在两条链路上都发现它。
+注意：两次发现使用的IP地址不同！
+[root@web1 ~]# iscsiadm --mode discoverydb --type sendtargets --portal 192.168.2.5 --discover
+192.168.2.5:3260,1 iqn.2018-01.cn.tedu:client1
+[root@web1 ~]# iscsiadm --mode discoverydb --type sendtargets --portal 192.168.4.5 --discover
+201.1.2.5:3260,1 iqn.2018-01.cn.tedu:client1
+
+3）登陆共享存储
+只需要将iscsi服务重启就可以自动登陆（就不需要再login了）。
+在login之前，只能看到本地的存储，登陆之后，将会多出两块新的硬盘。
+… …
+[root@web1 ~]# service iscsi restart
+停止 iscsi：                                               [确定]
+正在启动 iscsi：                                           [确定]
+[root@web1 ~]# lsblk 
+NAME                        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda                           8:0    0   20G   0 disk 
+├─sda1                        8:1    0   20G  0 part
+sdb                           8:0    0   20G   0 disk 
+├─sdb1                        8:1    0   20G  0 part
+vda                           252:0   0   20G  0 disk
+├─vda1                       252:1   0    1G  0 part  /boot
+提示：登陆的是同一个服务器的同一个iSCSI，但客户端看到的是两个独立的设备，sda和sdb。其实，这两个设备是同一个设备。
+
+
+4）设置开机自启动
+iscsi用于自动login远程存储，iscsid是守护进程。
+[root@web1 ~]# systemctl enable iscsid
+[root@web1 ~]# systemctl enable iscsi
+
+
+步骤四：配置Multipath多路径
+
+1）安装多路径软件包
+[root@web1 ~]# yum list | grep multipath
+device-mapper-multipath.x86_64         0.4.9-111.el7                       Server
+device-mapper-multipath-libs.i686      0.4.9-111.el7                       Server
+device-mapper-multipath-libs.x86_64    0.4.9-111.el7                       Server
+[root@web1 ~]# yum install -y device-mapper-multipath
+
+2）生成配置文件
+[root@web1 ~]# cd /usr/share/doc/device-mapper-multipath-0.4.9/
+[root@web1 ~]# ls multipath.conf
+[root@web1 ~]# cp multipath.conf  /etc/multipath.conf
+
+3）获取wwid
+登陆共享存储后，系统多了两块硬盘，这两块硬盘实际上是同一个存储设备。应用服务器使用哪个都可以，但是如果使用sdb时，sdb对应的链路出现故障，它不会自动切换到sda。
+为了能够实现系统自动选择使用哪条链路，需要将这两块磁盘绑定为一个名称。
+通过磁盘的wwid来判定哪些磁盘是相同的。
+取得一块磁盘wwid的方法如下：
+[root@web1 ~]# /usr/lib/udev/scsi_id --whitelisted --device=/dev/sdb 
+360014059e8ba68638854e9093f3ba3a0
+
+
+
+4）修改配置文件
+首先声明自动发现多路径：
+[root@web1 ~]# vim /etc/multipath.conf
+defaults {
+        user_friendly_names yes
+find_multipaths yes
+}
+然后在文件的最后加入多路径声明，如果哪个存储设备的wwid和第（3）步获取的wwid一样，那么，为其取一个别名，叫mpatha。
+multipaths {
+    multipath {
+        wwid    "360014059e8ba68638854e9093f3ba3a0"
+        alias   mpatha
+    }
+}
+
+
+步骤五：启用Multipath多路径，并测试
+
+1）启动Multipath，并设置为开机启动
+[root@web1 ~]# systemctl start multipathd
+[root@web1 ~]# systemctl enable multipathd
+
+
+2）检查多路径设备文件
+如果多路长设置成功，那么将在/dev/mapper下面生成名为mpatha的设备文件：
+[root@web1 ~]# ls /dev/mapper/
+control  mpatha  mpatha1
+
+
+3）对多路径设备文件执行分区、格式化、挂载操作
+提示：如果前面已经对iscsi做过分区操作，则这里可以直接识别到mpatha1（就不需要再次分区了）。
+[root@web1 ~]# fdisk -cu /dev/mapper/mpatha 
+Device contains neither a valid DOS partition table, nor Sun, SGI or OSF disklabel
+Building a new DOS disklabel with disk identifier 0x205c887e.
+Changes will remain in memory only, until you decide to write them.
+After that, of course, the previous content won't be recoverable.
+Warning: invalid flag 0x0000 of partition table 4 will be corrected by w(rite)
+Command (m for help): n      ＃创建分区
+Command action
+   e   extended
+   p   primary partition (1-4)
+p                      ＃分区类型为主分区
+Partition number (1-4): 1      ＃分区编号为1
+First sector (2048-4194303, default 2048):   ＃起始扇区回车
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-4194303, default 4194303):  ＃回车
+Using default value 4194303
+Command (m for help): w       ＃保存并退出
+The partition table has been altered!
+Calling ioctl() to re-read partition table.
+
+新的分区名称应该是/dev/mapper/mpathap1，如果该文件不存在，则执行以下命令进行配置的重新载入：
+[root@web1 ~]# ls /dev/mapper/    ＃再次查看，将会看到新的分区
+control  mpatha  mpathap1  
+
+创建目录并挂载：
+[root@web1 ~]# mkfs.xfs /dev/mapper/mpathap1
+[root@web1 ~]# mkdir /data
+[root@web1 ~]# mount /dev/mapper/mpathap1 /data/
+[root@web1 ~]# df -h /data/
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/mpathap1  2.0G  3.0M  1.9G   1% /data
+
+4）验证多路径
+查看多路径，sda和sdb都是running状态。
+[root@web1 ~]# multipath -rr
+reload: mpatha (360014059e8ba68638854e9093f3ba3a0) undef LIO-ORG ,store           
+size=9.3G features='0' hwhandler='0' wp=undef
+|-+- policy='service-time 0' prio=1 status=undef
+| `- 2:0:0:0 sda 8:0  active ready running
+`-+- policy='service-time 0' prio=1 status=undef
+  `- 3:0:0:0 sdb 8:16 active ready running
+
+
+关闭某个链路后，再次查看效果，此时会发现sdb为运行失败状态。
+[root@web1 ~]# nmcli connection down eth1
+[root@web1 ~]# multipath -rr
+reject: mpatha (360014059e8ba68638854e9093f3ba3a0) undef LIO-ORG ,store           
+size=9.3G features='0' hwhandler='0' wp=undef
+|-+- policy='service-time 0' prio=0 status=undef
+| `- 2:0:0:0 sda 8:0  active undef running
+`-+- policy='service-time 0' prio=0 status=undef
+  `- 3:0:0:0 sdb 8:16 active faulty running
+
+
+使用-ll选项查看，仅sda为有效运行状态。
+[root@web1 ~]# multipath -ll
+reject: mpatha (360014059e8ba68638854e9093f3ba3a0) undef LIO-ORG ,store           
+size=9.3G features='0' hwhandler='0' wp=undef
+`-+- policy='service-time 0' prio=0 status=undef
+  `- 2:0:0:0 sda 8:0  active undef running
+
+

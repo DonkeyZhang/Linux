@@ -207,10 +207,6 @@ log      svn log
 
 
 
-
-
-
-
 ######################################################
 
 TortoisesSVN
@@ -353,6 +349,8 @@ tuned.service   tuned.service.mine        tuned.service.r10    tuned.service.r9
 #commit和push实现提交代码的功能
 [root@pc001 ~]# git pull
 #pull更新，类似于svn update
+
+
 3 案例3：制作nginx的RPM包
 3.1 问题
 
@@ -382,25 +380,39 @@ BUILD  BUILDROOT  RPMS  SOURCES  SPECS  SRPMS
 4）创建并修改SPEC配置文件
 [root@web1 ~]# vim /root/rpmbuild/SPECS/nginx.spec 
 Name:nginx        
+
 Version:1.12.2
+
 Release:    10
+
 Summary: Nginx is a web server software.    
+
 License:GPL    
+
 URL:    www.test.com    
+
 Source0:nginx-1.12.2.tar.gz
 #BuildRequires:    
+
 #Requires:    
 %description
+
 nginx [engine x] is an HTTP and reverse proxy server.
+
 %post
 useradd nginx                       //非必需操作：安装后脚本(创建账户)
+
 %prep
-%setup –q          https://github.com/DonkeyZhang/Linux.git                  //自动解压源码包，并cd进入目录
+
+%setup –q          t                 //自动解压源码包，并cd进入目录
+
 %build
 ./configure
 make %{?_smp_mflags}
+
 %install
 make install DESTDIR=%{buildroot}
+
 cp /root/rpmbuild/SPECS/nginx.sh %{buildroot}/usr/local/nginx/    
 ##注意，cp非必须操作，注意，这里是将一个脚本拷贝到安装目录，必须提前准备该文件
 %files

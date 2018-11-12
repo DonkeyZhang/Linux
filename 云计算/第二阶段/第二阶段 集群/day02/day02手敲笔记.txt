@@ -1,0 +1,99 @@
+iscsi
+1.san
+  targetcli
+       backstore
+            iscsi
+                 iqn.
+                     acl[密码]iqn
+                        lun
+                            poortal
+
+
+2.initinor
+iscsi.conf
+man iscsiadm
+
+3.device-mapper-multipath-
+
+cd /usr/lib/doc/dev
+cp multipath.conf /etc/
+vim multipath.conf
+multipaths{
+             {
+       wwid
+         alias
+ }
+}
+/usr/lib/udev
+mount /dev/mapper/
+##############################################
+1.集群
+
+1)什么是集群
+1.
+2.
+3.
+4.
+5.
+
+2)集群目的
+1.提高性能
+2.降低成本
+3.只要增加集群节点即可
+4.增强可靠性
+
+3）集群分类
+1.高性能计算集群（HPC）
+2.负载均衡（LB）集群
+3.高可用（HA）集群
+
+2.lvs集群组成
+
+1.前端：负载均衡层-由一台或多台负载调度器构成
+2.中间：服务器群组层：由一组实际运行应用服务的服务器组成
+3.底端：数据共享存储层-提供共享存储空间的存储区域
+
+
+3.lvs术语
+Director Server
+Real Server
+VIP
+RIP
+DIP
+nginx转发方式
+                               --real server(rip)
+client(cip)--(vip)director server(dip)
+                                --real server(rip)
+
+tcp/ip
+
+
+4.
+lvs工作模式 
+改目标
+动态改
+四层调度
+1）NAT模式
+开路由，加网关lvs基于内核，在内核里直接改
+nginx基于软件：读出来，再封装，
+硬件--内核--解释器--软件
+2)TUN模式
+ip tunnel
+3)DR模式
+写脚本监控
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
