@@ -28,10 +28,123 @@ keepalived
       web1
 浮动IP
       web2
+#########################################
+ping 192.168.4.100[主机]
+curl http://192.168.4.100[主机.服务]
+curl http:192.168.4.100|md5sum
+用md5sum写脚本监控
+######################################
+nginx
+lvs,keepalived+lvs
+haproxy
+性能 
+lvs，keepalived+lvs
+haproxy
+nginx
+
+#############
+nginx，支持正则
+
+F5 BigIP
+硬件
+#############################
+lvs
+#####################
+NAT
+调度器4.5
+vip=4.5
+rip=2.100
+rip=2.200
+gateway=2.5
+
+yum -y install  ipvsasm
+ipvsasm -A -t 192.168.4.5:80 -s wrr
+ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.100 -m -w 1
+ipvsadm -a -t 192.168.4.5:80 -r 192.168.2.200 -m -w 2
+ipvsadm-save -n >/etc/sysconfig/ipvsadm
+echo 1 >/proc/sys/ipv4/ip_forward
+echo net.ipv4.ip_forward = 1
+
+web1 2.100 
+nmcli connection modifi eth1 ipv4.method manual ipv4.gateway 192.168.2.5 
+connction.autoconnect yes
+nmcli connection up eth1
+route -n
+vim /etc/sysconfig/network-scripts/ifcfg-eth1
+gateway=192.168.2.5
+systemctl restart network
+
+web2 2.200
+nmcli connection modify eth1  ipv4.method manual ipv4.gateway 192.168.2.5 connection.autoconnect yes
+nmcli connection up eth1
+
+####################################
+DR
+调度器4.5
+yum -y install ipvsadm 
+cd /etc/sysconfig/network-scripts/
+cp ifcfg-eth0 ifcfg-eth0:0
+ipaddr=192.168.4.15
+natmask=255.255.255.255
+restart network
+ipvsadm -A -t 192.168.4.15:80 -s wrr
+ipvsadm -a -t 192.168.4.15:80 -r 192.168.4.100 -g -w 1
+ipvsadm -a -t 192.168.4.15:80 -r 192.168.4.200 -g -w 1
+ipvsasm-save  -n >/etc/sysconfig/ipvadmin
+systemctl restart ipvsadm
+
+web1
+cd /etc/sysconfig/neywork-scripts/
+cp ifcfg-lo ifcfg-lo:0
+ipaddr=192.168.4.15
+netmask=255.255.255.255
+restart network
+cd /etc/sysctl.conf
+net.ipv4.conf.all.arp_accept = 1
+net.ipv4.conf.lo:0.arp_accept = 1
+net.ipv4.conf.lo:0.arp_annouce = 2
+net.ipv4.conf.all.arp_annunce = 2
+systctl -p
+
+web2
+cd /etc/sysconfig/neywork-scripts/
+cp ifcfg-lo ifcfg-lo:0
+ipaddr=192.168.4.15
+netmask=255.255.255.255
+restart network
+cd /etc/sysctl.conf
+net.ipv4.conf.all.arp_accept = 1
+net.ipv4.conf.lo:0.arp_accept = 1
+net.ipv4.conf.lo:0.arp_annouce = 2
+net.ipv4.conf.all.arp_annunce = 2
+systctl -p
 
 
+##########################################################
+nginx
+web1 web2 web3 
+用户认证
+ssl
+动态页面
+php
+php-fpm
+php-mysql
+stream
 
+                                           
+keepalived+nginx/(lvs+keepalived)/haproxy+keepalived
+    
+########################################################                          
+nginx/httpd+php   
+                          + memcached
+nginx/httpd+php
 
+tomacat+java
+                            +
+tomcat+java
+
+################################################################
+mysql
 
 
 

@@ -1,0 +1,109 @@
+Keepalived高可用服务器
+
+1.1 问题
+
+准备三台Linux服务器，两台做Web服务器，并部署Keepalived高可用软件，一台作为客户端主机，实现如下功能：
+使用Keepalived实现web服务器的高可用
+Web服务器IP地址分别为192.168.4.100和192.168.4.200
+Web服务器的浮动VIP地址为192.168.4.80
+客户端通过访问VIP地址访问Web页面
+
+
+1.2 方案
+
+使用3台虚拟机，2台作为Web服务器，并部署Keepalived、1台作为客户端，拓扑结构如图-1所示，主机配置如表-1所示。
+1.3 步骤
+
+实现此案例需要按照如下步骤进行。
+步骤一：配置网络环境（如果在前面课程已经完成该配置，可以忽略此步骤）
+
+1）设置Web1服务器网络参数、配置Web服务
+[root@web1 ~]# nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.4.100/24 connection.autoconnect yes
+[root@web1 ~]# nmcli connection up eth0
+[root@web1 ~]# yum -y install httpd
+[root@web1 ~]# echo "192.168.4.100" > /var/www/html/index.html
+[root@web1 ~]# systemctl restart httpd
+2）设置Web2服务器网络参数、配置Web服务
+[root@web2 ~]# nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.4.200/24 connection.autoconnect yes
+[root@web2 ~]# nmcli connection up eth0
+[root@web2 ~]# yum -y install httpd
+[root@web2 ~]# echo "192.168.4.200" > /var/www/html/index.html
+[root@web2 ~]# systemctl restart httpd
+3）配置proxy主机的网络参数（如果已经设置，可以忽略此步骤）
+[root@proxy ~]# nmcli connection modify eth0 ipv4.method manual ipv4.addresses 192.168.4.5/24 connection.autoconnect yes
+[root@proxy ~]# nmcli connection up eth0
+步骤二：安装Keepalived软件
+
+注意：两台Web服务器做相同的操作。
+[root@web1 ~]# yum install -y keepalived
+[root@web2 ~]# yum install -y keepalived 
+步骤三：部署Keepalived服务
+
+1）修改web1服务器Keepalived配置文件
+[root@web1 ~]# vim /etc/keepalived/keepalived.conf
+global_defs {
+  notification_email {
+    admin@tarena.com.cn                   //设置报警收件人邮箱
+  }
+  notification_email_from ka@localhost    //设置发件人
+  smtp_server 127.0.0.1                   //定义邮件服务器
+  smtp_connect_timeout 30
+  router_id  web1                         //设置路由ID号（实验需要修改）
+  #路由设备的协议		
+}
+vrrp_instance VI_1 {
+  state MASTER                    //主服务器为MASTER（实验需要修改）
+  interface eth0                          //定义网络接口（实验需要修改）
+  virtual_router_id 50   #分组，组内比较     //主辅VRID号必须一致（实验需要修改）
+  priority 100                            //服务器优先级,优先级高优先获取VIP（实验需要修改）
+  advert_int 1
+  authentication {
+  auth_type pass
+  auth_pass forlvs         默认1111            //主辅服务器密码必须一致
+  }
+  virtual_ipaddress { 192.168.4.80  }     //谁是主服务器谁获得该VIP（实验需要修改）
+}
+2）修改web2服务器Keepalived配置文件
+[root@web2 ~]# vim /etc/keepalived/keepalived.conf
+global_defs {
+  notification_email {
+    admin@tarena.com.cn                //设置报警收件人邮箱
+  }
+  notification_email_from ka@localhost    //设置发件人
+  smtp_server 127.0.0.1                //定义邮件服务器
+  smtp_connect_timeout 30
+  router_id  web2                        //设置路由ID号（实验需要修改）
+}
+vrrp_instance VI_1 {
+  state BACKUP                             //从服务器为BACKUP（实验需要修改）
+  interface eth0                        //定义网络接口（实验需要修改）
+  virtual_router_id 50                    //主辅VRID号必须一致（实验需要修改）
+  priority 50                             //服务器优先级（实验需要修改）
+  advert_int 1
+  authentication {
+     auth_type pass
+     auth_pass forlvs                   //主辅服务器密码必须一致（实验需要修改）
+  }
+  virtual_ipaddress {  192.168.4.80  }    //谁是主服务器谁配置VIP（实验需要修改）
+}
+3）启动服务
+[root@web1 ~]# systemctl start keepalived
+[root@web2 ~]# systemctl start keepalived
+4）配置防火墙和SELinux
+启动keepalived会自动添加一个drop的防火墙规则，需要清空！
+[root@web1 ~]# iptables -F
+[root@web1 ~]# setenforce 0
+[root@web2 ~]# iptables -F
+[root@web1 ~]# setenforce 0
+
+iptables -nL
+
+步骤四：测试
+
+1）登录两台Web服务器查看VIP信息
+[root@web1 ~]# ip addr show
+[root@web2 ~]# ip addr show
+
+2) 客户端访问
+客户端使用curl命令连接http://192.168.4.80，查看Web页面；关闭Web1服务器的网卡，客户端再次访问http://192.168.4.80，验证是否可以正常访问服务。
+

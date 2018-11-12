@@ -1,0 +1,121 @@
+配置HAProxy负载平衡集群
+3.1 问题
+
+准备4台Linux服务器，两台做Web服务器，1台安装HAProxy，1台做客户端，实现如下功能：
+客户端访问HAProxy，HAProxy分发请求到后端Real Server
+要求HAProxy可以根据Cookie为客户端分配固定后端服务器
+开启HAProxy监控页面，及时查看调度器状态
+设置HAProxy为开机启动
+3.2 方案
+
+使用4台虚拟机，1台作为HAProxy调度器、2台作为Real Server、1台作为客户端，拓扑结构如图-3所示，具体配置如表-3所示。
+
+图-3
+表-3
+
+3.3 步骤
+
+实现此案例需要按照如下步骤进行。
+注意事项：
+
+将前面实验VIP、LVS等实验的内容清理干净！！！！！！
+
+删除所有设备的VIP，清空所有LVS设置，关闭keepalived！！！
+
+web1关闭多余的网卡与VIP，配置本地真实IP地址。
+[root@web1 ~]# ifdown eth0
+[root@web1 ~]# ifdown lo:0
+[root@web1 ~]# nmcli connection modify eth1 ipv4.method manual \
+ipv4.addresses 192.168.2.100/24 connection.autoconnect yes
+[root@web1 ~]# nmcli connection up eth1
+Web2关闭多余的网卡与VIP，配置本地真实IP地址。
+[root@web2 ~]# ifdown eth0
+[root@web2 ~]# ifdown lo:0
+[root@web2 ~]# nmcli connection modify eth1 ipv4.method manual \
+ipv4.addresses 192.168.2.200/24 connection.autoconnect yes
+[root@web2 ~]# nmcli connection up eth1
+proxy关闭keepalived服务，清理LVS规则。
+[root@proxy ~]# systemctl stop keepalived
+[root@proxy ~]# systemctl disable keepalived
+[root@proxy ~]# ipvsadm -C
+[root@proxy ~]# nmcli connection modify eth0 ipv4.method manual \
+ipv4.addresses 192.168.4.5/24 connection.autoconnect yes
+[root@proxy ~]# nmcli connection up eth0
+[root@proxy ~]# nmcli connection modify eth1 ipv4.method manual \
+ipv4.addresses 192.168.2.5/24 connection.autoconnect yes
+[root@proxy ~]# nmcli connection up eth1
+步骤一：配置后端Web服务器
+
+设置两台后端Web服务（如果已经配置完成，可用忽略此步骤）
+[root@web1 ~]# yum -y install httpd
+[root@web1 ~]# systemctl start httpd
+[root@web1 ~]# echo "192.168.2.100" > /var/www/html/index.html
+[root@web2 ~]# yum -y install httpd
+[root@web2 ~]# systemctl start httpd
+[root@web2 ~]# echo "192.168.2.200" > /var/www/html/index.html
+步骤二：部署HAProxy服务器
+
+1）配置网络，安装软件
+[root@haproxy ~]# echo 'net.ipv4.ip_forward = 1' >> sysctl.conf  //开启路由转发
+[root@haproxy ~]# sysctl -p
+[root@haproxy ~]# yum -y install haproxy
+2）修改配置文件
+[root@haproxy ~]# vim /etc/haproxy/haproxy.cfg
+global
+ log 127.0.0.1 local2   ###[err warning info debug]
+ chroot /usr/local/haproxy
+ pidfile /var/run/haproxy.pid ###haproxy的pid存放路径
+ maxconn 4000           ###最大连接数，默认4000
+ user haproxy
+ group haproxy
+ daemon                 ###创建1个进程进入deamon模式运行
+ defaults
+ mode http              ###默认的模式mode { tcp|http|health } log global     ###采用全局定义的日志
+ option dontlognull     ###不记录健康检查的日志信息
+ option httpclose       ###每次请求完毕后主动关闭http通道
+ option httplog         ###日志类别http日志格式
+ option forwardfor      ###后端服务器可以从Http Header中获得客户端ip
+ option redispatch      ###serverid服务器挂掉后强制定向到其他健康服务器
+ 
+ timeout connect 10000   #如果backend没有指定，默认为10s
+ timeout client  300000  ###客户端连接超时
+ timeout server  300000  ###服务器连接超时
+ 
+ maxconn  60000          ###最大连接数
+ retries  3              ###3次连接失败就认为服务不可用，也可以通过后面设置
+
+ listen stats
+    bind 0.0.0.0:1080      #监听端口
+    stats refresh 30s    #统计页面自动刷新时间
+    stats uri /stats     #统计页面url
+    stats realm Haproxy Manager #统计页面密码框上提示文本
+    stats auth admin:admin      #统计页面用户名和密码设置
+   #stats hide-version          #隐藏统计页面上HAProxy的版本信息
+
+listen  websrv-rewrite 0.0.0.0:80
+   cookie  SERVERID rewrite
+   balance roundrobin 
+   server  web1 192.168.2.100:80 cookie app1inst1 check inter 2000 rise 2 fall 5
+   server  web2 192.168.2.200:80 cookie app1inst2 check inter 2000 rise 2 fall 5
+                                                             #check健康检查
+3）启动服务器并设置开机启动
+[root@haproxy ~]# systemctl start haproxy
+[root@haproxy ~]# systemctl enable haproxy
+
+
+步骤三：客户端验证
+
+客户端配置与HAProxy相同网络的IP地址，并使用火狐浏览器访问http://192.168.4.5，测试调度器是否正常工作，客户端访问http://192.168.4.5:1080/stats测试状态监控页面是否正常。访问状态监控页的内容，参考图-4所示。
+
+图-4
+
+备注：
+Queue队列数据的信息（当前队列数量，最大值，队列限制数量）；
+Session rate每秒会话率（当前值，最大值，限制数量）；
+Sessions总会话量（当前值，最大值，总量，Lbtot: total number of times a server was selected选中一台服务器所用的总时间）；
+Bytes（入站、出站流量）；
+Denied（拒绝请求、拒绝回应）；
+Errors（错误请求、错误连接、错误回应）；
+Warnings（重新尝试警告retry、重新连接redispatches）；
+Server(状态、最后检查的时间（多久前执行的最后一次检查）、权重、备份服务器数量、down机服务器数量、down机时长)。
+
